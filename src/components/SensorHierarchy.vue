@@ -147,7 +147,6 @@ export default class SensorHierarchy extends Vue {
     return this.slugify(this.newAggregatedSensorName);
   }
 
-  //TODO utility method
   private slugify = (text: String) =>
     text
       .toString()

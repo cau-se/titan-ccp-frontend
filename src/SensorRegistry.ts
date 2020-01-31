@@ -75,7 +75,7 @@ export class SensorRegistry {
 
     private static flatCopySensor(sensor: Sensor): Sensor {
         if (sensor instanceof AggregatedSensor) {
-            let children = sensor.children.map(child => this.flatCopySensor(child))
+            const children = sensor.children.map(child => this.flatCopySensor(child))
             return new AggregatedSensor(sensor.identifier, sensor.name, children)
         } else {
             return new MachineSensor(sensor.identifier, sensor.name)
