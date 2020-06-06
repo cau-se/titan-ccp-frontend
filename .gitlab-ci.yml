@@ -18,7 +18,7 @@ build:
     - dockerex
   script:
     - export DEMO='$DEMO'
-    - npm install --no-progress
+    - npm install --no-progress --no-audit
     - npm run build-silent
   artifacts:
     paths:
