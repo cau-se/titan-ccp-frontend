@@ -4,7 +4,6 @@ import { AxiosPromise } from "axios";
 export class SensorRegistryRequester {
 
     public request(identifier: string) {
-        // TODO request url /root needs to be replaced with the real registry id
         return HTTP.get(`sensor-hierarchy/${identifier}`)
             .then(response => {
                 // JSON responses are automatically parsed.
