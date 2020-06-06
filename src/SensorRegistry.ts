@@ -97,18 +97,16 @@ export interface JsonSensor {
 
 export class SensorRegistryRequester {
 
-    public request(identifier: string): Promise<SensorRegistry> {
-        return HTTP.get(`sensor-hierarchy/${identifier}`)
-            .then(response => {
-                // JSON responses are automatically parsed.
-                //console.log(response.data);
-                return SensorRegistry.parse(response.data as JsonSensor)
-            })
+    public async request(identifier: string): Promise<SensorRegistry> {
+        const response = await HTTP.get(`sensor-hierarchy/${identifier}`);
+        // JSON responses are automatically parsed.
+        //console.log(response.data);
+        return SensorRegistry.parse((response.data as JsonSensor));
     }
 
-    public requestAll(): Promise<JsonSensor[]> {
-        return HTTP.get('sensor-hierarchy/')
-            .then(response => response.data)
+    public async requestAll(): Promise<JsonSensor[]> {
+        const response = await HTTP.get('sensor-hierarchy/');
+        return response.data;
     }
 
     public create(identifier: string, name: string): AxiosPromise {
