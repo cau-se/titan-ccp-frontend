@@ -1,38 +1,33 @@
 import { HTTP } from "./http-common";
+import { AxiosPromise } from "axios";
 
-export type Sensor = AggregatedSensor | MachineSensor;
+export class SensorRegistryRequester {
 
-export class AggregatedSensor {
-
-    constructor(readonly identifier: string, readonly name: string, readonly children: Array<Sensor>) { }
-
-    public parent?: AggregatedSensor //TODO make nicer
-
-    get title(): string {
-        return this.name != '' ? this.name : this.identifier
+    public request(identifier: string) {
+        return HTTP.get(`sensor-hierarchy/${identifier}`)
+            .then(response => {
+                // JSON responses are automatically parsed.
+                //console.log(response.data);
+                return SensorRegistry.parse(<JsonSensor>response.data)
+            })
     }
 
-    get recursiveChildren(): Array<Sensor> {
-        let children = new Array<Sensor>()
-        for (const child of this.children) {
-            children.push(child)
-            if (child instanceof AggregatedSensor) {
-                children = children.concat(child.recursiveChildren)
-            }
-        }
-        return children
+    public requestAll(): Promise<JsonSensor[]> {
+        return HTTP.get('sensor-hierarchy/')
+            .then(response => response.data)
     }
 
-}
+    public create(identifier: string, name: string): AxiosPromise {
+        const newTopLevelSensor = new AggregatedSensor(identifier, name, []);
+        return HTTP.post('sensor-hierarchy', newTopLevelSensor);
+    }
 
-export class MachineSensor {
+    public edit(name: string, registry: SensorRegistry): AxiosPromise {
+        return HTTP.put('sensor-hierarchy/' + name, registry.toJson());
+    }
 
-    constructor(readonly identifier: string, readonly name: string) { }
-
-    parent?: AggregatedSensor //TODO make nicer
-
-    get title(): string {
-        return this.name != '' ? this.name : this.identifier
+    public delete(name: string) {
+        return HTTP.delete('sensor-hierarchy/' + name);
     }
 
 }
@@ -58,7 +53,7 @@ export class SensorRegistry {
         return JSON.stringify(this.topLevelSensor, (key, val) => key != "parent" ? val : undefined, pretty ? '\t' : undefined)
     }
 
-    public toPrettyJson(): string {
+    public toPrettyJson() {
         return this.toJson(true)
     }
 
@@ -88,19 +83,45 @@ export class SensorRegistry {
 
 }
 
-export interface JsonSensor {
-    identifier: string;
-    name?: string;
-    children?: Array<JsonSensor>;
-}
+export type Sensor = AggregatedSensor | MachineSensor;
 
-export class SensorRegistryRequester {
+export class AggregatedSensor {
 
-    public async request(): Promise<SensorRegistry> {
-        const response = await HTTP.get('sensor-registry')
-        // JSON responses are automatically parsed.
-        //console.log(response.data);
-        return SensorRegistry.parse(response.data as JsonSensor)
+    constructor(readonly identifier: string, readonly name: string, readonly children: Array<Sensor>) { }
+
+    public parent?: AggregatedSensor //TODO make nicer
+
+    get title() {
+        return this.name != '' ? this.name : this.identifier;
     }
 
+    get recursiveChildren() {
+        let children = new Array<Sensor>()
+        for (let child of this.children) {
+            children.push(child)
+            if (child instanceof AggregatedSensor) {
+                children = children.concat(child.recursiveChildren)
+            }
+        }
+        return children
+    }
+
+}
+
+export class MachineSensor {
+
+    constructor(readonly identifier: string, readonly name: string) { }
+
+    parent?: AggregatedSensor //TODO make nicer
+
+    get title() {
+        return this.name != '' ? this.name : this.identifier;
+    }
+
+}
+
+export interface JsonSensor {
+    identifier: string
+    name?: string
+    children?: Array<JsonSensor>
 }
