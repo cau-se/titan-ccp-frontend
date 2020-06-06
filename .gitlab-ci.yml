@@ -24,18 +24,36 @@ build:
     paths:
     - dist/
     - index.html
+  except:
+    variables:
+      - $REGULAR_AUDIT
 
-audit:
+audit-production:
+  stage: audit
+  tags:
+    - dockerex
+  script: npm audit --production
+  except:
+    variables:
+      - $REGULAR_AUDIT
+
+audit-full:
   stage: audit
   tags:
     - dockerex
   script: npm audit
+  only:
+    variables:
+      - $REGULAR_AUDIT
 
 eslint:
   stage: check
   tags:
     - dockerex
   script: npm run lint
+  except:
+    variables:
+      - $REGULAR_AUDIT
 
 deploy:
   stage: deploy
@@ -61,3 +79,6 @@ deploy:
     variables:
       - $DOCKERHUB_ID
       - $DOCKERHUB_PW
+  except:
+    variables:
+      - $REGULAR_AUDIT
