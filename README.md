@@ -27,7 +27,7 @@ In order to get things like autocompletion for `.vue` files, you need to install
 the [vetur](https://vuejs.github.io/vetur/) plugin. When you open a vue file the
 first time, Visual Studio Code suggests to install this plugin. Further, the
 [ESLint](https://marketplace.visualstudio.com/items?itemName=dbaeumer.vscode-eslint)
-plugin should be installed to get notifactions on violated coding guideline
+plugin should be installed to get notifications on violated coding guideline
 already during developing.
 
 The visualization frontend highly depends on external data sources, more
@@ -37,10 +37,10 @@ the other services. We provide such a reverse proxy as part of the frontend,
 which can be started be started via:
 
 ```shell
-docker run --rm --name titan-ccp-frontend --network host -e "CONFIGURATION_BASE_URL=http://<host>:<port>" -e "HISTORY_BASE_URL=http://<host>:<port>" -e "STATS_BASE_URL=http://<host>:<port>" -d industrialdevops/titan-ccp-frontend
+docker run --rm --name titan-ccp-frontend --network host -e "SENSOR_MANAGEMENT_BASE_URL=http://<host>:<port>" -e "HISTORY_BASE_URL=http://<host>:<port>" -e "STATS_BASE_URL=http://<host>:<port>" -d industrialdevops/titan-ccp-frontend
 ```
 
-Note: The application intendet for development is running at port 8070, whereas a the
+Note: The application intended for development is running at port 8070, whereas a the
 application running at port 8080 is the compiled one running in the Docker container.
 If you want to build this reverse proxy by yourself, follow the steps described below.
 
@@ -65,5 +65,5 @@ building it with npm).
 To start a container execute:
 
 ```shell
-docker run --rm --name titan-ccp-frontend -p <port>:8080 -e "CONFIGURATION_BASE_URL=http://<host>:<port>" -e "HISTORY_BASE_URL=http://<host>:<port>" -d titan-ccp-frontend
+docker run --rm --name titan-ccp-frontend -p <port>:8080 -e "SENSOR_MANAGEMENT_BASE_URL=http://<host>:<port>" -e "HISTORY_BASE_URL=http://<host>:<port>" -e "STATS_BASE_URL=http://<host>:<port>" -d titan-ccp-frontend
 ```
