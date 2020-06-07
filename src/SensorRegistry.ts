@@ -10,7 +10,7 @@ export class AggregatedSensor {
     public parent?: AggregatedSensor //TODO make nicer
 
     get title(): string {
-        return this.name != '' ? this.name : this.identifier;
+        return this.name != '' ? this.name : this.identifier
     }
 
     get recursiveChildren(): Array<Sensor> {
@@ -33,7 +33,7 @@ export class MachineSensor {
     parent?: AggregatedSensor //TODO make nicer
 
     get title(): string {
-        return this.name != '' ? this.name : this.identifier;
+        return this.name != '' ? this.name : this.identifier
     }
 
 }
@@ -98,28 +98,28 @@ export interface JsonSensor {
 export class SensorRegistryRequester {
 
     public async request(identifier: string): Promise<SensorRegistry> {
-        const response = await HTTP.get(`sensor-hierarchy/${identifier}`);
+        const response = await HTTP.get(`sensor-hierarchy/${identifier}`)
         // JSON responses are automatically parsed.
         //console.log(response.data);
-        return SensorRegistry.parse((response.data as JsonSensor));
+        return SensorRegistry.parse((response.data as JsonSensor))
     }
 
     public async requestAll(): Promise<JsonSensor[]> {
-        const response = await HTTP.get('sensor-hierarchy/');
-        return response.data;
+        const response = await HTTP.get('sensor-hierarchy/')
+        return response.data
     }
 
     public create(identifier: string, name: string): AxiosPromise {
-        const newTopLevelSensor = new AggregatedSensor(identifier, name, []);
-        return HTTP.post('sensor-hierarchy', newTopLevelSensor);
+        const newTopLevelSensor = new AggregatedSensor(identifier, name, [])
+        return HTTP.post('sensor-hierarchy', newTopLevelSensor)
     }
 
     public edit(name: string, registry: SensorRegistry): AxiosPromise {
-        return HTTP.put('sensor-hierarchy/' + name, registry.toJson());
+        return HTTP.put('sensor-hierarchy/' + name, registry.toJson())
     }
 
     public delete(name: string): AxiosPromise {
-        return HTTP.delete('sensor-hierarchy/' + name);
+        return HTTP.delete('sensor-hierarchy/' + name)
     }
 
 }
