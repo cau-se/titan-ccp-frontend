@@ -98,6 +98,7 @@ export default class DragableSensorList extends Vue {
   border-bottom-left-radius: 0;
   border-top-right-radius: 0;
   border-top-left-radius: 0;
+  margin-bottom: -1px;
 }
 .list-group .list-group:empty {
   padding-left: 2.5rem;
