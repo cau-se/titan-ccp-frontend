@@ -49,6 +49,9 @@ export default class DragableSensorList extends Vue {
 .list-group-item-container {
     display: block;
 }
+.list-group-item {
+    margin-bottom: -1px;
+}
 .list-group .list-group-item:first-child,
 .list-group .list-group .list-group-item-container:first-child .list-group-item {
     border-top-left-radius: 0;
@@ -58,7 +61,6 @@ export default class DragableSensorList extends Vue {
 .list-group .list-group .list-group-item-container:last-child .list-group-item {
     border-bottom-right-radius: 0;
     border-bottom-left-radius: 0;
-    margin-bottom: -1px;
 }
 .list-group .list-group .list-group-item {
     padding-left: 2.5rem;
@@ -74,11 +76,15 @@ export default class DragableSensorList extends Vue {
 }
 
 .list-group:empty {
-  min-height: 1em;
-  background-color: white;
-  border: 1px solid rgba(0, 0, 0, 0.125);
-  border-top: 0 none;
-  margin-bottom: -1px;
+    min-height: 1em;
+    background-color: white;
+    border: 1px solid rgba(0, 0, 0, 0.125);
+    border-top: 0 none;
+    border-bottom-right-radius: 0;
+    border-bottom-left-radius: 0;
+    border-top-right-radius: 0;
+    border-top-left-radius: 0;
+    margin-bottom: -1px;
 }
 .list-group .list-group:empty {
     padding-left: 2.5rem;
