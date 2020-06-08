@@ -52,7 +52,7 @@
                 </router-link>
               </li>
               <li class="nav-item">
-                <router-link to="/sensor-hierarchy" class="nav-link">
+                <router-link to="/sensor-management" class="nav-link">
                   <font-awesome-icon icon="sliders-h" fixed-width class="feather" />Sensor Management
                 </router-link>
               </li>

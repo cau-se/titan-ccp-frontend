@@ -7,7 +7,7 @@ import Dashboard from "./components/Dashboard.vue"
 import SensorDetails from "./components/SensorDetails.vue"
 import Comparison from "./components/Comparison.vue"
 import SensorHierarchy from "./components/SensorHierarchy.vue"
-import SensorHierarchyList from "./components/SensorHierarchyList.vue"
+//import SensorHierarchyList from "./components/SensorHierarchyList.vue"
 import Examples from "./components/Examples.vue"
 
 import { library } from '@fortawesome/fontawesome-svg-core'
@@ -47,8 +47,8 @@ const routes = [
   { path: '/', component: Dashboard },
   { path: '/sensor-details', component: SensorDetails },
   { path: '/comparison', component: Comparison },
-  { path: '/sensor-hierarchy/:id', component: SensorHierarchy },
-  { path: '/sensor-hierarchy', component: SensorHierarchyList },
+  { path: '/sensor-management/:id?', component: SensorHierarchy },
+  //{ path: '/sensor-hierarchy', component: SensorHierarchyList },
   { path: '/examples', component: Examples }
 ]
 

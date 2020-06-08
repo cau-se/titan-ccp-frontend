@@ -72,6 +72,7 @@ import SensorRegistryEntry from "./SensorRegistryEntry.vue";
 export default class SensorHierarchy extends Vue {
   loaded: boolean = false;
 
+  @Prop({ required: true })
   sensorRegistry!: SensorRegistry;
 
   sensorRegistryRequester: SensorRegistryRequester = new SensorRegistryRequester();
@@ -87,12 +88,14 @@ export default class SensorHierarchy extends Vue {
   collidedSensorIdentifier = null;
 
   async created() {
-    this.sensorRegistry = await this.sensorRegistryRequester.request(
-      this.$route.params.id
-    );
+    if (this.$route.params.id == null) {
+      this.$router.push({
+        path: `/sensor-management/${this.sensorRegistry.topLevelSensor.identifier}`
+      });
+    }
 
-    this.modifiableSensorRegistry = SensorRegistry.flatCopy(
-      this.sensorRegistry
+    this.modifiableSensorRegistry = await this.sensorRegistryRequester.request(
+      this.$route.params.id
     );
     this.loaded = true;
 
@@ -119,6 +122,7 @@ export default class SensorHierarchy extends Vue {
           this.$route.params.id,
           this.modifiableSensorRegistry
         );
+        this.$emit("update:sensor-registry");
       } catch (error) {
         if (
           error.response.data.collisions &&
