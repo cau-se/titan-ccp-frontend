@@ -1,4 +1,5 @@
 import { HTTP } from "./http-common";
+import { AxiosPromise } from "axios";
 
 export type Sensor = AggregatedSensor | MachineSensor;
 
@@ -96,11 +97,29 @@ export interface JsonSensor {
 
 export class SensorRegistryRequester {
 
-    public async request(): Promise<SensorRegistry> {
-        const response = await HTTP.get('sensor-registry')
+    public async request(identifier: string): Promise<SensorRegistry> {
+        const response = await HTTP.get(`sensor-hierarchy/${identifier}`)
         // JSON responses are automatically parsed.
         //console.log(response.data);
-        return SensorRegistry.parse(response.data as JsonSensor)
+        return SensorRegistry.parse((response.data as JsonSensor))
+    }
+
+    public async requestAll(): Promise<JsonSensor[]> {
+        const response = await HTTP.get('sensor-hierarchy/')
+        return response.data
+    }
+
+    public create(identifier: string, name: string): AxiosPromise {
+        const newTopLevelSensor = new AggregatedSensor(identifier, name, [])
+        return HTTP.post('sensor-hierarchy', newTopLevelSensor)
+    }
+
+    public edit(name: string, registry: SensorRegistry): AxiosPromise {
+        return HTTP.put('sensor-hierarchy/' + name, registry.toJson())
+    }
+
+    public delete(name: string): AxiosPromise {
+        return HTTP.delete('sensor-hierarchy/' + name)
     }
 
 }

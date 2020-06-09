@@ -52,8 +52,8 @@
                 </router-link>
               </li>
               <li class="nav-item">
-                <router-link to="/configuration" class="nav-link">
-                  <font-awesome-icon icon="sliders-h" fixed-width class="feather" />Configuration
+                <router-link to="/sensor-management" class="nav-link">
+                  <font-awesome-icon icon="sliders-h" fixed-width class="feather" />Sensor Management
                 </router-link>
               </li>
             </ul>
@@ -95,7 +95,8 @@ import { SensorRegistryRequester } from "../SensorRegistry";
 import LoadingSpinner from "./LoadingSpinner.vue";
 import Dashboard from "./Dashboard.vue";
 import SensorDetails from "./SensorDetails.vue";
-import Configuration from "./Configuration.vue";
+import SensorHierarchy from "./SensorHierarchy.vue";
+import SensorHierarchyList from "./SensorHierarchyList.vue";
 import { DateTime } from "luxon";
 import flatPickr from "vue-flatpickr-component";
 import "flatpickr/dist/flatpickr.css";
@@ -106,7 +107,8 @@ import TimeMode from "./../model/time-mode";
     LoadingSpinner,
     Dashboard,
     SensorDetails,
-    Configuration,
+    SensorHierarchy,
+    SensorHierarchyList,
     flatPickr
   }
 })
@@ -170,10 +172,12 @@ export default class App extends Vue {
   }
 
   loadSensorRegistry() {
-    return new SensorRegistryRequester().request().then(registry => {
-      this.sensorRegistry = registry;
-      return registry;
-    });
+    return new SensorRegistryRequester()
+      .request("root")
+      .then((registry: SensorRegistry) => {
+        this.sensorRegistry = registry;
+        return registry;
+      });
   }
 }
 </script>
