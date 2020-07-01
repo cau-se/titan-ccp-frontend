@@ -1,6 +1,7 @@
 var path = require('path')
 var webpack = require('webpack')
 const { VueLoaderPlugin } = require('vue-loader')
+const ForkTsCheckerWebpackPlugin = require('fork-ts-checker-webpack-plugin')
 
 module.exports = {
   entry: './src/index.ts',
@@ -31,6 +32,7 @@ module.exports = {
         exclude: /node_modules/,
         options: {
           appendTsSuffixTo: [/\.vue$/],
+          transpileOnly: true
         }
       },
       {
@@ -81,6 +83,7 @@ module.exports = {
     hints: false
   },
   plugins: [
+    new ForkTsCheckerWebpackPlugin(),
     new VueLoaderPlugin(),
     new webpack.ProvidePlugin({}),
     new webpack.HotModuleReplacementPlugin(), //TODO helpful?
