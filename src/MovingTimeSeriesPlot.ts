@@ -1,6 +1,6 @@
 //eslint-disable-next-line @typescript-eslint/ban-ts-ignore
 // @ts-ignore
-import { CanvasTimeSeriesPlot } from './canvasplot.js';
+import { CanvasTimeSeriesPlot } from './canvasPlot/CanvasTimeSeriesPlot';
 declare const d3version3: any; //eslint-disable-line @typescript-eslint/no-explicit-any
 
 
