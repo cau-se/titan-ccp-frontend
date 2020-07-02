@@ -1,6 +1,8 @@
-const d3 = d3version3;
 
-function CanvasDataPlot(parentElement, canvasDimensions, config) {
+declare let d3: any;
+
+
+function CanvasDataPlot(this: any, parentElement: HTMLElement, canvasDimensions: Array<number>, config: any): void {
   config = config || {};
 
   this.data = []; // (default implementation: [dataSet][dataPoint][[0: x, 1: y]], ordered ascendingly by x value)
@@ -28,7 +30,7 @@ function CanvasDataPlot(parentElement, canvasDimensions, config) {
   this.legendYPadding = config.legendYPadding || 6;
   this.legendLineHeight = config.legendLineHeight || 11;
   this.margin = config.plotMargins || { top: 20, right: 20, bottom: (this.xAxisLabelText.length > 0 ? 60 : 30), left: (this.yAxisLabelText.length > 0 ? 65 : 50) };
-  this.showTooltips = (config.hasOwnProperty("showTooltips") ? config.showTooltips : true);
+  this.showTooltips = (config.showTooltips == false ? false : true);
   this.tooltipRadiusSquared = config.tooltipRadius || 5.5;
   this.tooltipRadiusSquared *= this.tooltipRadiusSquared;
   //this.enableValueSelection = config.enableValueSelection || false;
@@ -98,7 +100,7 @@ function CanvasDataPlot(parentElement, canvasDimensions, config) {
   this.drawCanvas();
 
   this.zoomListener = d3.behavior.zoom()
-    .on("zoom", (function () {
+    .on("zoom", (() => {
       //console.log("Zoom: " + d3.event.scale + ", x=" + d3.event.translate[0] + ", y="+d3.event.translate[1]);
       if (this.updateViewCallback) {
         this.updateViewCallback(this, this.xScale.domain(), this.yScale.domain());
@@ -122,7 +124,7 @@ function CanvasDataPlot(parentElement, canvasDimensions, config) {
 
 // public interface
 
-CanvasDataPlot.prototype.addDataSet = function (uniqueID, label, dataSet, colorString, updateDomains, copyData) {
+CanvasDataPlot.prototype.addDataSet = function (uniqueID: string, label: string, dataSet: Array<any>, colorString: string, updateDomains: boolean, copyData: boolean) {
   this.dataIDs.push(uniqueID);
   this.dataLabels.push(label);
   this.dataColors.push(colorString);
@@ -152,7 +154,7 @@ CanvasDataPlot.prototype.addDataSet = function (uniqueID, label, dataSet, colorS
   }
 };
 
-CanvasDataPlot.prototype.addDataPoint = function (uniqueID, dataPoint, updateDomains, copyData) {
+CanvasDataPlot.prototype.addDataPoint = function (uniqueID: string, dataPoint: Array<number>, updateDomains: boolean, copyData: boolean) {
   const i = this.dataIDs.indexOf(uniqueID);
   if (i < 0 || (this.data[i].length > 0 && this.data[i][this.data[i].length - 1][0] > dataPoint[0])) {
     return;
@@ -168,7 +170,7 @@ CanvasDataPlot.prototype.addDataPoint = function (uniqueID, dataPoint, updateDom
   }
 };
 
-CanvasDataPlot.prototype.removeDataSet = function (uniqueID) {
+CanvasDataPlot.prototype.removeDataSet = function (uniqueID: string) {
   const index = this.dataIDs.indexOf(uniqueID);
   if (index >= 0) {
     this.data.splice(index, 1);
@@ -183,7 +185,7 @@ CanvasDataPlot.prototype.removeDataSet = function (uniqueID) {
   }
 };
 
-CanvasDataPlot.prototype.setZoomXAxis = function (zoomX) {
+CanvasDataPlot.prototype.setZoomXAxis = function (zoomX: boolean) {
   if (this.xAxisZoom == zoomX) {
     return;
   }
@@ -191,7 +193,7 @@ CanvasDataPlot.prototype.setZoomXAxis = function (zoomX) {
   this.resetZoomListenerAxes();
 };
 
-CanvasDataPlot.prototype.setZoomYAxis = function (zoomY) {
+CanvasDataPlot.prototype.setZoomYAxis = function (zoomY: boolean) {
   if (this.yAxisZoom == zoomY) {
     return;
   }
@@ -199,7 +201,7 @@ CanvasDataPlot.prototype.setZoomYAxis = function (zoomY) {
   this.resetZoomListenerAxes();
 };
 
-CanvasDataPlot.prototype.resize = function (dimensions) {
+CanvasDataPlot.prototype.resize = function (dimensions: Array<number>) {
   this.totalWidth = Math.max(this.minCanvasWidth, dimensions[0]);
   this.totalHeight = Math.max(this.minCanvasHeight, dimensions[1]);
   this.width = this.totalWidth - this.margin.left - this.margin.right;
@@ -237,7 +239,7 @@ CanvasDataPlot.prototype.resize = function (dimensions) {
   this.redrawCanvasAndAxes();
 };
 
-CanvasDataPlot.prototype.updateDomains = function (xDomain, yDomain, makeItNice) {
+CanvasDataPlot.prototype.updateDomains = function (xDomain: Array<number>, yDomain: Array<number>, makeItNice: boolean) {
   this.xScale.domain(xDomain);
   this.yScale.domain(yDomain);
   if (makeItNice) {
@@ -259,8 +261,8 @@ CanvasDataPlot.prototype.getYDomain = function () {
 };
 
 CanvasDataPlot.prototype.calculateXDomain = function () {
-  const nonEmptySets = [];
-  this.data.forEach(function (ds) {
+  const nonEmptySets: number[][][] = [];
+  this.data.forEach(function (ds: [][]) {
     if (ds && ds.length > 0) {
       nonEmptySets.push(ds);
     }
@@ -271,7 +273,7 @@ CanvasDataPlot.prototype.calculateXDomain = function () {
   }
 
   let min = nonEmptySets[0][0][0];
-  let max = nonEmptySets[0][nonEmptySets[0].length - 1][0];
+  let max: number = nonEmptySets[0][nonEmptySets[0].length - 1][0];
   for (let i = 1; i < nonEmptySets.length; ++i) {
     const minCandidate = nonEmptySets[i][0][0];
     const maxCandidate = nonEmptySets[i][nonEmptySets[i].length - 1][0];
@@ -286,8 +288,8 @@ CanvasDataPlot.prototype.calculateXDomain = function () {
 };
 
 CanvasDataPlot.prototype.calculateYDomain = function () {
-  const nonEmptySets = [];
-  this.data.forEach(function (ds) {
+  const nonEmptySets: number[][][] = [];
+  this.data.forEach(function (ds: number[][]) {
     if (ds && ds.length > 0) {
       nonEmptySets.push(ds);
     }
@@ -297,11 +299,11 @@ CanvasDataPlot.prototype.calculateYDomain = function () {
     return [0, 1];
   }
 
-  let min = d3.min(nonEmptySets[0], function (d) { return d[1]; });
-  let max = d3.max(nonEmptySets[0], function (d) { return d[1]; });
+  let min = d3.min(nonEmptySets[0], function (d: number[]) { return d[1]; });
+  let max = d3.max(nonEmptySets[0], function (d: number[]) { return d[1]; });
   for (let i = 1; i < nonEmptySets.length; ++i) {
-    min = Math.min(min, d3.min(nonEmptySets[i], function (d) { return d[1]; }));
-    max = Math.max(max, d3.max(nonEmptySets[i], function (d) { return d[1]; }));
+    min = Math.min(min, d3.min(nonEmptySets[i], function (d: number[]) { return d[1]; }));
+    max = Math.max(max, d3.max(nonEmptySets[i], function (d: number[]) { return d[1]; }));
   }
   if (max - min <= 0) {
     min = max - 1;
@@ -340,7 +342,7 @@ CanvasDataPlot.prototype.setupYScaleAndAxis = function () {
     .ticks(Math.round(this.yTicksPerPixel * this.height));
 };
 
-CanvasDataPlot.prototype.getDataID = function (index) {
+CanvasDataPlot.prototype.getDataID = function (index: number) {
   return (this.dataIDs.length > index ? this.dataIDs[index] : "");
 };
 
@@ -355,6 +357,7 @@ CanvasDataPlot.prototype.updateTooltip = function () {
 
   const nDataSets = this.data.length;
   let hitMarker = false;
+  // eslint-disable-next-line @typescript-eslint/camelcase
   CanvasDataPlot_updateTooltip_graph_loop:
   for (let i = 0; i < nDataSets; ++i) {
     const d = this.data[i];
@@ -366,6 +369,7 @@ CanvasDataPlot.prototype.updateTooltip = function () {
       if (dx * dx + dy * dy <= this.tooltipRadiusSquared) {
         hitMarker = true;
         this.showTooltip([this.xScale(d[j][0]), this.yScale(d[j][1])], this.dataColors[i], this.getTooltipStringX(d[j]), this.getTooltipStringY(d[j]));
+        // eslint-disable-next-line @typescript-eslint/camelcase
         break CanvasDataPlot_updateTooltip_graph_loop;
       }
     }
@@ -375,15 +379,15 @@ CanvasDataPlot.prototype.updateTooltip = function () {
   }
 };
 
-CanvasDataPlot.prototype.getTooltipStringX = function (dataPoint) {
+CanvasDataPlot.prototype.getTooltipStringX = function (dataPoint: [number, number]) {
   return "x = " + dataPoint[0];
 };
 
-CanvasDataPlot.prototype.getTooltipStringY = function (dataPoint) {
+CanvasDataPlot.prototype.getTooltipStringY = function (dataPoint: [number, number]) {
   return "y = " + dataPoint[1];
 };
 
-CanvasDataPlot.prototype.showTooltip = function (position, color, xText, yText) {
+CanvasDataPlot.prototype.showTooltip = function (position: [number, number], color: string, xText: string, yText: string) {
   if (this.tooltip) {
     this.tooltip.remove();
     this.tooltip = null;
@@ -442,7 +446,7 @@ CanvasDataPlot.prototype.updateLegend = function () {
     .attr("height", this.legendYPadding + this.dataLabels.length * (this.legendYPadding + this.legendLineHeight) - 1);
 
   let maxTextLen = 0;
-  this.dataLabels.forEach((function (d, i) {
+  this.dataLabels.forEach(((_d: any, i: number) => {
     this.legend.append("rect")
       .attr("x", this.legendXPadding)
       .attr("y", this.legendYPadding + i * (this.legendYPadding + this.legendLineHeight))
@@ -462,7 +466,7 @@ CanvasDataPlot.prototype.updateLegend = function () {
     .attr("transform", "translate(" + (this.width - this.legendWidth - this.legendMargin) + ", " + this.legendMargin + ")");
 };
 
-CanvasDataPlot.prototype.findLargestSmaller = function (d, ia, ib, v) {
+CanvasDataPlot.prototype.findLargestSmaller = function (d: [], ia: number, ib: number, v: number) {
   if (this.xScale(d[ia][0]) >= v || ib - ia <= 1) {
     return ia;
   }
@@ -508,21 +512,21 @@ CanvasDataPlot.prototype.drawGrid = function () {
   this.canvas.strokeStyle = this.gridColor;
   this.canvas.beginPath();
   this.yScale.ticks(this.yAxis.ticks()[0])
-    .map((function (d) { return Math.floor(this.yScale(d)) + 0.5; }).bind(this))
-    .forEach((function (d) {
+    .map(((d: any) => { return Math.floor(this.yScale(d)) + 0.5; }).bind(this))
+    .forEach(((d: any) => {
       this.canvas.moveTo(0, d);
       this.canvas.lineTo(this.width, d);
     }).bind(this));
   this.xScale.ticks(this.xAxis.ticks()[0])
-    .map((function (d) { return Math.floor(this.xScale(d)) + 0.5; }).bind(this))
-    .forEach((function (d) {
+    .map(((d: any) => { return Math.floor(this.xScale(d)) + 0.5; }).bind(this))
+    .forEach(((d: any) => {
       this.canvas.moveTo(d, 0);
       this.canvas.lineTo(d, this.height);
     }).bind(this));
   this.canvas.stroke();
 };
 
-CanvasDataPlot.prototype.drawDataSet = function (dataIndex) {
+CanvasDataPlot.prototype.drawDataSet = function (dataIndex: number): void {
   const d = this.data[dataIndex];
   if (d.length < 1) {
     return;
@@ -547,41 +551,12 @@ CanvasDataPlot.prototype.resetZoomListenerAxes = function () {
     .y(this.yAxisZoom ? this.yScale : d3.scale.linear().domain([0, 1]).range([0, 1]));
 };
 
-CanvasDataPlot.prototype.updateZoomValues = function (scale, translate) {
+CanvasDataPlot.prototype.updateZoomValues = function (scale: number, translate: any): void {
   this.zoomListener
     .scale(scale)
     .translate(translate);
   this.updateDisplayIndices();
   this.redrawCanvasAndAxes();
 };
-
-function CanvasPlot_shallowObjectCopy(inObj) {
-  const original = inObj || {};
-  const keys = Object.getOwnPropertyNames(original);
-  const outObj = {};
-  keys.forEach(function (k) {
-    outObj[k] = original[k];
-  });
-  return outObj;
-}
-function CanvasPlot_appendToObject(obj, objToAppend) {
-  Object.keys(objToAppend).forEach(function (k) {
-    if (!obj.hasOwnProperty(k)) {
-      obj[k] = objToAppend[k];
-    }
-    else {
-      if (obj[k] !== null && typeof obj[k] === "object" && !Array.isArray(obj[k])) {
-        appendToObject(obj[k], objToAppend[k]);
-      }
-      else if (Array.isArray(obj[k]) && Array.isArray(objToAppend[k])) {
-        objToAppend[k].forEach(function (d) {
-          if (obj[k].indexOf(d) < 0) {
-            obj[k].push(d);
-          }
-        });
-      }
-    }
-  });
-}
 
 export { CanvasDataPlot }

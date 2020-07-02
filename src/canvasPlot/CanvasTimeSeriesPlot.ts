@@ -1,8 +1,8 @@
 import { CanvasDataPlot } from './CanvasDataPlot'
-const d3 = d3version3;
+declare let d3: any;
 
 
-function CanvasTimeSeriesPlot(parentElement, canvasDimensions, config) {
+function CanvasTimeSeriesPlot(this: any, parentElement: HTMLElement, canvasDimensions: [number, number], config: any): any {
   config = config || {};
 
   this.informationDensity = [];
@@ -15,12 +15,12 @@ function CanvasTimeSeriesPlot(parentElement, canvasDimensions, config) {
 }
 CanvasTimeSeriesPlot.prototype = Object.create(CanvasDataPlot.prototype);
 
-CanvasTimeSeriesPlot.prototype.addDataSet = function (uniqueID, label, dataSet, colorString, updateDomains, copyData) {
+CanvasTimeSeriesPlot.prototype.addDataSet = function (uniqueID: string, label: string, dataSet: [], colorString: string, updateDomains: boolean, copyData: boolean) {
   this.informationDensity.push(1);
   CanvasDataPlot.prototype.addDataSet.call(this, uniqueID, label, dataSet, colorString, updateDomains, copyData);
 };
 
-CanvasTimeSeriesPlot.prototype.removeDataSet = function (uniqueID) {
+CanvasTimeSeriesPlot.prototype.removeDataSet = function (uniqueID: string) {
   const index = this.dataIDs.indexOf(uniqueID);
   if (index >= 0) {
     this.informationDensity.splice(index, 1);
@@ -56,6 +56,7 @@ CanvasTimeSeriesPlot.prototype.updateTooltip = function () {
 
   const nDataSets = this.data.length;
   let hitMarker = false;
+  // eslint-disable-next-line @typescript-eslint/camelcase
   TimeSeriesPlot_updateTooltip_graph_loop:
   for (let i = 0; i < nDataSets; ++i) {
     if (this.informationDensity[i] > this.showMarkerDensity) {
@@ -70,6 +71,7 @@ CanvasTimeSeriesPlot.prototype.updateTooltip = function () {
       if (dx * dx + dy * dy <= this.tooltipRadiusSquared) {
         hitMarker = true;
         this.showTooltip([this.xScale(d[j][0]), this.yScale(d[j][1])], this.dataColors[i], this.getTooltipStringX(d[j]), this.getTooltipStringY(d[j]));
+        // eslint-disable-next-line @typescript-eslint/camelcase
         break TimeSeriesPlot_updateTooltip_graph_loop;
       }
     }
@@ -79,8 +81,8 @@ CanvasTimeSeriesPlot.prototype.updateTooltip = function () {
   }
 };
 
-CanvasTimeSeriesPlot.prototype.getTooltipStringX = function (dataPoint) {
-  const zeroPad2 = function (n) {
+CanvasTimeSeriesPlot.prototype.getTooltipStringX = function (dataPoint: [Date, number]) {
+  const zeroPad2 = function (n: number) {
     return n < 10 ? ("0" + n) : n.toString();
   };
   const date = dataPoint[0];
@@ -100,13 +102,13 @@ CanvasTimeSeriesPlot.prototype.setupXScaleAndAxis = function () {
     .nice();
 
   this.customTimeFormat = d3.time.format.utc.multi([
-    [".%L", function (d) { return d.getUTCMilliseconds(); }],
-    [":%S", function (d) { return d.getUTCSeconds(); }],
-    //["%I:%M", function(d) { return d.getUTCMinutes(); }],
-    ["%H:%M", function (d) { return d.getUTCHours() + d.getUTCMinutes(); }],
-    //["%a %d", function(d) { return d.getUTCDay() && d.getUTCDate() != 1; }],
-    ["%b %d", function (d) { return d.getUTCDate() != 1; }],
-    ["%B '%y", function (d) { return d.getUTCMonth(); }],
+    [".%L", function (d: Date) { return d.getUTCMilliseconds(); }],
+    [":%S", function (d: Date) { return d.getUTCSeconds(); }],
+    //["%I:%M", function(d: Date) { return d.getUTCMinutes(); }],
+    ["%H:%M", function (d: Date) { return d.getUTCHours() + d.getUTCMinutes(); }],
+    //["%a %d", function(d: Date) { return d.getUTCDay() && d.getUTCDate() != 1; }],
+    ["%b %d", function (d: Date) { return d.getUTCDate() != 1; }],
+    ["%B '%y", function (d: Date) { return d.getUTCMonth(); }],
     ["%Y", function () { return true; }]
   ]);
 
@@ -117,7 +119,7 @@ CanvasTimeSeriesPlot.prototype.setupXScaleAndAxis = function () {
     .ticks(Math.round(this.xTicksPerPixel * this.width));
 };
 
-CanvasTimeSeriesPlot.prototype.drawDataSet = function (dataIndex) {
+CanvasTimeSeriesPlot.prototype.drawDataSet = function (dataIndex: number) {
   const d = this.data[dataIndex];
   if (d.length < 1) {
     return;
@@ -136,7 +138,7 @@ CanvasTimeSeriesPlot.prototype.drawDataSet = function (dataIndex) {
 
   this.canvas.beginPath();
   this.canvas.moveTo(this.xScale(d[iStart][0]), this.yScale(d[iStart][1]));
-  for (var i = iStart; i <= iEnd; i = i + drawEvery) {
+  for (let i = iStart; i <= iEnd; i = i + drawEvery) {
     this.canvas.lineTo(this.xScale(d[i][0]),
       this.yScale(d[i][1]));
   }
@@ -149,7 +151,7 @@ CanvasTimeSeriesPlot.prototype.drawDataSet = function (dataIndex) {
 
   if (informationDensity <= this.showMarkerDensity) {
     this.canvas.lineWidth = this.markerLineWidth;
-    for (var i = iStart; i <= iLast; ++i) {
+    for (let i = iStart; i <= iLast; ++i) {
       this.canvas.beginPath();
       this.canvas.arc(this.xScale(d[i][0]), this.yScale(d[i][1]),
         this.markerRadius, 0, 2 * Math.PI);

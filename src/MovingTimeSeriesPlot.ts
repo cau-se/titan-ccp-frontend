@@ -43,7 +43,7 @@ export class MovingTimeSeriesPlot {
 	private defaultYDomain: Array<number> // [start, end]
 	private yDomainEnlargement: number // in % for both top and bottom
 	private dataPoints: Array<Array<Date | number>>
-	private plot: CanvasTimeSeriesPlot
+	private plot: CanvasTimeSeriesPlot | undefined
 
 	constructor(domContainer: HTMLElement,
 		config?: any) { //eslint-disable-line @typescript-eslint/no-explicit-any
@@ -60,12 +60,13 @@ export class MovingTimeSeriesPlot {
 		this.yDomainEnlargement = config.yDomainEnlargement || 0.1;
 
 		this.dataPoints = [];
-		this.plot = new CanvasTimeSeriesPlot(d3version3.select(domContainer), [this.width, this.height], {
+		this.plot = CanvasTimeSeriesPlot(d3version3.select(domContainer), [this.width, this.height], {
 			yAxisLabel: this.yAxisLabel,
 			disableLegend: true,
 			//plotMargins: { top: 20, right: 20, bottom: 30, left: this.yAxisSpacing },
 			//updateViewCallback: (this.setViews).bind(this)
 		});
+		if (!this.plot) return;
 		this.plot.setZoomYAxis(false);
 		this.plot.updateDomains([this.defaultStartTime.getTime() - this.defaultTimeSpan, this.defaultStartTime], this.defaultYDomain, false);
 	}
@@ -74,6 +75,7 @@ export class MovingTimeSeriesPlot {
 		for (const dataPoint of dataPoints) {
 			this.dataPoints.push(dataPoint.toArray());
 		}
+		if (!this.plot) return
 		this.plot.removeDataSet(this.datasetId);
 		this.plot.addDataSet(this.datasetId, "", this.dataPoints, this.color, false, false);
 		if (this.dataPoints.length != 0) {
@@ -83,6 +85,7 @@ export class MovingTimeSeriesPlot {
 	}
 
 	public addDataPoints(dataPoints: Array<DataPoint>): void {
+		if (!this.plot) return;
 		const beforeCalculatedXDomain = Domain.of(this.plot.calculateXDomain());
 		const beforeActualXDomain = Domain.of(this.plot.getXDomain());
 		const beforeEmpty = (this.dataPoints.length == 0);
@@ -113,10 +116,13 @@ export class MovingTimeSeriesPlot {
 	}
 
 	public destroy(): void {
-		this.plot.destroy();
+		if (this.plot) {
+			this.plot.destroy();
+		}
 	}
 
 	private updateDomains(): void {
+		if (!this.plot) return;
 		const yDomain = Domain.of(this.plot.calculateYDomain());
 		const enlargement = yDomain.getLength() * this.yDomainEnlargement
 		yDomain.start -= enlargement
