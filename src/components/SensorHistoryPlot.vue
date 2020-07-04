@@ -20,6 +20,7 @@ import { MovingTimeSeriesPlot, DataPoint } from '../MovingTimeSeriesPlot';
 import Repeater from "../Repeater";
 import { DateTime } from "luxon";
 import TimeMode from "../model/time-mode";
+import sumBy from 'lodash.sumby'
 
 @Component({
     components: {
@@ -140,8 +141,40 @@ export default class SensorHistoryPlot extends Vue {
                 }
                 // TODO access sum generically
                 return response.data.map((x: any) => new DataPoint(new Date(x.timestamp), this.sensor instanceof AggregatedSensor ? x.sumInW : x.valueInW));
-            })
+            }).then((data) => this.aggregate(data, 10000));
     }
+
+    private aggregate(data: DataPoint[], windowSize: number):DataPoint[] {
+        if (data.length < 1) return data;
+        const firstTimestamp = data[0].toArray()[0];
+        let windows: DataPoint[][] = [[]];
+
+        // sort data into windows
+        data.forEach((dataPoint, index) => {
+            const timestamp = dataPoint.toArray()[0];
+            const timeSinceFirst = timestamp - firstTimestamp;
+            const windowNumber = Math.floor(timeSinceFirst / windowSize); 
+            if (windows[windowNumber]) {
+                windows[windowNumber].push(dataPoint);
+            } else {
+                windows[windowNumber] = [dataPoint]
+            }
+            
+        });
+
+        // aggregate within windows
+        const aggregated: DataPoint[] = []
+        windows.forEach(data => {
+            if (data.length < 1) return;
+            const sum = sumBy(data, d => d.toArray()[1]);
+            const avg = Math.round(sum / data.length);
+            const lastTimestampInWindow = data[data.length - 1].toArray()[0];
+            const dp = new DataPoint(lastTimestampInWindow, avg);
+            aggregated.push(dp)
+        })
+
+        return aggregated;
+    } 
 }
 </script>
 
