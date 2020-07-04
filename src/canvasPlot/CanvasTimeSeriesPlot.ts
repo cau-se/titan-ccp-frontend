@@ -1,5 +1,7 @@
 import { CanvasDataPlot } from './CanvasDataPlot'
-declare let d3: any;
+
+declare let d3version3: any;
+const d3: any = d3version3;
 
 class CanvasTimeSeriesPlot extends CanvasDataPlot {
   private informationDensity: number[];
@@ -7,7 +9,7 @@ class CanvasTimeSeriesPlot extends CanvasDataPlot {
   private showMarkerDensity: number;
   private maxInformationDensity: number;
 
-  public constructor(parentElement: HTMLElement, canvasDimensions: [number, number], config: any) {
+  public constructor(parentElement: HTMLElement, canvasDimensions: Array<number>, config: any) {
     super(parentElement, canvasDimensions, config);
     config = config || {};
     this.informationDensity = []
@@ -15,16 +17,14 @@ class CanvasTimeSeriesPlot extends CanvasDataPlot {
     this.plotLineWidth = config.plotLineWidth || 1;
     this.maxInformationDensity = config.maxInformationDensity || 2.0;
     this.showMarkerDensity = config.showMarkerDensity || 0.14;
-
-    CanvasDataPlot.call(this, parentElement, canvasDimensions, config);
   }
 
-  public addDataSet(uniqueID: string, label: string, dataSet: [], colorString: string, updateDomains: boolean, copyData: boolean) {
+  public addDataSet(uniqueID: string, label: string, dataSet: any[][], colorString: string, updateDomains: boolean, copyData: boolean): void {
     this.informationDensity.push(1);
     CanvasDataPlot.prototype.addDataSet.call(this, uniqueID, label, dataSet, colorString, updateDomains, copyData);
   }
 
-  public removeDataSet(uniqueID: string) {
+  public removeDataSet(uniqueID: string): void {
     const index = this.dataIDs.indexOf(uniqueID);
     if (index >= 0) {
       this.informationDensity.splice(index, 1);
@@ -32,7 +32,7 @@ class CanvasTimeSeriesPlot extends CanvasDataPlot {
     CanvasDataPlot.prototype.removeDataSet.call(this, uniqueID);
   }
 
-  updateDisplayIndices() {
+  updateDisplayIndices(): void {
     super.updateDisplayIndices.call(this);
 
     const nDataSets = this.data.length;
@@ -49,7 +49,7 @@ class CanvasTimeSeriesPlot extends CanvasDataPlot {
     }
   }
 
-  updateTooltip() {
+  protected updateTooltip(): void {
     const mouse = d3.mouse(this.div.node());
     const mx = mouse[0] - this.margin.left;
     const my = mouse[1] - this.margin.top;
@@ -85,7 +85,7 @@ class CanvasTimeSeriesPlot extends CanvasDataPlot {
     }
   }
 
-  getTooltipStringX(dataPoint: [Date, number]) {
+  getTooltipStringX(dataPoint: any[]) {
     const zeroPad2 = function (n: number) {
       return n < 10 ? ("0" + n) : n.toString();
     };
@@ -99,7 +99,7 @@ class CanvasTimeSeriesPlot extends CanvasDataPlot {
     return Y + "-" + M + "-" + D + " " + h + ":" + m + ":" + s;
   }
 
-  private setupXScaleAndAxis(): void {
+  protected setupXScaleAndAxis(): void {
     this.xScale = d3.time.scale.utc()
       .domain(this.calculateXDomain())
       .range([0, this.width])

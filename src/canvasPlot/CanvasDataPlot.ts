@@ -1,8 +1,11 @@
 
-declare let d3: any;
+declare let d3version3: any;
+const d3: any = d3version3;
+
+type dataPoint = any[];
 
 class CanvasDataPlot {
-  data: number[][][];
+  protected data: dataPoint[][];
   dataIDs: string[];
   dataLabels: string[];
   displayIndexStart: number[];
@@ -291,7 +294,7 @@ class CanvasDataPlot {
     this.redrawCanvasAndAxes();
   }
 
-  updateDomains(xDomain: Array<number>, yDomain: Array<number>, makeItNice: boolean) {
+  updateDomains(xDomain: any[], yDomain: Array<number>, makeItNice: boolean) {
     this.xScale.domain(xDomain);
     this.yScale.domain(yDomain);
     if (makeItNice) {
@@ -370,7 +373,7 @@ class CanvasDataPlot {
 
   // private methods
 
-  private setupXScaleAndAxis(): void {
+  protected setupXScaleAndAxis(): void {
     this.xScale = d3.scale.linear()
       .domain(this.calculateXDomain())
       .range([0, this.width])
@@ -398,7 +401,7 @@ class CanvasDataPlot {
     return (this.dataIDs.length > index ? this.dataIDs[index] : "");
   }
 
-  private updateTooltip() {
+  protected updateTooltip() {
     const mouse = d3.mouse(this.div.node());
     const mx = mouse[0] - this.margin.left;
     const my = mouse[1] - this.margin.top;
@@ -431,15 +434,15 @@ class CanvasDataPlot {
     }
   }
 
-  private getTooltipStringX(dataPoint: [Date, number]) {
+  protected getTooltipStringX(dataPoint: dataPoint) {
     return "x = " + dataPoint[0];
   }
 
-  private getTooltipStringY(dataPoint: [number, number]) {
+  protected getTooltipStringY(dataPoint: dataPoint) {
     return "y = " + dataPoint[1];
   }
 
-  private showTooltip(position: [number, number], color: string, xText: string, yText: string) {
+  protected showTooltip(position: [number, number], color: string, xText: string, yText: string) {
     if (this.tooltip) {
       this.tooltip.remove();
       this.tooltip = null;
@@ -466,7 +469,7 @@ class CanvasDataPlot {
     tooltipBG.attr("transform", "scale(" + (1.1 * Math.max(xTextElem.node().getComputedTextLength(), yTextElem.node().getComputedTextLength()) / 200) + ",1)");
   }
 
-  private removeTooltip() {
+  protected removeTooltip() {
     if (!this.tooltip) {
       return;
     }
@@ -518,7 +521,7 @@ class CanvasDataPlot {
       .attr("transform", "translate(" + (this.width - this.legendWidth - this.legendMargin) + ", " + this.legendMargin + ")");
   }
 
-  private findLargestSmaller(d: [], ia: number, ib: number, v: number): number {
+  private findLargestSmaller(d: dataPoint[], ia: number, ib: number, v: number): number {
     if (this.xScale(d[ia][0]) >= v || ib - ia <= 1) {
       return ia;
     }
@@ -579,7 +582,7 @@ class CanvasDataPlot {
     this.canvas.stroke();
   }
 
-  private drawDataSet(dataIndex: number): void {
+  protected drawDataSet(dataIndex: number): void {
     const d = this.data[dataIndex];
     if (d.length < 1) {
       return;

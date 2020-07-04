@@ -60,7 +60,7 @@ export class MovingTimeSeriesPlot {
 		this.yDomainEnlargement = config.yDomainEnlargement || 0.1;
 
 		this.dataPoints = [];
-		this.plot = CanvasTimeSeriesPlot(d3version3.select(domContainer), [this.width, this.height], {
+		this.plot = new CanvasTimeSeriesPlot(d3version3.select(domContainer), [this.width, this.height], {
 			yAxisLabel: this.yAxisLabel,
 			disableLegend: true,
 			//plotMargins: { top: 20, right: 20, bottom: 30, left: this.yAxisSpacing },
@@ -138,7 +138,7 @@ export class MovingTimeSeriesPlot {
 export class DataPoint {
 	public constructor(public date: Date, public value: number) { }
 
-	public toArray(): [Date, number] {
+	public toArray(): any[] {
 		return [this.date, this.value]
 	}
 }
