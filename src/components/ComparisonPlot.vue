@@ -39,7 +39,7 @@ import ColorRepository from '../ColorRepository'
 import Treeselect from '@riophae/vue-treeselect'
 import '@riophae/vue-treeselect/dist/vue-treeselect.css'
 // @ts-ignore
-import { CanvasTimeSeriesPlot } from '../canvasplot.js';
+import { CanvasTimeSeriesPlot } from '../canvasPlot/CanvasTimeSeriesPlot';
 import { DataPoint } from '../MovingTimeSeriesPlot';
 declare var d3version3: any;
 
