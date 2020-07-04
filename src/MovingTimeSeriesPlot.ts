@@ -44,6 +44,7 @@ export class MovingTimeSeriesPlot {
 	private yDomainEnlargement: number // in % for both top and bottom
 	private dataPoints: Array<Array<Date | number>>
 	private plot: CanvasTimeSeriesPlot | undefined
+	private onZoom: Function;
 
 	constructor(domContainer: HTMLElement,
 		config?: any) { //eslint-disable-line @typescript-eslint/no-explicit-any
@@ -58,6 +59,7 @@ export class MovingTimeSeriesPlot {
 		this.defaultStartTime = config.defaultStartTime || new Date();
 		this.defaultYDomain = config.defaultYDomain || [0, 1];
 		this.yDomainEnlargement = config.yDomainEnlargement || 0.1;
+		this.onZoom = config.onZoom;
 
 		this.dataPoints = [];
 		this.plot = new CanvasTimeSeriesPlot(d3version3.select(domContainer), [this.width, this.height], {
@@ -65,20 +67,22 @@ export class MovingTimeSeriesPlot {
 			disableLegend: true,
 			//plotMargins: { top: 20, right: 20, bottom: 30, left: this.yAxisSpacing },
 			//updateViewCallback: (this.setViews).bind(this)
+			onZoom: this.onZoom
 		});
 		if (!this.plot) return;
 		this.plot.setZoomYAxis(false);
 		this.plot.updateDomains([this.defaultStartTime.getTime() - this.defaultTimeSpan, this.defaultStartTime], this.defaultYDomain, false);
 	}
 
-	public setDataPoints(dataPoints: Array<DataPoint>): void {
+	public setDataPoints(dataPoints: Array<DataPoint>, updateDomains: boolean): void {
+		this.dataPoints = [];
 		for (const dataPoint of dataPoints) {
 			this.dataPoints.push(dataPoint.toArray());
 		}
 		if (!this.plot) return
 		this.plot.removeDataSet(this.datasetId);
 		this.plot.addDataSet(this.datasetId, "", this.dataPoints, this.color, false, false);
-		if (this.dataPoints.length != 0) {
+		if (updateDomains && this.dataPoints.length != 0) {
 			this.plot.updateDomains(this.plot.calculateXDomain(), this.plot.getYDomain(), true);
 			this.updateDomains();
 		}

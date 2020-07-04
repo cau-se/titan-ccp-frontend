@@ -20,7 +20,8 @@ import { MovingTimeSeriesPlot, DataPoint } from '../MovingTimeSeriesPlot';
 import Repeater from "../Repeater";
 import { DateTime } from "luxon";
 import TimeMode from "../model/time-mode";
-import sumBy from 'lodash.sumby'
+const sumBy = require('lodash.sumby');
+const debounce = require('lodash.debounce');
 
 @Component({
     components: {
@@ -39,7 +40,9 @@ export default class SensorHistoryPlot extends Vue {
 
     private dataPoints: any[] = []
 
-    private latest = this.completeHistory ? 0 : this.timeMode.getTime().toMillis() - (3600*1000)
+    private latest = this.completeHistory ? 0 : this.timeMode.getTime().toMillis() - (3600*10000);
+
+    private windowSize = 900000;
 
     private isLoading = false
     private isError = false
@@ -88,11 +91,12 @@ export default class SensorHistoryPlot extends Vue {
     private createPlot() {
         this.plot = new MovingTimeSeriesPlot(this.canvasplotContainer, {
             plotStartsWithZero: true,
-            yAxisLabel: "Active Power in Watt"
+            yAxisLabel: "Active Power in Watt",
+            onZoom: debounce(this.handleZoom, 300)
         })
         // BETTER fetch already earlier and then wait for mount
         this.isLoading = true
-        return this.fetchNewData()
+        return this.fetchNewData(this.latest, undefined, this.windowSize)
             .catch(e => {
                 console.error(e);
                 this.isError = true
@@ -109,11 +113,11 @@ export default class SensorHistoryPlot extends Vue {
                         }
                         return resolve(acc);
                     }).then(points => {
-                        this.plot.setDataPoints(points);
+                        this.plot.setDataPoints(points, true);
                         this.isLoading = false
                     })
                 } else {
-                    this.plot.setDataPoints(dataPoints)
+                    this.plot.setDataPoints(dataPoints, true)
                     this.isLoading = false
                 }
             })
@@ -122,7 +126,7 @@ export default class SensorHistoryPlot extends Vue {
 
     private updatePlot() {
         if (this.timeMode.autoLoading) {      
-            this.fetchNewData().then(dataPoints => this.plot.addDataPoints(dataPoints))
+            this.fetchNewData(this.latest, undefined, this.windowSize).then(dataPoints => this.plot.addDataPoints(dataPoints));
         }
     }
 
@@ -131,9 +135,10 @@ export default class SensorHistoryPlot extends Vue {
         this.plot.destroy()
     }
 
-    private fetchNewData(): Promise<DataPoint[]> {
+    private fetchNewData(after: number, to: number | undefined, windowSize: number): Promise<DataPoint[]> {
         let resource = this.sensor instanceof AggregatedSensor ? 'aggregated-power-consumption' : 'power-consumption' 
-        return HTTP.get(resource + '/' + this.sensor.identifier + '?after=' + this.latest)
+        const url = `${resource}/${this.sensor.identifier}?after=${after}`
+        return HTTP.get(url)
             .then(response => {
                 // JSON responses are automatically parsed.
                 if (response.data.length > 0) {
@@ -141,7 +146,7 @@ export default class SensorHistoryPlot extends Vue {
                 }
                 // TODO access sum generically
                 return response.data.map((x: any) => new DataPoint(new Date(x.timestamp), this.sensor instanceof AggregatedSensor ? x.sumInW : x.valueInW));
-            }).then((data) => this.aggregate(data, 10000));
+            }).then((data) => this.aggregate(data, windowSize));
     }
 
     private aggregate(data: DataPoint[], windowSize: number):DataPoint[] {
@@ -166,7 +171,7 @@ export default class SensorHistoryPlot extends Vue {
         const aggregated: DataPoint[] = []
         windows.forEach(data => {
             if (data.length < 1) return;
-            const sum = sumBy(data, d => d.toArray()[1]);
+            const sum = sumBy(data, (d: DataPoint) => d.toArray()[1]);
             const avg = Math.round(sum / data.length);
             const lastTimestampInWindow = data[data.length - 1].toArray()[0];
             const dp = new DataPoint(lastTimestampInWindow, avg);
@@ -175,6 +180,14 @@ export default class SensorHistoryPlot extends Vue {
 
         return aggregated;
     } 
+
+    private handleZoom(xDomain: any, _: undefined, zoomFactor: number) {
+        // zoom in
+        const from = xDomain[0].getTime();
+        const to = xDomain[1].getTime();
+        this.windowSize /= 2;
+        this.fetchNewData(from, to, this.windowSize).then((v) => this.plot.setDataPoints(v, false))
+    }
 }
 </script>
 

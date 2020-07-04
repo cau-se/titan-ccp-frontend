@@ -57,6 +57,7 @@ class CanvasDataPlot {
   legendWidth: number;
   xAxisZoom: boolean;
   yAxisZoom: boolean;
+  onZoom: Function;
 
   public constructor(parentElement: HTMLElement, canvasDimensions: Array<number>, config: any) {
     config = config || {};
@@ -155,6 +156,7 @@ class CanvasDataPlot {
     //this.updateDisplayIndices();
     this.drawCanvas();
 
+    this.onZoom = config.onZoom;
     this.zoomListener = d3.behavior.zoom()
       .on("zoom", (() => {
         //console.log("Zoom: " + d3.event.scale + ", x=" + d3.event.translate[0] + ", y="+d3.event.translate[1]);
@@ -165,6 +167,9 @@ class CanvasDataPlot {
         this.redrawCanvasAndAxes();
         if (this.showTooltips) {
           this.updateTooltip();
+        }
+        if (this.onZoom) {
+          this.onZoom(this.getXDomain(), this.getYDomain(), d3.event.scale)
         }
       }).bind(this));
     this.zoomListener(this.div);
