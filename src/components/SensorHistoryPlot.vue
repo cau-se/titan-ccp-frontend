@@ -194,7 +194,7 @@ export default class SensorHistoryPlot extends Vue {
         // zoom in
         const from = xDomain[0].getTime();
         const to = xDomain[1].getTime();
-        this.windowSize /= 2;
+        this.windowSize = (to - from ) / 50;
         this.fetchNewData(from, to, this.windowSize).then((v) => this.plot.injectDataPoints(v))
     }
 }
