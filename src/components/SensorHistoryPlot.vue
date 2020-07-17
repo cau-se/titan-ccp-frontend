@@ -149,6 +149,12 @@ export default class SensorHistoryPlot extends Vue {
             }).then((data) => this.aggregate(data, windowSize));
     }
 
+    /**
+     * Aggregates the given DataPoints in the temporal dimension.
+     * 
+     * @param data - The array of data points to aggregate.
+     * @param windowSize - Length of aggregate intervall in miliseconds.
+     */
     private aggregate(data: DataPoint[], windowSize: number):DataPoint[] {
         if (data.length < 1) return data;
         const firstTimestamp = data[0].toArray()[0];
@@ -181,6 +187,9 @@ export default class SensorHistoryPlot extends Vue {
         return aggregated;
     } 
 
+    /**
+     * ZoomHandler for the plot. Handles, which data is to fetched for the new zoom level.
+     */
     private handleZoom(xDomain: any, _: undefined, zoomFactor: number) {
         // zoom in
         const from = xDomain[0].getTime();

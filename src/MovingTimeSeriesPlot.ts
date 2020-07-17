@@ -74,6 +74,12 @@ export class MovingTimeSeriesPlot {
 		this.plot.updateDomains([this.defaultStartTime.getTime() - this.defaultTimeSpan, this.defaultStartTime], this.defaultYDomain, false);
 	}
 
+	/**
+	 * Removes the old dataset from the plot and adds the specified DataPoints as a new dataset.
+	 * 
+	 * @param dataPoints - The array of dataPoints to show in the plot.
+	 * @param updateDomains - Whether to set the x-Domain to contain the new DataPoints.
+	 */
 	public setDataPoints(dataPoints: Array<DataPoint>, updateDomains: boolean): void {
 		this.dataPoints = [];
 		for (const dataPoint of dataPoints) {
@@ -88,6 +94,12 @@ export class MovingTimeSeriesPlot {
 		}
 	}
 
+	/**
+	 * Appends DataPoints to the plot.
+	 * But only if their timestamp is larger than the ones already in the plot.
+	 * 
+	 * @param dataPoints - The array of DataPoints to add to the end of the plot.
+	 */
 	public addDataPoints(dataPoints: Array<DataPoint>): void {
 		if (!this.plot) return;
 		const beforeCalculatedXDomain = Domain.of(this.plot.calculateXDomain());
