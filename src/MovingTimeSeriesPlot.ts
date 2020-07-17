@@ -131,6 +131,22 @@ export class MovingTimeSeriesPlot {
 		this.updateDomains();
 	}
 
+	/**
+	 * 
+	 * @param dataPointsToInject - 	The array of DataPoints to inject into the dataset. 
+	 * 	This array has to be ordered by its timestamps!
+	 */
+	public injectDataPoints(dataPointsToInject: Array<DataPoint>): void {
+		// inject new dataPoints into existing ones
+		const newDataPoints = this.inject(this.dataPoints, dataPointsToInject);
+		this.dataPoints = newDataPoints;
+
+		// apply new dataPoints to CanvasPlot
+		if (!this.plot) return
+		this.plot.removeDataSet(this.datasetId);
+		this.plot.addDataSet(this.datasetId, "", this.dataPoints, this.color, false, false);
+	}
+
 	public destroy(): void {
 		if (this.plot) {
 			this.plot.destroy();
@@ -147,6 +163,33 @@ export class MovingTimeSeriesPlot {
 			yDomain.start = 0;
 		}
 		this.plot.updateDomains(this.plot.getXDomain(), yDomain.toArray(), false);
+	}
+
+	/**
+	 * Returns a new array containing the new DataPoints injected into the existing ones.
+	 * Pure function.
+	 * 
+	 * @param existingDataPoints - this.dataPoints.
+	 * @param toInject - The DataPoints to inject into the existing dataPoints.
+	 */
+	private inject(existingDataPoints: Array<Array<Date | number>>, toInject: Array<DataPoint>): Array<Array<Date | number>> {
+		let existingCounter = 0;
+		let injectCounter = 0;
+
+		const resultArray = [];
+		while (existingCounter < existingDataPoints.length || injectCounter < toInject.length) {
+			const existingDate: Date | number = existingCounter < existingDataPoints.length? existingDataPoints[existingCounter][0]: Infinity;
+			const injectDate: Date = injectCounter < toInject.length ? toInject[injectCounter].toArray()[0] : Infinity;
+
+			if (existingDate < injectDate) {
+				resultArray.push(existingDataPoints[existingCounter]);
+				existingCounter++;
+			} else {
+				resultArray.push(toInject[injectCounter].toArray());
+				injectCounter++;
+			}
+		}
+		return resultArray
 	}
 
 }

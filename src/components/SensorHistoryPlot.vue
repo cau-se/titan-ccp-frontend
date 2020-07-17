@@ -195,7 +195,7 @@ export default class SensorHistoryPlot extends Vue {
         const from = xDomain[0].getTime();
         const to = xDomain[1].getTime();
         this.windowSize /= 2;
-        this.fetchNewData(from, to, this.windowSize).then((v) => this.plot.setDataPoints(v, false))
+        this.fetchNewData(from, to, this.windowSize).then((v) => this.plot.injectDataPoints(v))
     }
 }
 </script>
