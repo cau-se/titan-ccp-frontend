@@ -1,6 +1,8 @@
 //eslint-disable-next-line @typescript-eslint/ban-ts-ignore
 // @ts-ignore
-import { CanvasTimeSeriesPlot } from './canvasPlot/CanvasTimeSeriesPlot';
+import { CanvasTimeSeriesPlot } from '../canvasPlot/CanvasTimeSeriesPlot';
+import { inject } from './helpers'
+import { DataPoint } from './DataPoint'
 declare const d3version3: any; //eslint-disable-line @typescript-eslint/no-explicit-any
 
 
@@ -29,6 +31,8 @@ class Domain {
 	}
 
 }
+
+
 
 export class MovingTimeSeriesPlot {
 
@@ -138,7 +142,7 @@ export class MovingTimeSeriesPlot {
 	 */
 	public injectDataPoints(dataPointsToInject: Array<DataPoint>): void {
 		// inject new dataPoints into existing ones
-		const newDataPoints = this.inject(this.dataPoints, dataPointsToInject);
+		const newDataPoints = inject(this.dataPoints, dataPointsToInject);
 		this.dataPoints = newDataPoints;
 
 		// apply new dataPoints to CanvasPlot
@@ -165,39 +169,4 @@ export class MovingTimeSeriesPlot {
 		this.plot.updateDomains(this.plot.getXDomain(), yDomain.toArray(), false);
 	}
 
-	/**
-	 * Returns a new array containing the new DataPoints injected into the existing ones.
-	 * Pure function.
-	 * 
-	 * @param existingDataPoints - this.dataPoints.
-	 * @param toInject - The DataPoints to inject into the existing dataPoints.
-	 */
-	private inject(existingDataPoints: Array<Array<Date | number>>, toInject: Array<DataPoint>): Array<Array<Date | number>> {
-		let existingCounter = 0;
-		let injectCounter = 0;
-
-		const resultArray = [];
-		while (existingCounter < existingDataPoints.length || injectCounter < toInject.length) {
-			const existingDate: Date | number = existingCounter < existingDataPoints.length? existingDataPoints[existingCounter][0]: Infinity;
-			const injectDate: Date = injectCounter < toInject.length ? toInject[injectCounter].toArray()[0] : Infinity;
-
-			if (existingDate < injectDate) {
-				resultArray.push(existingDataPoints[existingCounter]);
-				existingCounter++;
-			} else {
-				resultArray.push(toInject[injectCounter].toArray());
-				injectCounter++;
-			}
-		}
-		return resultArray
-	}
-
-}
-
-export class DataPoint {
-	public constructor(public date: Date, public value: number) { }
-
-	public toArray(): any[] {
-		return [this.date, this.value]
-	}
 }
