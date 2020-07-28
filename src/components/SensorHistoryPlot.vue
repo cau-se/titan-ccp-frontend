@@ -30,7 +30,7 @@ const debounce = require('lodash.debounce');
 })
 export default class SensorHistoryPlot extends Vue {
      
-    private refreshIntervalInMs = 1000
+    private refreshIntervalInMs = 5000
 
     @Prop({ required: true }) sensor!: Sensor
 
@@ -96,7 +96,7 @@ export default class SensorHistoryPlot extends Vue {
         })
         // BETTER fetch already earlier and then wait for mount
         this.isLoading = true
-        return this.fetchNewData(this.latest, undefined, this.windowSize)
+        return this.fetchNewData("minutely", this.latest)
             .catch(e => {
                 console.error(e);
                 this.isError = true
@@ -126,7 +126,7 @@ export default class SensorHistoryPlot extends Vue {
 
     private updatePlot() {
         if (this.timeMode.autoLoading) {      
-            this.fetchNewData(this.latest, undefined, this.windowSize).then(dataPoints => this.plot.addDataPoints(dataPoints));
+            this.fetchNewData("raw", this.latest).then(dataPoints => this.plot.addDataPoints(dataPoints));
         }
     }
 
@@ -135,18 +135,77 @@ export default class SensorHistoryPlot extends Vue {
         this.plot.destroy()
     }
 
-    private fetchNewData(after: number, to: number | undefined, windowSize: number): Promise<DataPoint[]> {
-        let resource = this.sensor instanceof AggregatedSensor ? 'aggregated-power-consumption' : 'power-consumption' 
-        const url = `${resource}/${this.sensor.identifier}?after=${after}`
-        return HTTP.get(url)
-            .then(response => {
-                // JSON responses are automatically parsed.
-                if (response.data.length > 0) {
-                    this.latest = response.data[response.data.length - 1].timestamp
-                }
-                // TODO access sum generically
-                return response.data.map((x: any) => new DataPoint(new Date(x.timestamp), this.sensor instanceof AggregatedSensor ? x.sumInW : x.valueInW));
-            }).then((data) => this.aggregate(data, windowSize));
+    /**
+     * Fetches new data for the current sensor.
+     * 
+     * @param windowSize - Determines the temporal resolution of the returned data.
+     * @param from - The earliest data to fetch.
+     * @param to - The latest data to fetch.
+     * 
+     * @returns Promise resolving to an array of DataPoints.
+     */
+    private fetchNewData(windowSize: "raw" | "minutely" | "hourly", from: number, to?: number): Promise<DataPoint[]> {
+        const toMillis = to? to : this.timeMode.getTime().toMillis();
+        const fetchPromise = windowSize === "raw"
+            ? this.fetchNewRawData(from, toMillis)
+            : this.fetchNewWindowedData(windowSize, from, toMillis);
+
+        // save latest received timestamp
+        fetchPromise.then((dataPoints) => {
+            if (dataPoints.length > 0) {
+                this.latest = dataPoints[dataPoints.length - 1].date.getTime();
+            }
+            return dataPoints;
+        });
+
+        return fetchPromise;
+    }
+
+    /**
+     * Fetches windowed data for the current sensor.
+     * 
+     * @param windowSize - Determines the temporal resolution of the returned data.
+     * @param from - The earliest data to fetch.
+     * @param to - The latest data to fetch.
+     * 
+     * @returns Promise resolving to an array of DataPoints.
+     */
+    private fetchNewWindowedData(windowSize: "hourly" | "minutely", from: number, to: number): Promise<DataPoint[]> {
+        const resource = `active-power/windowed/${windowSize}/${this.sensor.identifier}`;
+        const params = `?from=${from}&to=${to}`;
+        const url = resource + params;
+        return HTTP.get(url).then((response) => {
+            // Map the response to an array of datapoints and return it
+            return response.data.map((x: any) => {
+                return new DataPoint(new Date(x.endTimestamp), x.mean);
+            });
+        });
+    }
+
+    /**
+     * Fetches raw data for the current sensor, which means a maximum temporal resolution.
+     * 
+     * @param windowSize - Determines the temporal resolution of the returned data.
+     * @param from - The earliest data to fetch.
+     * @param to - The latest data to fetch.
+     * 
+     * @returns Promise resolving to an array of DataPoints.
+     */
+    private fetchNewRawData(from: number, to: number): Promise<DataPoint[]> {
+        const resource = this.sensor instanceof AggregatedSensor 
+            ? 'aggregated-power-consumption/' 
+            : 'power-consumption/';
+        const identifier = this.sensor.identifier;
+        const params = `?from=${from}&to=${to}`;
+        const url = resource + identifier + params;
+        return HTTP.get(url).then((response) => {
+            // Map response to an array of DataPoints and return it
+            return response.data.map((x: any) => {
+                const date = new Date(x.timestamp);
+                const value = this.sensor instanceof AggregatedSensor ? x.sumInW : x.valueInW;
+                return new DataPoint(date, value);
+            });
+        });
     }
 
     /**
@@ -155,7 +214,7 @@ export default class SensorHistoryPlot extends Vue {
      * @param data - The array of data points to aggregate.
      * @param windowSize - Length of aggregate intervall in miliseconds.
      */
-    private aggregate(data: DataPoint[], windowSize: number):DataPoint[] {
+    private aggregate(data: DataPoint[], windowSize: number): DataPoint[] {
         if (data.length < 1) return data;
         const firstTimestamp = data[0].toArray()[0];
         let windows: DataPoint[][] = [[]];
@@ -188,14 +247,28 @@ export default class SensorHistoryPlot extends Vue {
     } 
 
     /**
-     * ZoomHandler for the plot. Handles, which data is to fetched for the new zoom level.
+     * ZoomHandler for the plot. Handles, which data is to be fetched for the new zoom level.
      */
     private handleZoom(xDomain: any, _: undefined, zoomFactor: number) {
-        // zoom in
+        // calculate the domain span in the plot
         const from = xDomain[0].getTime();
         const to = xDomain[1].getTime();
-        this.windowSize = (to - from ) / 50;
-        this.fetchNewData(from, to, this.windowSize).then((v) => this.plot.injectDataPoints(v))
+        const diff = to - from;
+
+        // Define window size for the next data fetch
+        let windowSize: "raw" | "minutely" | "hourly";
+        if (diff <= 15 * 60 * 1000) { // less than 15 minutes
+            windowSize = "raw";
+        } else if (diff <= 5 * 60 * 60 * 1000) { // less then 5 hours
+            windowSize = "minutely";
+        } else {
+            windowSize = "hourly";
+        }
+
+        // Start fetching new data with the calculated options
+        this.fetchNewData(windowSize, from, to).then((dataPoints) => {
+            this.plot.injectDataPoints(dataPoints)
+        });
     }
 }
 </script>
