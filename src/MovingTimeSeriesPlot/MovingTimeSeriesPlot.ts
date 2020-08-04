@@ -104,7 +104,7 @@ export class MovingTimeSeriesPlot {
 	 * 
 	 * @param dataPoints - The array of DataPoints to add to the end of the plot.
 	 */
-	public addDataPoints(dataPoints: Array<DataPoint>): void {
+	public appendDataPoints(dataPoints: Array<DataPoint>): void {
 		if (!this.plot) return;
 		const beforeCalculatedXDomain = Domain.of(this.plot.calculateXDomain());
 		const beforeActualXDomain = Domain.of(this.plot.getXDomain());

@@ -117,7 +117,7 @@ export default class SensorHistoryPlot extends Vue {
 
     private updatePlot() {
         if (this.timeMode.autoLoading) {      
-            this.fetchNewData("raw", this.latest).then(dataPoints => this.plot.addDataPoints(dataPoints));
+            this.fetchNewData("raw", this.latest).then(dataPoints => this.plot.appendDataPoints(dataPoints));
         }
     }
 
