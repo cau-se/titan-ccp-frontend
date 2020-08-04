@@ -1,8 +1,8 @@
 //eslint-disable-next-line @typescript-eslint/ban-ts-ignore
 // @ts-ignore
 import { CanvasTimeSeriesPlot } from '../canvasPlot/CanvasTimeSeriesPlot';
-import { inject } from './helpers'
 import { DataPoint } from './DataPoint'
+import { MultiResolutionData } from './DataSet'
 declare const d3version3: any; //eslint-disable-line @typescript-eslint/no-explicit-any
 
 
@@ -46,9 +46,11 @@ export class MovingTimeSeriesPlot {
 	private defaultStartTime: Date
 	private defaultYDomain: Array<number> // [start, end]
 	private yDomainEnlargement: number // in % for both top and bottom
-	private dataPoints: Array<Array<Date | number>>
+	private dataPoints: [Date, number][]
 	private plot: CanvasTimeSeriesPlot | undefined
 	private onZoom: Function;
+
+	private data: MultiResolutionData;
 
 	constructor(domContainer: HTMLElement,
 		config?: any) { //eslint-disable-line @typescript-eslint/no-explicit-any
@@ -64,6 +66,7 @@ export class MovingTimeSeriesPlot {
 		this.defaultYDomain = config.defaultYDomain || [0, 1];
 		this.yDomainEnlargement = config.yDomainEnlargement || 0.1;
 		this.onZoom = config.onZoom;
+		this.data = new MultiResolutionData(config.numberOfResolutionLevels || 1);
 
 		this.dataPoints = [];
 		this.plot = new CanvasTimeSeriesPlot(d3version3.select(domContainer), [this.width, this.height], {
@@ -142,13 +145,16 @@ export class MovingTimeSeriesPlot {
 	 */
 	public injectDataPoints(dataPointsToInject: Array<DataPoint>): void {
 		// inject new dataPoints into existing ones
-		const newDataPoints = inject(this.dataPoints, dataPointsToInject);
-		this.dataPoints = newDataPoints;
+		this.data.injectDataPoints(0, dataPointsToInject);
+		this.dataPoints = this.data.getDataPoints(0);
 
 		// apply new dataPoints to CanvasPlot
 		if (!this.plot) return
 		this.plot.removeDataSet(this.datasetId);
-		this.plot.addDataSet(this.datasetId, "", this.dataPoints, this.color, false, false);
+		this.plot.addDataSet(this.datasetId, "", this.data.getDataPoints(0), this.color, false, false);
+
+		// recalculate domains
+		this.updateDomains()
 	}
 
 	public destroy(): void {

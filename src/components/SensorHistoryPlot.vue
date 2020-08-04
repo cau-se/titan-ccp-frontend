@@ -207,12 +207,12 @@ export default class SensorHistoryPlot extends Vue {
      */
     private aggregate(data: DataPoint[], windowSize: number): DataPoint[] {
         if (data.length < 1) return data;
-        const firstTimestamp = data[0].toArray()[0];
+        const firstTimestamp = data[0].toArray()[0].getTime();
         let windows: DataPoint[][] = [[]];
 
         // sort data into windows
         data.forEach((dataPoint, index) => {
-            const timestamp = dataPoint.toArray()[0];
+            const timestamp = dataPoint.toArray()[0].getTime();
             const timeSinceFirst = timestamp - firstTimestamp;
             const windowNumber = Math.floor(timeSinceFirst / windowSize); 
             if (windows[windowNumber]) {

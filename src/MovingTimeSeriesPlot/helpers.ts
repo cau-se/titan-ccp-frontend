@@ -13,7 +13,7 @@ function inject(existingDataPoints: Array<Array<Date | number>>, toInject: Array
   const resultArray = [];
   while (existingCounter < existingDataPoints.length || injectCounter < toInject.length) {
     const existingDate: Date | number = existingCounter < existingDataPoints.length? existingDataPoints[existingCounter][0]: Infinity;
-    const injectDate: Date = injectCounter < toInject.length ? toInject[injectCounter].toArray()[0] : Infinity;
+    const injectDate: Date | number = injectCounter < toInject.length ? toInject[injectCounter].toArray()[0] : Infinity;
 
     if (existingDate < injectDate) {
       resultArray.push(existingDataPoints[existingCounter]);
