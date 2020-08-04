@@ -1,7 +1,9 @@
-import { CanvasDataPlot } from './CanvasDataPlot'
+import { CanvasDataPlot, d3Point } from './CanvasDataPlot'
 
 declare let d3version3: any;
 const d3: any = d3version3;
+
+
 
 class CanvasTimeSeriesPlot extends CanvasDataPlot {
   private informationDensity: number[];
@@ -19,7 +21,7 @@ class CanvasTimeSeriesPlot extends CanvasDataPlot {
     this.showMarkerDensity = config.showMarkerDensity || 0.14;
   }
 
-  public addDataSet(uniqueID: string, label: string, dataSet: any[][], colorString: string, updateDomains: boolean, copyData: boolean): void {
+  public addDataSet(uniqueID: string, label: string, dataSet: d3Point[], colorString: string, updateDomains: boolean, copyData: boolean): void {
     this.informationDensity.push(1);
     CanvasDataPlot.prototype.addDataSet.call(this, uniqueID, label, dataSet, colorString, updateDomains, copyData);
   }
@@ -85,8 +87,8 @@ class CanvasTimeSeriesPlot extends CanvasDataPlot {
     }
   }
 
-  getTooltipStringX(dataPoint: any[]) {
-    const zeroPad2 = function (n: number) {
+  getTooltipStringX(dataPoint: d3Point): string {
+    const zeroPad2 = function (n: number): string {
       return n < 10 ? ("0" + n) : n.toString();
     };
     const date = dataPoint[0];
@@ -123,7 +125,7 @@ class CanvasTimeSeriesPlot extends CanvasDataPlot {
       .ticks(Math.round(this.xTicksPerPixel * this.width));
   }
 
-  drawDataSet(dataIndex: number) {
+  drawDataSet(dataIndex: number): void {
     const d = this.data[dataIndex];
     if (d.length < 1) {
       return;

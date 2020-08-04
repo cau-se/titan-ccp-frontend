@@ -1,11 +1,12 @@
-
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 declare let d3version3: any;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const d3: any = d3version3;
 
-type dataPoint = any[];
+export type d3Point = [Date, number];
 
 class CanvasDataPlot {
-  protected data: dataPoint[][];
+  protected data: d3Point[][];
   dataIDs: string[];
   dataLabels: string[];
   displayIndexStart: number[];
@@ -158,7 +159,7 @@ class CanvasDataPlot {
 
     this.onZoom = config.onZoom;
     this.zoomListener = d3.behavior.zoom()
-      .on("zoom", (() => {
+      .on("zoom", ((): void => {
         //console.log("Zoom: " + d3.event.scale + ", x=" + d3.event.translate[0] + ", y="+d3.event.translate[1]);
         if (this.updateViewCallback) {
           this.updateViewCallback(this, this.xScale.domain(), this.yScale.domain());
@@ -213,12 +214,12 @@ class CanvasDataPlot {
     }
   }
 
-  addDataPoint(uniqueID: string, dataPoint: Array<number>, updateDomains: boolean, copyData: boolean) {
+  addDataPoint(uniqueID: string, dataPoint: d3Point, updateDomains: boolean, copyData: boolean): void {
     const i = this.dataIDs.indexOf(uniqueID);
     if (i < 0 || (this.data[i].length > 0 && this.data[i][this.data[i].length - 1][0] > dataPoint[0])) {
       return;
     }
-    this.data[i].push(copyData ? dataPoint.slice(0) : dataPoint);
+    this.data[i].push(copyData ? [...dataPoint] : dataPoint);
 
     if (updateDomains) {
       this.updateDomains(this.calculateXDomain(), this.calculateYDomain(), true);
@@ -229,7 +230,7 @@ class CanvasDataPlot {
     }
   }
 
-  removeDataSet(uniqueID: string) {
+  removeDataSet(uniqueID: string): void {
     const index = this.dataIDs.indexOf(uniqueID);
     if (index >= 0) {
       this.data.splice(index, 1);
@@ -252,7 +253,7 @@ class CanvasDataPlot {
     this.resetZoomListenerAxes();
   }
 
-  setZoomYAxis(zoomY: boolean) {
+  setZoomYAxis(zoomY: boolean): void {
     if (this.yAxisZoom == zoomY) {
       return;
     }
@@ -260,7 +261,7 @@ class CanvasDataPlot {
     this.resetZoomListenerAxes();
   }
 
-  resize(dimensions: Array<number>) {
+  resize(dimensions: Array<number>): void {
     this.totalWidth = Math.max(this.minCanvasWidth, dimensions[0]);
     this.totalHeight = Math.max(this.minCanvasHeight, dimensions[1]);
     this.width = this.totalWidth - this.margin.left - this.margin.right;
@@ -299,7 +300,7 @@ class CanvasDataPlot {
     this.redrawCanvasAndAxes();
   }
 
-  updateDomains(xDomain: any[], yDomain: Array<number>, makeItNice: boolean) {
+  updateDomains(xDomain: any[], yDomain: Array<number>, makeItNice: boolean): void {
     this.xScale.domain(xDomain);
     this.yScale.domain(yDomain);
     if (makeItNice) {
@@ -320,9 +321,9 @@ class CanvasDataPlot {
     return this.yScale.domain();
   }
 
-  calculateXDomain() {
-    const nonEmptySets: number[][][] = [];
-    this.data.forEach((ds: number[][]) => {
+  calculateXDomain(): [number, number] {
+    const nonEmptySets: d3Point[][] = [];
+    this.data.forEach((ds: d3Point[]) => {
       if (ds && ds.length > 0) {
         nonEmptySets.push(ds);
       }
@@ -332,11 +333,11 @@ class CanvasDataPlot {
       return [0, 1];
     }
 
-    let min = nonEmptySets[0][0][0];
-    let max: number = nonEmptySets[0][nonEmptySets[0].length - 1][0];
+    let min = nonEmptySets[0][0][0].getTime();
+    let max: number = nonEmptySets[0][nonEmptySets[0].length - 1][0].getTime();
     for (let i = 1; i < nonEmptySets.length; ++i) {
-      const minCandidate = nonEmptySets[i][0][0];
-      const maxCandidate = nonEmptySets[i][nonEmptySets[i].length - 1][0];
+      const minCandidate = nonEmptySets[i][0][0].getTime();
+      const maxCandidate = nonEmptySets[i][nonEmptySets[i].length - 1][0].getTime();
       min = minCandidate < min ? minCandidate : min;
       max = max < maxCandidate ? maxCandidate : max;
     }
@@ -347,9 +348,9 @@ class CanvasDataPlot {
     return [min, max];
   }
 
-  calculateYDomain() {
-    const nonEmptySets: number[][][] = [];
-    this.data.forEach(function (ds: number[][]) {
+  calculateYDomain(): [number, number] {
+    const nonEmptySets: d3Point[][] = [];
+    this.data.forEach(function (ds: d3Point[]) {
       if (ds && ds.length > 0) {
         nonEmptySets.push(ds);
       }
@@ -372,7 +373,7 @@ class CanvasDataPlot {
     return [min, max];
   }
 
-  destroy() {
+  destroy(): void {
     this.div.remove();
   }
 
@@ -390,7 +391,7 @@ class CanvasDataPlot {
       .ticks(Math.round(this.xTicksPerPixel * this.width));
   }
 
-  private setupYScaleAndAxis() {
+  private setupYScaleAndAxis(): void {
     this.yScale = d3.scale.linear()
       .domain(this.calculateYDomain())
       .range(this.invertYAxis ? [0, this.height] : [this.height, 0])
@@ -402,11 +403,11 @@ class CanvasDataPlot {
       .ticks(Math.round(this.yTicksPerPixel * this.height));
   }
 
-  private getDataID(index: number) {
+  private getDataID(index: number): string {
     return (this.dataIDs.length > index ? this.dataIDs[index] : "");
   }
 
-  protected updateTooltip() {
+  protected updateTooltip(): void {
     const mouse = d3.mouse(this.div.node());
     const mx = mouse[0] - this.margin.left;
     const my = mouse[1] - this.margin.top;
@@ -439,15 +440,15 @@ class CanvasDataPlot {
     }
   }
 
-  protected getTooltipStringX(dataPoint: dataPoint) {
+  protected getTooltipStringX(dataPoint: d3Point): string {
     return "x = " + dataPoint[0];
   }
 
-  protected getTooltipStringY(dataPoint: dataPoint) {
+  protected getTooltipStringY(dataPoint: d3Point): string {
     return "y = " + dataPoint[1];
   }
 
-  protected showTooltip(position: [number, number], color: string, xText: string, yText: string) {
+  protected showTooltip(position: [number, number], color: string, xText: string, yText: string): void {
     if (this.tooltip) {
       this.tooltip.remove();
       this.tooltip = null;
@@ -474,7 +475,7 @@ class CanvasDataPlot {
     tooltipBG.attr("transform", "scale(" + (1.1 * Math.max(xTextElem.node().getComputedTextLength(), yTextElem.node().getComputedTextLength()) / 200) + ",1)");
   }
 
-  protected removeTooltip() {
+  protected removeTooltip(): void {
     if (!this.tooltip) {
       return;
     }
@@ -482,7 +483,7 @@ class CanvasDataPlot {
     this.tooltip = null;
   }
 
-  private updateLegend() {
+  private updateLegend(): void {
     if (this.disableLegend) {
       return;
     }
@@ -526,7 +527,7 @@ class CanvasDataPlot {
       .attr("transform", "translate(" + (this.width - this.legendWidth - this.legendMargin) + ", " + this.legendMargin + ")");
   }
 
-  private findLargestSmaller(d: dataPoint[], ia: number, ib: number, v: number): number {
+  private findLargestSmaller(d: d3Point[], ia: number, ib: number, v: number): number {
     if (this.xScale(d[ia][0]) >= v || ib - ia <= 1) {
       return ia;
     }
@@ -536,7 +537,7 @@ class CanvasDataPlot {
     return this.xScale(d[imiddle][0]) <= v ? this.findLargestSmaller(d, imiddle, ib, v) : this.findLargestSmaller(d, ia, imiddle, v);
   }
 
-  protected updateDisplayIndices() {
+  protected updateDisplayIndices(): void {
     const nDataSets = this.data.length;
     for (let i = 0; i < nDataSets; ++i) {
       const d = this.data[i];
@@ -551,13 +552,13 @@ class CanvasDataPlot {
   }
 
 
-  private redrawCanvasAndAxes() {
+  private redrawCanvasAndAxes(): void {
     this.xAxisGroup.call(this.xAxis);
     this.yAxisGroup.call(this.yAxis);
     this.drawCanvas();
   }
 
-  private drawCanvas() {
+  private drawCanvas(): void {
     this.canvas.clearRect(0, 0, this.width, this.height);
 
     this.drawGrid();
@@ -568,7 +569,7 @@ class CanvasDataPlot {
     }
   }
 
-  private drawGrid() {
+  private drawGrid(): void {
     this.canvas.lineWidth = 1;
     this.canvas.strokeStyle = this.gridColor;
     this.canvas.beginPath();
