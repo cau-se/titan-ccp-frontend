@@ -6,7 +6,7 @@ import { DataPoint } from './DataPoint'
 * @param existingDataPoints - this.dataPoints.
 * @param toInject - The DataPoints to inject into the existing dataPoints.
 */
-function inject(existingDataPoints: Array<Array<Date | number>>, toInject: Array<DataPoint>): Array<Array<Date | number>> {
+function inject(existingDataPoints: [Date, number][], toInject: Array<DataPoint>): [Date, number][] {
   let existingCounter = 0;
   let injectCounter = 0;
 

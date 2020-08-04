@@ -1,9 +1,11 @@
 import { DataPoint } from './DataPoint'
+import { inject } from './helpers'
 
 type d3Point = [Date, number];
 
 class DataSet {
   private dataPoints: d3Point[] = [];
+  private cachedIntervals: [Date, Date][] = [];
 
   public constructor(dataPoints: DataPoint[]) {
     this.dataPoints = dataPoints.map(dataPoint => dataPoint.toArray());
@@ -13,13 +15,18 @@ class DataSet {
     return this.dataPoints;
   }
 
+  public getCachedIntervals(): [Date, Date][] {
+    return this.cachedIntervals;
+  }
+
   public setDataPoints(dataPoints: DataPoint[]): void {
+    this.cachedIntervals = [];
     this.dataPoints = dataPoints.map(dataPoint => dataPoint.toArray());
   }
 
   public injectDataPoints(dataPoints: DataPoint[]): void {
-    // TODO implement me!
-    this.dataPoints = dataPoints.map(dataPoint => dataPoint.toArray());
+    // TODO store cached interval
+    this.dataPoints = inject(this.dataPoints, dataPoints);
   }
 }
 

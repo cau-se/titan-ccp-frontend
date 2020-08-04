@@ -50,7 +50,7 @@ export class MovingTimeSeriesPlot {
 	private plot: CanvasTimeSeriesPlot | undefined
 	private onZoom: Function;
 
-	private data: MultiResolutionData;
+	private readonly data: MultiResolutionData;
 
 	constructor(domContainer: HTMLElement,
 		config?: any) { //eslint-disable-line @typescript-eslint/no-explicit-any
@@ -143,15 +143,15 @@ export class MovingTimeSeriesPlot {
 	 * @param dataPointsToInject - 	The array of DataPoints to inject into the dataset. 
 	 * 	This array has to be ordered by its timestamps!
 	 */
-	public injectDataPoints(dataPointsToInject: Array<DataPoint>): void {
+	public injectDataPoints(dataPointsToInject: Array<DataPoint>, resolutionLevel: number): void {
 		// inject new dataPoints into existing ones
-		this.data.injectDataPoints(0, dataPointsToInject);
-		this.dataPoints = this.data.getDataPoints(0);
+		this.data.injectDataPoints(resolutionLevel, dataPointsToInject);
+		this.dataPoints = this.data.getDataPoints(resolutionLevel);
 
 		// apply new dataPoints to CanvasPlot
 		if (!this.plot) return
 		this.plot.removeDataSet(this.datasetId);
-		this.plot.addDataSet(this.datasetId, "", this.data.getDataPoints(0), this.color, false, false);
+		this.plot.addDataSet(this.datasetId, "", this.data.getDataPoints(resolutionLevel), this.color, false, false);
 
 		// recalculate domains
 		this.updateDomains()
@@ -163,6 +163,10 @@ export class MovingTimeSeriesPlot {
 		}
 	}
 
+	public getData(): MultiResolutionData{
+		return this.data;
+	}
+	
 	private updateDomains(): void {
 		if (!this.plot) return;
 		const yDomain = Domain.of(this.plot.calculateYDomain());

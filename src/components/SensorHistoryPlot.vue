@@ -83,7 +83,8 @@ export default class SensorHistoryPlot extends Vue {
         this.plot = new MovingTimeSeriesPlot(this.canvasplotContainer, {
             plotStartsWithZero: true,
             yAxisLabel: "Active Power in Watt",
-            onZoom: debounce(this.handleZoom, 300)
+            onZoom: debounce(this.handleZoom, 300),
+            numberOfResolutionLevels: 3
         })
         // BETTER fetch already earlier and then wait for mount
         this.isLoading = true
@@ -143,7 +144,7 @@ export default class SensorHistoryPlot extends Vue {
 
         // save latest received timestamp
         fetchPromise.then((dataPoints) => {
-            if (dataPoints.length > 0) {
+            if (dataPoints.length > 0 && windowSize === "raw" && !to) {
                 this.latest = dataPoints[dataPoints.length - 1].date.getTime();
             }
             return dataPoints;
@@ -248,17 +249,22 @@ export default class SensorHistoryPlot extends Vue {
 
         // Define window size for the next data fetch
         let windowSize: "raw" | "minutely" | "hourly";
+        let resolutionLevel: number; 
         if (diff <= 15 * 60 * 1000) { // less than 15 minutes
             windowSize = "raw";
-        } else if (diff <= 5 * 60 * 60 * 1000) { // less then 5 hours
+            resolutionLevel = 0;
+        } else if (diff <= 10 * 60 * 60 * 1000) { // less then 10 hours
             windowSize = "minutely";
+            resolutionLevel = 1;
         } else {
             windowSize = "hourly";
+            resolutionLevel = 2;
         }
+
 
         // Start fetching new data with the calculated options
         this.fetchNewData(windowSize, from, to).then((dataPoints) => {
-            this.plot.injectDataPoints(dataPoints)
+            this.plot.injectDataPoints(dataPoints, resolutionLevel)
         });
     }
 }
