@@ -14,11 +14,8 @@ import { Vue, Component, Prop, Watch } from "vue-property-decorator";
 import { HTTP } from "../http-common";
 import { Sensor, AggregatedSensor } from '../SensorRegistry'
 import LoadingSpinner from "./LoadingSpinner.vue"
-// @ts-ignore
-import { CanvasTimeSeriesPlot } from '../canvasplot.js';
 import { MovingTimeSeriesPlot, DataPoint } from '../MovingTimeSeriesPlot';
 import Repeater from "../Repeater";
-import { DateTime } from "luxon";
 import TimeMode from "../model/time-mode";
 const sumBy = require('lodash.sumby');
 const debounce = require('lodash.debounce');
@@ -36,13 +33,7 @@ export default class SensorHistoryPlot extends Vue {
 
     @Prop({  required: true }) timeMode!: TimeMode
 
-    private timeOffset: number = 0
-
-    private dataPoints: any[] = []
-
     private latest = this.completeHistory ? 0 : this.timeMode.getTime().toMillis() - (3600*10000);
-
-    private windowSize = 900000;
 
     private isLoading = false
     private isError = false
