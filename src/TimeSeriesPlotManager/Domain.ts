@@ -28,6 +28,12 @@ export class Domain {
 		return [new Date(this.start), new Date(this.end)]
 	}
 
+	public shift(time: number): Domain {
+		this.start += time;
+		this.end += time;
+		return this;
+	}
+
 	public static of(domain: Array<number>): Domain {
 		if (domain.length < 2) {
 			new Error('Domain array must have at least two elements.')

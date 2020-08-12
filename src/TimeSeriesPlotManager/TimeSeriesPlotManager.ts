@@ -102,17 +102,29 @@ export class TimeSeriesPlotManager {
       resolutionLevel,
       this.latestByResolutionLevel[resolutionLevel]
     );
+    if (dataPoints.length <= 0) return;
+    const latestPointFetched = dataPoints[dataPoints.length - 1];
+    const latestFetched = latestPointFetched.date.getTime();
 
     // 3. Inject data into plot
     this.injectDataPoints(dataPoints, resolutionLevel);
 
-    // 4. Set latest fetched data point
-    if (dataPoints.length > 0) {
-      const latestPoint = dataPoints[dataPoints.length - 1];
-      this.latestByResolutionLevel[
-        resolutionLevel
-      ] = latestPoint.date.getTime();
+    // 4. Update x domain
+    const latest = this.latestByResolutionLevel[resolutionLevel];
+    const latestWasDisplayed = latest >= xDomain.start && latest <= xDomain.end;
+    if (latestWasDisplayed) {
+      const shift =
+        latestFetched - this.latestByResolutionLevel[resolutionLevel];
+      const newXDomain = Domain.of(xDomain.toArray()).shift(shift);
+      this.plot.updateDomains(
+        newXDomain.toArray(),
+        this.plot.getYDomain(),
+        false
+      );
     }
+
+    // 5. Set latest fetched data point
+    this.latestByResolutionLevel[resolutionLevel] = latestFetched;
   };
 
   private determineResolutionLevel(xDomain: Domain): number {
@@ -160,59 +172,6 @@ export class TimeSeriesPlotManager {
       );
       this.updateDomains();
     }
-  }
-
-  /**
-   * Appends DataPoints to the plot.
-   * But only if their timestamp is larger than the ones already in the plot.
-   *
-   * @param dataPoints - The array of DataPoints to add to the end of the plot.
-   */
-  private appendDataPoints(dataPoints: Array<DataPoint>): void {
-    if (!this.plot) return;
-    const beforeCalculatedXDomain = Domain.of(this.plot.calculateXDomain());
-    const beforeActualXDomain = Domain.of(this.plot.getXDomain());
-    const beforeEmpty = this.dataPoints.length == 0;
-    for (const dataPoint of dataPoints) {
-      // Updates also this.dataPoints
-      this.plot.addDataPoint(this.datasetId, dataPoint.toArray(), false, false);
-    }
-    const afterCalculatedXDomain = Domain.of(this.plot.calculateXDomain());
-    const afterActualXDomain = Domain.of(this.plot.getXDomain());
-    if (beforeEmpty) {
-      let xDomain: Domain;
-      if (afterCalculatedXDomain.getLength() < this.defaultTimeSpan) {
-        xDomain = new Domain(
-          afterCalculatedXDomain.start,
-          afterCalculatedXDomain.start + this.defaultTimeSpan
-        );
-      } else {
-        xDomain = new Domain(
-          afterCalculatedXDomain.end - this.defaultTimeSpan,
-          afterCalculatedXDomain.end
-        );
-      }
-      this.plot.updateDomains(xDomain.toArray(), this.plot.getYDomain(), false);
-    } else {
-      if (
-        beforeCalculatedXDomain.end <= beforeActualXDomain.end &&
-        afterCalculatedXDomain.end > afterActualXDomain.end
-      ) {
-        const shifting =
-          afterCalculatedXDomain.end - beforeCalculatedXDomain.end;
-        //TODO rework this
-        const xDomain = new Domain(
-          afterActualXDomain.start * 1 + shifting,
-          afterActualXDomain.end * 1 + shifting
-        );
-        this.plot.updateDomains(
-          xDomain.toDateArray(),
-          this.plot.getYDomain(),
-          false
-        );
-      }
-    }
-    this.updateDomains();
   }
 
   /**
