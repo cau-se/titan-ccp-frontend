@@ -2,6 +2,8 @@ import TimeMode from "../model/time-mode";
 import { DataPoint } from "./DataPoint";
 import { HTTP } from "../http-common";
 
+const resolutionToEndpointDictionary = ["raw", "minutely", "hourly"];
+
 export class DownloadManager {
   private readonly timeMode: TimeMode;
   private readonly sensorIdentifier: string;
@@ -23,15 +25,15 @@ export class DownloadManager {
    * @returns Promise resolving to an array of DataPoints.
    */
   public fetchNewData(
-    windowSize: "raw" | "minutely" | "hourly",
+    resolutionLevel: number,
     from: number,
     to?: number
   ): Promise<DataPoint[]> {
     const toMillis = to ? to : this.timeMode.getTime().toMillis();
     const fetchPromise =
-      windowSize === "raw"
+        resolutionLevel === 0
         ? this.fetchNewRawData(from, toMillis)
-        : this.fetchNewWindowedData(windowSize, from, toMillis);
+        : this.fetchNewWindowedData(resolutionLevel, from, toMillis);
 
     // save latest received timestamp
     fetchPromise.then((dataPoints) => {
@@ -55,10 +57,11 @@ export class DownloadManager {
    * @returns Promise resolving to an array of DataPoints.
    */
   public fetchNewWindowedData(
-    windowSize: "hourly" | "minutely",
+    resolutionLevel: number,
     from: number,
     to: number
   ): Promise<DataPoint[]> {
+    const windowSize = resolutionToEndpointDictionary[resolutionLevel];
     const resource = `active-power/windowed/${windowSize}/${this.sensorIdentifier}`;
     const params = `?from=${from}&to=${to}`;
     const url = resource + params;

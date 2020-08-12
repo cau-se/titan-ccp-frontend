@@ -1,7 +1,6 @@
 import { MultiResolutionData } from "./DataSet";
 import { DataPoint } from "./DataPoint";
 import TimeMode from "../model/time-mode";
-import Repeater from "../Repeater";
 import { Domain } from "./Domain";
 import { DownloadManager } from "./api";
 
@@ -23,6 +22,10 @@ interface PlotManagerConstructor {
   onFinishedLoading?: () => void;
 }
 
+/**
+ * This class handles all data for the given TimeSeriesPlot.
+ * It loads new data points every x seconds, handles zoom events in the plots and manages data prefetching.
+ */
 export class TimeSeriesPlotManager {
   private readonly plot: TimeSeriesPlot;
   private readonly data: MultiResolutionData;
@@ -36,6 +39,7 @@ export class TimeSeriesPlotManager {
   private readonly color: string;
 
   private latest: number;
+  private latestByResolutionLevel: number[];
   private dataPoints: [Date, number][] = [];
   private downloadManager: DownloadManager;
 
@@ -51,6 +55,7 @@ export class TimeSeriesPlotManager {
     this.yDomainEnlargement = config.yDomainEnlargement || 0.1;
     this.plotStartsWithZero = config.plotStartsWithZero || true;
     this.color = config.color || "orange";
+    this.latestByResolutionLevel = [this.latest, this.latest, this.latest];
 
     this.plot.setOnZoom(debounce(this.handleZoom, 100));
     this.downloadManager = new DownloadManager(
@@ -58,9 +63,10 @@ export class TimeSeriesPlotManager {
       this.sensorIdentifier,
       this.isAggregatedSensor
     );
+    window.setInterval(this.updateRealTimeData, 5000);
 
     this.downloadManager
-      .fetchNewData("minutely", this.latest)
+      .fetchNewData(1, this.latest)
       .then((dataPoints) => {
         this.setDataPoints(dataPoints, true);
       })
@@ -69,35 +75,58 @@ export class TimeSeriesPlotManager {
       });
   }
 
-  handleZoom = (xDomain: any): void => {
+  handleZoom = (xDomainArray: any): void => {
     // calculate the domain span in the plot
-    const from = xDomain[0].getTime();
-    const to = xDomain[1].getTime();
-    const diff = to - from;
+    const xDomain = Domain.of(xDomainArray);
+    const from = xDomain.start;
+    const to = xDomain.end;
 
     // Define window size for the next data fetch
-    let windowSize: "raw" | "minutely" | "hourly";
-    let resolutionLevel: number;
-    if (diff <= 15 * 60 * 1000) {
-      // less than 15 minutes
-      windowSize = "raw";
-      resolutionLevel = 0;
-    } else if (diff <= 10 * 60 * 60 * 1000) {
-      // less then 10 hours
-      windowSize = "minutely";
-      resolutionLevel = 1;
-    } else {
-      windowSize = "hourly";
-      resolutionLevel = 2;
-    }
+    const resolutionLevel = this.determineResolutionLevel(xDomain);
 
     // Start fetching new data with the calculated options
     this.downloadManager
-      .fetchNewData(windowSize, from, to)
+      .fetchNewData(resolutionLevel, from, to)
       .then((dataPoints) => {
         this.injectDataPoints(dataPoints, resolutionLevel);
       });
   };
+
+  updateRealTimeData = async (): Promise<void> => {
+    // 1. Determine what data to fetch
+    const xDomain = Domain.of(this.plot.getXDomain());
+    const resolutionLevel = this.determineResolutionLevel(xDomain);
+
+    // 2. Fetch data asynchronous
+    const dataPoints = await this.downloadManager.fetchNewData(
+      resolutionLevel,
+      this.latestByResolutionLevel[resolutionLevel]
+    );
+
+    // 3. Inject data into plot
+    this.injectDataPoints(dataPoints, resolutionLevel);
+
+    // 4. Set latest fetched data point
+    if (dataPoints.length > 0) {
+      const latestPoint = dataPoints[dataPoints.length - 1];
+      this.latestByResolutionLevel[
+        resolutionLevel
+      ] = latestPoint.date.getTime();
+    }
+  };
+
+  private determineResolutionLevel(xDomain: Domain): number {
+    const length = xDomain.getLength();
+    if (length <= 15 * 60 * 1000) {
+      // less than 15 minutes
+      return 0;
+    } else if (length <= 10 * 60 * 60 * 1000) {
+      // less then 10 hours
+      return 1;
+    } else {
+      return 2;
+    }
+  }
 
   /**
    * Removes the old dataset from the plot and adds the specified DataPoints as a new dataset.

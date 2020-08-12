@@ -1,5 +1,20 @@
 export class Domain {
-	public constructor(public start: number, public end: number) { }
+	public start: number;
+	public end: number;
+
+	public constructor(start: number | Date, end: number | Date) {
+		if (start instanceof Date) {
+			this.start = start.getTime()
+		} else {
+			this.start = start;
+		}
+
+		if (end instanceof Date) {
+			this.end = end.getTime();
+		} else {
+			this.end = end;
+		}
+	}
 
 	public getLength(): number {
 		return this.end - this.start

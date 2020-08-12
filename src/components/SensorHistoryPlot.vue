@@ -29,14 +29,10 @@ declare const d3version3: any; //eslint-disable-line @typescript-eslint/no-expli
     }
 })
 export default class SensorHistoryPlot extends Vue {
-     
-    private refreshIntervalInMs = 5000
-
     @Prop({ required: true }) sensor!: Sensor
 
     @Prop({  required: true }) timeMode!: TimeMode
 
-    private latest = this.completeHistory ? 0 : this.timeMode.getTime().toMillis() - (3600*10000);
 
     private isLoading = false
     private isError = false
@@ -47,11 +43,6 @@ export default class SensorHistoryPlot extends Vue {
 
     get canvasplotContainer() {
         return this.$el.querySelector(".canvasplot-container")! as HTMLElement
-    }
-
-    get completeHistory() {
-        console.log("SHOW_COMPLETE_HISTORY " + process.env.SHOW_COMPLETE_HISTORY);
-        return process.env.SHOW_COMPLETE_HISTORY === "true"
     }
 
     created() {
