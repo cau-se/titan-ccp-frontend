@@ -67,7 +67,7 @@ export class DownloadManager {
     const url = resource + params;
     return HTTP.get(url).then((response) => {
       // Map the response to an array of datapoints and return it
-      return response.data.map((x: any) => {
+      return response.data.map((x: {endTimestamp: number; mean: number}) => {
         return new DataPoint(new Date(x.endTimestamp), x.mean);
       });
     });
@@ -91,7 +91,7 @@ export class DownloadManager {
     const url = resource + identifier + params;
     return HTTP.get(url).then((response) => {
       // Map response to an array of DataPoints and return it
-      return response.data.map((x: any) => {
+      return response.data.map((x: {timestamp: number; sumInW: number; valueInW: number}) => {
         const date = new Date(x.timestamp);
         const value = this.isAggregatedSensor ? x.sumInW : x.valueInW;
         return new DataPoint(date, value);

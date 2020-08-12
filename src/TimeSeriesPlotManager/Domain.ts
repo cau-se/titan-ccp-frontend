@@ -34,7 +34,7 @@ export class Domain {
 		return this;
 	}
 
-	public static of(domain: Array<number>): Domain {
+	public static of(domain: number[] | Date[]): Domain {
 		if (domain.length < 2) {
 			new Error('Domain array must have at least two elements.')
 		}

@@ -75,7 +75,7 @@ export class TimeSeriesPlotManager {
       });
   }
 
-  handleZoom = (xDomainArray: any): void => {
+  handleZoom = (xDomainArray: [Date, Date]): void => {
     // calculate the domain span in the plot
     const xDomain = Domain.of(xDomainArray);
     const from = xDomain.start;
