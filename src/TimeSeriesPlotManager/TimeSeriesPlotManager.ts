@@ -33,7 +33,6 @@ export class TimeSeriesPlotManager {
   private readonly sensorIdentifier: string;
   private readonly isAggregatedSensor: boolean;
   private readonly datasetId: string;
-  private readonly defaultTimeSpan: number;
   private readonly yDomainEnlargement: number;
   private readonly plotStartsWithZero: boolean;
   private readonly color: string;
@@ -51,7 +50,6 @@ export class TimeSeriesPlotManager {
     this.timeMode = config.timeMode;
     this.latest = this.timeMode.getTime().toMillis() - 3600 * 10000;
     this.datasetId = "measurement";
-    this.defaultTimeSpan = config.defaultTimeSpan || 60 * 1000; // one minute
     this.yDomainEnlargement = config.yDomainEnlargement || 0.1;
     this.plotStartsWithZero = config.plotStartsWithZero || true;
     this.color = config.color || "orange";
@@ -68,7 +66,7 @@ export class TimeSeriesPlotManager {
     this.downloadManager
       .fetchNewData(1, this.latest)
       .then((dataPoints) => {
-        this.setDataPoints(dataPoints, true);
+        this.injectDataPoints(dataPoints, 1, true);
       })
       .then(() => {
         config.onFinishedLoading && config.onFinishedLoading();
@@ -141,51 +139,19 @@ export class TimeSeriesPlotManager {
   }
 
   /**
-   * Removes the old dataset from the plot and adds the specified DataPoints as a new dataset.
-   *
-   * @param dataPoints - The array of dataPoints to show in the plot.
-   * @param updateDomains - Whether to set the x-Domain to contain the new DataPoints.
-   */
-  private setDataPoints(
-    dataPoints: Array<DataPoint>,
-    updateDomains?: boolean
-  ): void {
-    this.dataPoints = [];
-    for (const dataPoint of dataPoints) {
-      this.dataPoints.push(dataPoint.toArray());
-    }
-    if (!this.plot) return;
-    this.plot.removeDataSet(this.datasetId);
-    this.plot.addDataSet(
-      this.datasetId,
-      "",
-      this.dataPoints,
-      this.color,
-      false,
-      false
-    );
-    if (updateDomains && this.dataPoints.length != 0) {
-      this.plot.updateDomains(
-        this.plot.calculateXDomain(),
-        this.plot.getYDomain(),
-        true
-      );
-      this.updateDomains();
-    }
-  }
-
-  /**
    *
    * @param dataPointsToInject - 	The array of DataPoints to inject into the dataset.
    * 	This array has to be ordered by its timestamps!
    */
   private injectDataPoints(
     dataPointsToInject: Array<DataPoint>,
-    resolutionLevel: number
+    resolutionLevel: number,
+    updateDomains?: boolean
   ): void {
     // inject new dataPoints into existing ones
     this.data.injectDataPoints(resolutionLevel, dataPointsToInject);
-    this.dataPoints = this.data.getDataPoints(resolutionLevel);
+    const dataPoints = this.data.getDataPoints(resolutionLevel);
+    if (dataPoints.length <= 0) return;
 
     // apply new dataPoints to CanvasPlot
     if (!this.plot) return;
@@ -193,13 +159,20 @@ export class TimeSeriesPlotManager {
     this.plot.addDataSet(
       this.datasetId,
       "",
-      this.data.getDataPoints(resolutionLevel),
+      dataPoints,
       this.color,
       false,
       false
     );
 
     // recalculate domains
+    if (updateDomains) {
+      this.plot.updateDomains(
+        this.plot.calculateXDomain(),
+        this.plot.getYDomain(),
+        true
+      );
+    }
     this.updateDomains();
   }
 
