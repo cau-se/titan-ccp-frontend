@@ -184,6 +184,10 @@ class CanvasDataPlot {
     this.resetZoomListenerAxes();
   }
 
+  public setOnZoom(onZoom: (xDomain: any, yDomain: any, zoomFactor: number) => void): void {
+    this.onZoom = onZoom;
+  }
+
   addDataSet(uniqueID: string, label: string, dataSet: Array<any>, colorString: string, updateDomains: boolean, copyData: boolean): void {
     this.dataIDs.push(uniqueID);
     this.dataLabels.push(label);
