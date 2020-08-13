@@ -39,9 +39,11 @@ export class TimeSeriesPlotManager {
 
   private latest: number;
   private latestByResolutionLevel: number[];
-  private dataPoints: [Date, number][] = [];
   private downloadManager: DownloadManager;
 
+  /**
+   * Constructor
+   */
   constructor(config: PlotManagerConstructor) {
     this.plot = config.plot;
     this.data = new MultiResolutionData(3);
@@ -63,14 +65,19 @@ export class TimeSeriesPlotManager {
     );
     window.setInterval(this.updateRealTimeData, 5000);
 
-    this.downloadManager
-      .fetchNewData(1, this.latest)
-      .then((dataPoints) => {
-        this.injectDataPoints(dataPoints, 1, true);
-      })
-      .then(() => {
-        config.onFinishedLoading && config.onFinishedLoading();
-      });
+    // fetch first data
+    const defaultResolutionLevel = 1;
+    this.downloadManager.fetchNewData(defaultResolutionLevel, this.latest).then((dataPoints) => {
+      this.injectDataPoints(dataPoints, 1, true);
+      config.onFinishedLoading && config.onFinishedLoading();
+
+      // set timestamp of latest point fetched
+      if (dataPoints.length > 0) {
+        const latestPoint = dataPoints[dataPoints.length - 1];
+        const latest = latestPoint.date.getTime();
+        this.latestByResolutionLevel[defaultResolutionLevel] = latest;
+      }
+    });
   }
 
   handleZoom = (xDomainArray: [Date, Date]): void => {
@@ -130,8 +137,8 @@ export class TimeSeriesPlotManager {
     if (length <= 15 * 60 * 1000) {
       // less than 15 minutes
       return 0;
-    } else if (length <= 10 * 60 * 60 * 1000) {
-      // less then 10 hours
+    } else if (length <= 11 * 60 * 60 * 1000) {
+      // less then 11 hours
       return 1;
     } else {
       return 2;
