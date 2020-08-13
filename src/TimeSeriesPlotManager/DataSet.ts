@@ -1,32 +1,41 @@
-import { DataPoint } from './DataPoint'
-import { inject } from './helpers'
+import { DataPoint } from "./DataPoint";
+import { inject, injectInterval } from "./helpers";
 
 type d3Point = [Date, number];
 
 class DataSet {
   private dataPoints: d3Point[] = [];
-  private cachedIntervals: [Date, Date][] = [];
+
+  /**
+   * Ordered (!) array of intervals representing the intervals of already fetched data.
+   */
+  private cachedIntervals: [number, number][] = [];
 
   public constructor(dataPoints: DataPoint[]) {
-    this.dataPoints = dataPoints.map(dataPoint => dataPoint.toArray());
+    this.dataPoints = dataPoints.map((dataPoint) => dataPoint.toArray());
   }
 
   public getDataPoints(): d3Point[] {
     return this.dataPoints;
   }
 
-  public getCachedIntervals(): [Date, Date][] {
+  public getCachedIntervals(): [number, number][] {
     return this.cachedIntervals;
   }
 
   public setDataPoints(dataPoints: DataPoint[]): void {
     this.cachedIntervals = [];
-    this.dataPoints = dataPoints.map(dataPoint => dataPoint.toArray());
+    this.dataPoints = dataPoints.map((dataPoint) => dataPoint.toArray());
   }
 
   public injectDataPoints(dataPoints: DataPoint[]): void {
-    // TODO store cached interval
+    if (dataPoints.length <= 0) return;
+
     this.dataPoints = inject(this.dataPoints, dataPoints);
+
+    const start = dataPoints[0].date.getTime();
+    const end = dataPoints[dataPoints.length - 1].date.getTime();
+    this.cachedIntervals = injectInterval(this.cachedIntervals, start, end);
   }
 }
 
@@ -47,8 +56,10 @@ export class MultiResolutionData {
     this.dataSetsPerResolution[resolutionLevel].setDataPoints(dataPoints);
   }
 
-  public injectDataPoints(resolutionLevel: number, dataPoints: DataPoint[]): void {
+  public injectDataPoints(
+    resolutionLevel: number,
+    dataPoints: DataPoint[]
+  ): void {
     this.dataSetsPerResolution[resolutionLevel].injectDataPoints(dataPoints);
   }
 }
-

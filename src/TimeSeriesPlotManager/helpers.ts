@@ -26,4 +26,30 @@ function inject(existingDataPoints: [Date, number][], toInject: Array<DataPoint>
   return resultArray
 }
 
-export { inject }
+function injectInterval(
+  existingIntervals: [number, number][],
+  start: number,
+  end: number
+): [number, number][] {
+  // append interval to inject
+  let intervals: [number, number][] = [...existingIntervals, [start, end]];
+
+  // sort by start of interval
+  intervals = intervals.sort((a, b) => a[0] - b[0]);
+
+  // merge intervals if needed
+  const mergedIntervals: [number, number][] = [];
+  for (let i = 0; i < intervals.length; i++) {
+    const interval = intervals[i];
+    const lastInterval = mergedIntervals[mergedIntervals.length - 1];
+    if (mergedIntervals.length <= 0 || lastInterval[1] < interval[0]) {
+      mergedIntervals.push(interval);
+    } else {
+      lastInterval[1] = Math.max(lastInterval[1], interval[1]);
+    }
+  }
+
+  return mergedIntervals;
+}
+
+export { inject, injectInterval }
