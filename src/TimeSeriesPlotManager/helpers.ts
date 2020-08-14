@@ -69,6 +69,11 @@ function invertedIntervalIntersections(
   start: number,
   end: number
 ): [number, number][] {
+  if (existingIntervals.length === 0) {
+    return [[start, end]];
+  }
+ 
+
   const uncachedIntervals: [number, number][] = [];
   for (let i = 0; i < existingIntervals.length; i++) {
     const interval = existingIntervals[i];

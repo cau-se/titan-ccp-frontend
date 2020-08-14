@@ -1,6 +1,7 @@
 import TimeMode from "../model/time-mode";
 import { DataPoint } from "./DataPoint";
 import { HTTP } from "../http-common";
+import { MultiResolutionData } from "./DataSet";
 
 const resolutionToEndpointDictionary = ["raw", "minutely", "hourly"];
 
@@ -8,8 +9,15 @@ export class DownloadManager {
   private readonly timeMode: TimeMode;
   private readonly sensorIdentifier: string;
   private readonly isAggregatedSensor: boolean;
+  private readonly data: MultiResolutionData;
 
-  constructor(timeMode: TimeMode, sensorIdentifier: string, isAggregatedSensor = false) {
+  constructor(
+    data: MultiResolutionData,
+    timeMode: TimeMode,
+    sensorIdentifier: string,
+    isAggregatedSensor = false
+  ) {
+    this.data = data;
     this.timeMode = timeMode;
     this.sensorIdentifier = sensorIdentifier;
     this.isAggregatedSensor = isAggregatedSensor;
@@ -24,27 +32,43 @@ export class DownloadManager {
    *
    * @returns Promise resolving to an array of DataPoints.
    */
-  public fetchNewData(
+  public async fetchNewData(
     resolutionLevel: number,
     from: number,
     to?: number
   ): Promise<DataPoint[]> {
     const toMillis = to ? to : this.timeMode.getTime().toMillis();
-    const fetchPromise =
-        resolutionLevel === 0
-        ? this.fetchNewRawData(from, toMillis)
-        : this.fetchNewWindowedData(resolutionLevel, from, toMillis);
 
-    // save latest received timestamp
-    fetchPromise.then((dataPoints) => {
-      // TODO: Push to manager
-      // if (dataPoints.length > 0 && windowSize === "raw" && !to) {
-      //   this.latest = dataPoints[dataPoints.length - 1].date.getTime();
-      // }
-      return dataPoints;
-    });
+    // 1. determine, which data is already cached
+    const intervalsToFetch = this.data.getUncachedIntervals(
+      resolutionLevel,
+      from,
+      toMillis
+    );
+    // console.log(
+    //   `Called to fetch ${new Date(from).toLocaleString("de")} - ${new Date(
+    //     toMillis
+    //   ).toLocaleString("de")}. Caching alorithm proposed to download:`
+    // );
+    // intervalsToFetch.forEach(interval => {
+    //   console.log(`${(new Date(interval[0])).toLocaleString("de")} - ${(new Date(interval[1])).toLocaleString("de")}`)
+    // })
 
-    return fetchPromise;
+    // 2. Download data in proposed intervals
+    const fetchPromises = intervalsToFetch.map((interval) =>
+      resolutionLevel === 0
+        ? this.fetchNewRawData(interval[0], interval[1])
+        : this.fetchNewWindowedData(resolutionLevel, interval[0], interval[1])
+    );
+    const responses = await Promise.all(fetchPromises);
+
+    // 3. Assemble fetched data to one array
+    const fetchedData: DataPoint[] = [];
+    responses.forEach(dataInInterval => {
+      dataInInterval.forEach(dataPoint => fetchedData.push(dataPoint));
+    })
+
+    return fetchedData;
   }
 
   /**
@@ -67,7 +91,7 @@ export class DownloadManager {
     const url = resource + params;
     return HTTP.get(url).then((response) => {
       // Map the response to an array of datapoints and return it
-      return response.data.map((x: {endTimestamp: number; mean: number}) => {
+      return response.data.map((x: { endTimestamp: number; mean: number }) => {
         return new DataPoint(new Date(x.endTimestamp), x.mean);
       });
     });
@@ -91,11 +115,13 @@ export class DownloadManager {
     const url = resource + identifier + params;
     return HTTP.get(url).then((response) => {
       // Map response to an array of DataPoints and return it
-      return response.data.map((x: {timestamp: number; sumInW: number; valueInW: number}) => {
-        const date = new Date(x.timestamp);
-        const value = this.isAggregatedSensor ? x.sumInW : x.valueInW;
-        return new DataPoint(date, value);
-      });
+      return response.data.map(
+        (x: { timestamp: number; sumInW: number; valueInW: number }) => {
+          const date = new Date(x.timestamp);
+          const value = this.isAggregatedSensor ? x.sumInW : x.valueInW;
+          return new DataPoint(date, value);
+        }
+      );
     });
   }
 }

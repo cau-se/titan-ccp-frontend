@@ -70,4 +70,11 @@ export class MultiResolutionData {
   ): void {
     this.dataSetsPerResolution[resolutionLevel].injectDataPoints(dataPoints);
   }
+
+  public getUncachedIntervals(resolutionLevel: number, start: number, end: number): [number, number][] {
+    return this.dataSetsPerResolution[resolutionLevel].getUncachedIntervals(
+      start,
+      end
+    );
+  }
 }

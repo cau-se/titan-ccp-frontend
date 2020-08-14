@@ -60,8 +60,13 @@ describe("Test invertedIntervalIntersection", ()=> {
     expect(res).toEqual([[0, 4]]);
   })
 
-  test ("It should resturn interval after existing intervals", ()=> {
+  test ("It should return interval after existing intervals", ()=> {
     const res = invertedIntervalIntersections(intervals, 21, 30);
+    expect(res).toEqual([[21, 30]])
+  })
+
+  test("It should return interval when nothing was cached before", () => {
+    const res = invertedIntervalIntersections([], 21, 30);
     expect(res).toEqual([[21, 30]])
   })
 })

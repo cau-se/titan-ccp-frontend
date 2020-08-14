@@ -59,6 +59,7 @@ export class TimeSeriesPlotManager {
 
     this.plot.setOnZoom(debounce(this.handleZoom, 100));
     this.downloadManager = new DownloadManager(
+      this.data,
       this.timeMode,
       this.sensorIdentifier,
       this.isAggregatedSensor
