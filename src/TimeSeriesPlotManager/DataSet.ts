@@ -1,5 +1,9 @@
 import { DataPoint } from "./DataPoint";
-import { inject, injectInterval } from "./helpers";
+import {
+  inject,
+  injectInterval,
+  invertedIntervalIntersections,
+} from "./helpers";
 
 type d3Point = [Date, number];
 
@@ -21,6 +25,10 @@ class DataSet {
 
   public getCachedIntervals(): [number, number][] {
     return this.cachedIntervals;
+  }
+
+  public getUncachedIntervals(start: number, end: number): [number, number][] {
+    return invertedIntervalIntersections(this.cachedIntervals, start, end);
   }
 
   public setDataPoints(dataPoints: DataPoint[]): void {

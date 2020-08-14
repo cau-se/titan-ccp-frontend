@@ -8,6 +8,7 @@
     "build": "webpack --progress --mode production",
     "build-silent": "webpack --hide-modules --mode production",
     "test": "jest",
+    "test:watch": "jest --watch",
     "lint": "eslint 'src/**/*.ts'"
   },
   "author": "Sören Henning <post@soeren-henning.de>",

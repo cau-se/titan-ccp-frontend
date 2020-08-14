@@ -1,4 +1,4 @@
-import { injectInterval } from "./helpers";
+import { injectInterval, invertedIntervalIntersections } from "./helpers";
 
 describe("Test injectInterval", () => {
   const intervals: [number, number][] = [
@@ -33,3 +33,35 @@ describe("Test injectInterval", () => {
     expect(res).toEqual([[1, 40]]);
   });
 });
+
+describe("Test invertedIntervalIntersection", ()=> {
+  const intervals: [number, number][] = [
+    [5, 10],
+    [15, 20]
+  ]
+
+  test("It should return nothing on existing intervals", () => {
+    const res = invertedIntervalIntersections(intervals, 6, 9);
+    expect(res).toEqual([]);
+  })
+
+  test("It should return the whole interval if there is no overlap", () => {
+    const res = invertedIntervalIntersections(intervals, 11, 14);
+    expect(res).toEqual([[11, 14]]);
+  })
+
+  test("It should return split intervals when spanning over existing intervals", ()=> {
+    const res = invertedIntervalIntersections(intervals, 0, 30);
+    expect(res).toEqual([[0, 5], [10, 15], [20, 30]])
+  })
+
+  test("It should return interval before existing intervals", () => {
+    const res = invertedIntervalIntersections(intervals, 0, 4);
+    expect(res).toEqual([[0, 4]]);
+  })
+
+  test ("It should resturn interval after existing intervals", ()=> {
+    const res = invertedIntervalIntersections(intervals, 21, 30);
+    expect(res).toEqual([[21, 30]])
+  })
+})
