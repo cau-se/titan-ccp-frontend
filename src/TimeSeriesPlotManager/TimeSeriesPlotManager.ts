@@ -83,9 +83,14 @@ export class TimeSeriesPlotManager {
 
   handleZoom = (xDomainArray: [Date, Date]): void => {
     // calculate the domain span in the plot
-    const xDomain = Domain.of(xDomainArray);
-    const from = xDomain.start;
-    const to = xDomain.end;
+    const xDomain = Domain.of(xDomainArray);    
+    const span = xDomain.getLength();
+    let from = xDomain.start;
+    let to = xDomain.end;
+
+    // triple the size of the interval to fetch as a simple prefetch
+    from -= span;
+    to += span;
 
     // Define window size for the next data fetch
     const resolutionLevel = this.determineResolutionLevel(xDomain);
