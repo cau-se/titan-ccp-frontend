@@ -24,6 +24,7 @@
     "luxon": "^1.21.0",
     "vue-flatpickr-component": "^8.1.2",
     "vue-router": "^3.0.1",
+    "vue2-daterange-picker": "^0.5.1",
     "vuedraggable": "^2.16.0"
   },
   "devDependencies": {
