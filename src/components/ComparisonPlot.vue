@@ -188,9 +188,10 @@ export default class ComparisonPlot extends Vue {
     }
   }
 
-  private updateDataSet(startDate: any, endDate: any, resolution: any) {
+  private updateDataSet(startDate: any, endDate: any, resolution: string) {
     this.dateRange.startDate = startDate;
     this.dateRange.endDate = endDate;
+    this.resolution = resolution;
     let tmp = this.dataSets;
     for (var i = 0; i < tmp.length; i++) {
       let dataSet = tmp[i];
@@ -200,13 +201,21 @@ export default class ComparisonPlot extends Vue {
   }
 
   private fetchNewData(sensor: Sensor): Promise<DataPoint[]> {
-    let resource =
-      sensor instanceof AggregatedSensor
-        ? "aggregated-power-consumption"
-        : "power-consumption";
+    let resource = "";
+    if (this.resolution == "1:1") {
+      resource =
+        sensor instanceof AggregatedSensor
+          ? "aggregated-power-consumption"
+          : "power-consumption";
+    } else {
+      resource = "active-power";
+    }
+
     return HTTP.get(
       resource +
-        "/" +
+        (this.resolution != "1:1"
+          ? "/windowed/" + this.resolution + "/"
+          : "/") +
         sensor.identifier +
         "?from=" +
         this.dateRange.startDate +
@@ -219,8 +228,14 @@ export default class ComparisonPlot extends Vue {
         return response.data.map(
           (x: any) =>
             new DataPoint(
-              new Date(x.timestamp),
-              sensor instanceof AggregatedSensor ? x.sumInW : x.valueInW
+              new Date(
+                this.resolution == "1:1" ? x.timestamp : x.startTimestamp
+              ),
+              this.resolution == "1:1"
+                ? sensor instanceof AggregatedSensor
+                  ? x.sumInW
+                  : x.valueInW
+                : x.max
             )
         );
       })

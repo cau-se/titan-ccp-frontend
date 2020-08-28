@@ -18,7 +18,13 @@
       </b-container>
     </b-col>
     <b-col>
-      <b-button variant="success" @click="setResolution">Set resolution</b-button>
+      <div>
+        <b-dropdown id="dropdown-1" :text="resolution" class="m-md-2">
+          <b-dropdown-item @click="setResolution('1:1')">1:1</b-dropdown-item>
+          <b-dropdown-item @click="setResolution('minutely')">minutely</b-dropdown-item>
+          <b-dropdown-item @click="setResolution('hourly')">hourly</b-dropdown-item>
+        </b-dropdown>
+      </div>
     </b-col>
   </b-row>
 </template>
@@ -60,7 +66,7 @@ export default class comparisonSettingBar extends Vue {
     endDate: 0
   };
 
-  private resolution: number = 0;
+  resolution: string = "1:1";
 
   private updateValues() {
     console.log(this.dateRange.startDate);
@@ -68,11 +74,14 @@ export default class comparisonSettingBar extends Vue {
       "updatedViewSettings",
       this.dateRange.startDate,
       this.dateRange.endDate,
-      0
+      this.resolution
     );
   }
 
-  setResolution() {}
+  setResolution(resolution: string) {
+    this.resolution = resolution;
+    this.updateValues();
+  }
 }
 </script>
 
