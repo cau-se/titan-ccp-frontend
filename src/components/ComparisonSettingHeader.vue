@@ -1,7 +1,7 @@
 <template>
   <b-row class="text-center">
     <b-col>
-      <b-container fluid class="center">
+      <b-container fluid class="m-md-2">
         <date-range-picker
           ref="picker"
           :timePicker="true"
@@ -19,7 +19,7 @@
     </b-col>
     <b-col>
       <div>
-        <b-dropdown id="dropdown-1" :text="resolution" class="m-md-2">
+        <b-dropdown variant="success" :text="resolution" class="m-md-2">
           <b-dropdown-item @click="setResolution('1:1')">1:1</b-dropdown-item>
           <b-dropdown-item @click="setResolution('minutely')">minutely</b-dropdown-item>
           <b-dropdown-item @click="setResolution('hourly')">hourly</b-dropdown-item>

@@ -1,7 +1,7 @@
 <template>
   <div>
     <div>
-      <comparison-setting-header @updatedViewSettings="changeViewSettings"></comparison-setting-header>
+      <comparison-setting-header v-if="plots.length > 0" @updatedViewSettings="changeViewSettings"></comparison-setting-header>
     </div>
     <b-container v-if="plots.length > 0" class>
       <comparison-plot
