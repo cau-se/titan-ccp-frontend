@@ -63,7 +63,8 @@ declare var d3version3: any;
 export default class ComparisonPlot extends Vue {
   readonly after = new Date().getTime() - 1 * 3600 * 1000;
 
-  readonly dataSets = new Array<DataSet>();
+  // TODO: readonly
+  dataSets = new Array<DataSet>();
 
   newDataSet: Sensor | null = null;
 
@@ -157,6 +158,21 @@ export default class ComparisonPlot extends Vue {
     }
   }
 
+  async refreshDataSet(dataSet: DataSet) {
+    this.dataSets.push(dataSet);
+    let color = this.colors.get(dataSet.sensor.identifier);
+    let updateDomains = true;
+    let dataPoints = await this.fetchNewData(dataSet.sensor);
+    this.plot.addDataSet(
+      dataSet.sensor.identifier,
+      dataSet.sensor.title,
+      dataPoints.map(dataPoint => dataPoint.toArray()),
+      color,
+      updateDomains,
+      false
+    );
+  }
+
   updatedView(except: any, xDomain: any, yDomain: any) {
     this.$emit("update-domain-x", xDomain);
   }
@@ -172,11 +188,15 @@ export default class ComparisonPlot extends Vue {
     }
   }
 
-  private updateDataSet(
-    dateRange: { startDate: any; endDate: any },
-    resolution: any
-  ) {
-    console.log("call update in comparison plot");
+  private updateDataSet(startDate: any, endDate: any, resolution: any) {
+    this.dateRange.startDate = startDate;
+    this.dateRange.endDate = endDate;
+    let tmp = this.dataSets;
+    for (var i = 0; i < tmp.length; i++) {
+      let dataSet = tmp[i];
+      this.removeDataSet(dataSet);
+      this.refreshDataSet(dataSet);
+    }
   }
 
   private fetchNewData(sensor: Sensor): Promise<DataPoint[]> {
@@ -184,10 +204,14 @@ export default class ComparisonPlot extends Vue {
       sensor instanceof AggregatedSensor
         ? "aggregated-power-consumption"
         : "power-consumption";
-    let after = sensor.identifier == "46" ? 1530372100000 : this.after; // Temporary hack to reduce amount of data in live demo
-    console.log("fetch data");
     return HTTP.get(
-      resource + "/" + sensor.identifier + "?after=" + this.dateRange.endDate
+      resource +
+        "/" +
+        sensor.identifier +
+        "?from=" +
+        this.dateRange.startDate +
+        "&to=" +
+        this.dateRange.endDate
     )
       .then(response => {
         // JSON responses are automatically parsed.

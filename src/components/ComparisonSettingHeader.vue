@@ -56,23 +56,20 @@ import ComparisonViewSettings from "./../model/comparison-view-settings";
 })
 export default class comparisonSettingBar extends Vue {
   private dateRange = {
-    startDate: "",
-    endDate: ""
+    startDate: 0,
+    endDate: 0
   };
 
   private resolution: number = 0;
 
   private updateValues() {
+    console.log(this.dateRange.startDate);
     this.$emit(
       "updatedViewSettings",
       this.dateRange.startDate,
       this.dateRange.endDate,
       0
     );
-    this.updateValues1;
-  }
-  private updateValues1() {
-    console.log("Header update");
   }
 
   setResolution() {}

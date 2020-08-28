@@ -49,6 +49,7 @@ import { faClosedCaptioning } from "@fortawesome/free-solid-svg-icons";
 import ComparisonSettingBar from "./../model/comparison-view-settings";
 import DateRangePicker from "vue2-daterange-picker";
 import "vue2-daterange-picker/dist/vue2-daterange-picker.css";
+import { start } from "repl";
 
 @Component({
   components: {
@@ -103,11 +104,14 @@ export default class Comparision extends Vue {
     }
   }
 
-  private changeViewSettings(
-    dateRange: { startDate: number; endDate: number },
-    resolution: any
-  ) {
-    this.$refs.comp[0].updateDataSet(dateRange, resolution);
+  private changeViewSettings(startDate: any, endDate: any, resolution: any) {
+    console.log(new Date(startDate).getTime());
+    console.log(new Date(endDate).getTime());
+    this.$refs.comp[0].updateDataSet(
+      new Date(startDate).getTime(),
+      new Date(endDate).getTime(),
+      resolution
+    );
   }
 
   private setResolution() {}
