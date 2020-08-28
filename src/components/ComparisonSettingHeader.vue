@@ -61,15 +61,15 @@ import ComparisonViewSettings from "./../model/comparison-view-settings";
   }
 })
 export default class comparisonSettingBar extends Vue {
+  now = new Date().getTime();
   private dateRange = {
-    startDate: 0,
-    endDate: 0
+    startDate: new Date(this.now - 2 * 3600 * 1000),
+    endDate: new Date(this.now)
   };
 
   resolution: string = "1:1";
 
   private updateValues() {
-    console.log(this.dateRange.startDate);
     this.$emit(
       "updatedViewSettings",
       this.dateRange.startDate,

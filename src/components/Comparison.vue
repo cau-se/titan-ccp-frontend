@@ -104,7 +104,11 @@ export default class Comparision extends Vue {
     }
   }
 
-  private changeViewSettings(startDate: any, endDate: any, resolution: any) {
+  private changeViewSettings(
+    startDate: number,
+    endDate: number,
+    resolution: string
+  ) {
     console.log(new Date(startDate).getTime());
     console.log(new Date(endDate).getTime());
     this.$refs.comp[0].updateDataSet(

@@ -61,9 +61,8 @@ declare var d3version3: any;
   }
 })
 export default class ComparisonPlot extends Vue {
-  readonly after = new Date().getTime() - 1 * 3600 * 1000;
+  readonly now = new Date().getTime();
 
-  // TODO: readonly
   dataSets = new Array<DataSet>();
 
   newDataSet: Sensor | null = null;
@@ -86,12 +85,9 @@ export default class ComparisonPlot extends Vue {
 
   private plot!: CanvasTimeSeriesPlot; // Will definitely be assigned in mounted
 
-  private dateRange = {
-    startDate: null,
-    endDate: null
-  };
+  private dateRange!: { startDate: number; endDate: number }; // Will definitely be assigned in mounted
 
-  private resolution: any = 0;
+  private resolution!: string; // Will definitely be assigned in mounted
 
   get canvasplotContainer() {
     return this.$el.querySelector(".canvasplot-container")!;
@@ -113,6 +109,13 @@ export default class ComparisonPlot extends Vue {
   }
 
   mounted() {
+    this.dateRange = {
+      startDate: this.now - 2 * 3600 * 1000,
+      endDate: this.now
+    };
+
+    this.resolution = "1:1";
+
     this.plot = new CanvasTimeSeriesPlot(
       d3version3.select(this.canvasplotContainer),
       [
@@ -201,6 +204,9 @@ export default class ComparisonPlot extends Vue {
   }
 
   private fetchNewData(sensor: Sensor): Promise<DataPoint[]> {
+    console.log("from", this.dateRange.startDate);
+    console.log("to,", this.dateRange.endDate);
+    console.log(this.resolution);
     let resource = "";
     if (this.resolution == "1:1") {
       resource =
@@ -225,6 +231,7 @@ export default class ComparisonPlot extends Vue {
       .then(response => {
         // JSON responses are automatically parsed.
         // TODO access sum generically
+        console.log("response", response);
         return response.data.map(
           (x: any) =>
             new DataPoint(
@@ -235,7 +242,7 @@ export default class ComparisonPlot extends Vue {
                 ? sensor instanceof AggregatedSensor
                   ? x.sumInW
                   : x.valueInW
-                : x.max
+                : x.mean
             )
         );
       })
