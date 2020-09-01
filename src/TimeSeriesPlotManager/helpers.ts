@@ -38,6 +38,16 @@ function inject(
   return resultArray;
 }
 
+/**
+ * Injects a new interval into an array of existing intervals.
+ * Intervals may get merged based on the new interval in order to return non-overlapping intervals.
+ * 
+ * @param existingIntervals - An array of non-overlapping intervals. Does not have to be sorted necessarily.
+ * @param start - The start timestamp of the interval to inject.
+ * @param end - The end timestamp of the interval to inject.
+ * 
+ * @returns array of non-overlapping intervals.
+ */
 function injectInterval(
   existingIntervals: [number, number][],
   start: number,
@@ -64,6 +74,21 @@ function injectInterval(
   return mergedIntervals;
 }
 
+/**
+ * Returns intervals, that lay WITHIN [start, end] but are NOT covered by the existing intervals.
+ * 
+ * @param existingIntervals - Array of intervals. Have to be sorted by interval begin!
+ * @param start - Start timestamp of the interval to calculate the inverted intersections for.
+ * @param end - Start timestamp of the interval to calculate the inverted intersections for.
+ * 
+ * @returns array of intervals
+ *
+ * @example
+ * const existingIntervals = [[5, 10],[15, 20]];
+ * invertedIntervalIntersections(existingIntervals, 11, 14); // -> [[11, 14]]
+ * invertedIntervalIntersections(existingIntervals, 6, 9); // -> []
+ * invertedIntervalIntersections(existingIntervals, 0, 30); // -> [[0, 5], [10, 15], [20, 30]] 
+ */
 function invertedIntervalIntersections(
   existingIntervals: [number, number][],
   start: number,
