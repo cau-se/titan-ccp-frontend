@@ -80,7 +80,7 @@ export class DownloadManager {
    *
    * @returns Promise resolving to an array of DataPoints.
    */
-  public fetchNewWindowedData(
+  private fetchNewWindowedData(
     resolutionLevel: number,
     from: number,
     to: number
@@ -106,7 +106,7 @@ export class DownloadManager {
    *
    * @returns Promise resolving to an array of DataPoints.
    */
-  public fetchNewRawData(from: number, to: number): Promise<DataPoint[]> {
+  private fetchNewRawData(from: number, to: number): Promise<DataPoint[]> {
     const resource = this.isAggregatedSensor
       ? "aggregated-power-consumption/"
       : "power-consumption/";
