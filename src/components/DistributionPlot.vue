@@ -20,8 +20,8 @@ import TimeMode from "../model/time-mode";
 
 @Component({
   components: {
-    LoadingSpinner
-  }
+    LoadingSpinner,
+  },
 })
 export default class DistributionPlot extends Vue {
   //TODO Rename to histogram
@@ -43,19 +43,19 @@ export default class DistributionPlot extends Vue {
       data: {
         x: "x",
         columns: [],
-        type: "bar"
+        type: "bar",
       },
       legend: {
-        show: false
+        show: false,
       },
       axis: {
         x: {
-          type: "category" // this needed to load string x value
-        }
+          type: "category", // this needed to load string x value
+        },
       },
       tooltip: {
-        show: false
-      }
+        show: false,
+      },
     });
     this.createPlot();
   }
@@ -75,7 +75,7 @@ export default class DistributionPlot extends Vue {
       this.sensor instanceof AggregatedSensor
         ? "aggregated-power-consumption"
         : "power-consumption";
-    let after = this.timeMode.getTime().toMillis() - 1 * 3600 * 1000;
+    let after = this.timeMode.getTime().toMillis() - 7 * 24 * 3600 * 1000; // Distribution of last week
     HTTP.get(
       resource +
         "/" +
@@ -85,7 +85,7 @@ export default class DistributionPlot extends Vue {
         "&buckets=" +
         this.buckets
     )
-      .then(response => {
+      .then((response) => {
         // JSON responses are automatically parsed.
         let labels: string[] = ["x"];
         let values: Array<string | number> = [this.sensor.identifier];
@@ -97,16 +97,16 @@ export default class DistributionPlot extends Vue {
         }
         return [labels, values];
       })
-      .catch(e => {
+      .catch((e) => {
         console.error(e);
         this.isError = true;
         return [["x"], [this.sensor.identifier]];
       })
-      .then(data => {
+      .then((data) => {
         this.chart.unload();
         this.chart.load({
           columns: data,
-          unload: true
+          unload: true,
         });
         this.isLoading = false;
       });
