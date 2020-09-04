@@ -6,7 +6,7 @@
                     <sensor-parents :sensor="internalSensor" v-on:select="setSensor"/>
                 </b-col>
                 <b-col v-if="isAggregated" cols ="2">
-                    <b-dropdown right text="Children" variant="secondary" size="lg" block class="children-dropdown">
+                    <b-dropdown right text="Subconsumers" variant="secondary" size="lg" block class="children-dropdown">
                         <b-dropdown-item v-for="child in internalSensor.children" :key="child.identifier" v-on:click="internalSensor = child">
                                 {{ child.title }}
                         </b-dropdown-item>
