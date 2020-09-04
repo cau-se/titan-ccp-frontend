@@ -83,7 +83,7 @@ import {
   Sensor,
   AggregatedSensor,
   MachineSensor,
-  SensorRegistry
+  SensorRegistry,
 } from "../SensorRegistry";
 
 import BootstrapVue from "bootstrap-vue";
@@ -111,8 +111,8 @@ import TimeMode from "./../model/time-mode";
     SensorDetails,
     SensorHierarchy,
     SensorHierarchyList,
-    flatPickr
-  }
+    flatPickr,
+  },
 })
 export default class App extends Vue {
   private sensorRegistry: SensorRegistry | null = null;
@@ -124,16 +124,19 @@ export default class App extends Vue {
   private flatPickrConfig = {
     allowInput: true,
     time_24hr: true,
-    enableTime: true
+    enableTime: true,
   };
-
-  private date: string = new Date().toISOString();
-  private oldDate: string = this.date;
 
   private timeMode: TimeMode = {
-    autoLoading: true,
-    getTime: () => DateTime.local() // now
+    //autoLoading: true,
+    autoLoading: false,
+    //getTime: () => DateTime.local() // now
+    getTime: () => DateTime.local(2018, 9, 7, 14, 0),
   };
+
+  //private date: string = new Date().toISOString();
+  private date: string = this.timeMode.getTime().toJSDate().toISOString();
+  private oldDate: string = this.date;
 
   setOldDate() {
     this.oldDate = this.date;
@@ -149,12 +152,13 @@ export default class App extends Vue {
     if (!now) {
       this.timeMode = {
         autoLoading: false,
-        getTime: () => DateTime.fromJSDate(new Date(this.date))
+        getTime: () => DateTime.fromJSDate(new Date(this.date)),
       };
     } else {
       this.timeMode = {
         autoLoading: true,
-        getTime: () => DateTime.local() // now
+        //getTime: () => DateTime.local() // now
+        getTime: () => DateTime.utc(2018, 9, 7, 14, 0),
       };
       this.date = new Date().toISOString();
     }
@@ -163,10 +167,10 @@ export default class App extends Vue {
   created() {
     this.isLoading = true;
     this.loadSensorRegistry()
-      .then(_ => {
+      .then((_) => {
         this.isLoading = false;
       })
-      .catch(e => {
+      .catch((e) => {
         this.isLoading = false;
         this.isError = true;
         console.error(e);
