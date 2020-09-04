@@ -41,7 +41,7 @@ import {
   Sensor,
   AggregatedSensor,
   MachineSensor,
-  SensorRegistry
+  SensorRegistry,
 } from "../SensorRegistry";
 import ColorRepository from "../ColorRepository";
 // @ts-ignore
@@ -57,11 +57,12 @@ declare var d3version3: any;
 
 @Component({
   components: {
-    Treeselect
-  }
+    Treeselect,
+  },
 })
 export default class ComparisonPlot extends Vue {
-  readonly now = new Date().getTime();
+  //readonly after = new Date().getTime() - (1 * 3600 * 1000)
+  readonly after = 0;
 
   dataSets = new Array<DataSet>();
 
@@ -98,12 +99,12 @@ export default class ComparisonPlot extends Vue {
       return {
         id: sensor.identifier,
         label: sensor.title,
-        children: sensor.children
+        children: sensor.children,
       };
     } else {
       return {
         id: sensor.identifier,
-        label: sensor.title
+        label: sensor.title,
       };
     }
   }
@@ -111,7 +112,7 @@ export default class ComparisonPlot extends Vue {
   mounted() {
     this.dateRange = {
       startDate: this.now - 2 * 3600 * 1000,
-      endDate: this.now
+      endDate: this.now,
     };
 
     this.resolution = "1:1";
@@ -120,11 +121,11 @@ export default class ComparisonPlot extends Vue {
       d3version3.select(this.canvasplotContainer),
       [
         this.canvasplotContainer.clientWidth,
-        this.canvasplotContainer.clientHeight
+        this.canvasplotContainer.clientHeight,
       ],
       {
         //plotMargins: { top: 20, right: 20, bottom: 30, left: this.yAxisSpacing },
-        updateViewCallback: this.updatedView.bind(this)
+        updateViewCallback: this.updatedView.bind(this),
       }
     );
     this.plot.setZoomYAxis(false);
@@ -153,7 +154,7 @@ export default class ComparisonPlot extends Vue {
       this.plot.addDataSet(
         dataSet.sensor.identifier,
         dataSet.sensor.title,
-        dataPoints.map(dataPoint => dataPoint.toArray()),
+        dataPoints.map((dataPoint) => dataPoint.toArray()),
         color,
         updateDomains,
         false
@@ -169,7 +170,7 @@ export default class ComparisonPlot extends Vue {
     this.plot.addDataSet(
       dataSet.sensor.identifier,
       dataSet.sensor.title,
-      dataPoints.map(dataPoint => dataPoint.toArray()),
+      dataPoints.map((dataPoint) => dataPoint.toArray()),
       color,
       updateDomains,
       false
@@ -228,7 +229,7 @@ export default class ComparisonPlot extends Vue {
         "&to=" +
         this.dateRange.endDate
     )
-      .then(response => {
+      .then((response) => {
         // JSON responses are automatically parsed.
         // TODO access sum generically
         console.log("response", response);
@@ -246,7 +247,7 @@ export default class ComparisonPlot extends Vue {
             )
         );
       })
-      .catch(e => {
+      .catch((e) => {
         console.error(e);
         return [];
       });

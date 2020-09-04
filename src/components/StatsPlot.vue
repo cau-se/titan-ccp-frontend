@@ -32,8 +32,8 @@ import { DateTime, Interval } from "luxon";
 
 @Component({
   components: {
-    LoadingSpinner
-  }
+    LoadingSpinner,
+  },
 })
 export default class StatsPlot extends Vue {
   @Prop({ required: true }) sensor!: Sensor;
@@ -49,7 +49,7 @@ export default class StatsPlot extends Vue {
   private isError = false;
 
   get intervalSelectOptions(): Array<IntervalSelectOption> {
-    return this.availableIntervals.map(i => new IntervalSelectOption(i));
+    return this.availableIntervals.map((i) => new IntervalSelectOption(i));
   }
 
   mounted() {
@@ -58,33 +58,32 @@ export default class StatsPlot extends Vue {
       data: {
         x: "x",
         columns: [],
-        type: "spline"
+        type: "spline",
       },
       legend: {
-        show: false
+        show: false,
       },
       axis: {
         x: {
-          type: "category"
+          type: "category",
         },
         y: {
-          min: 0
-        }
+          min: 0,
+        },
       },
       grid: {
         x: {
-          show: true
+          show: true,
         },
         y: {
-          show: true
-        }
+          show: true,
+        },
       },
       tooltip: {
-        show: false
-      }
+        show: false,
+      },
     });
-    this.loadAvailableIntervals();
-    this.createPlot();
+    this.loadAvailableIntervals().then(() => this.createPlot());
   }
 
   @Watch("sensor")
@@ -93,14 +92,16 @@ export default class StatsPlot extends Vue {
   }
 
   private loadAvailableIntervals() {
-    HTTP.get(`/stats/interval/${this.statsType.url}`).then(response => {
-      this.availableIntervals = response.data.map((i: any) =>
-        Interval.fromDateTimes(
-          DateTime.fromISO(i.intervalStart),
-          DateTime.fromISO(i.intervalEnd)
-        )
-      );
-    });
+    return HTTP.get(`/stats/interval/${this.statsType.url}`).then(
+      (response) => {
+        this.availableIntervals = response.data.map((i: any) =>
+          Interval.fromDateTimes(
+            DateTime.fromISO(i.intervalStart),
+            DateTime.fromISO(i.intervalEnd)
+          )
+        );
+      }
+    );
   }
 
   @Watch("selectedInterval")
@@ -111,17 +112,17 @@ export default class StatsPlot extends Vue {
   }
 
   private createPlot(interval?: Interval) {
-    let url =
-      interval != undefined
-        ? `stats/sensor/${this.sensor.identifier}/${
-            this.statsType.url
-          }?intervalStart=${this.dateTimeToBackendISO(
-            interval.start
-          )}&intervalEnd=${this.dateTimeToBackendISO(interval.end)}`
-        : `stats/sensor/${this.sensor.identifier}/${this.statsType.url}`;
+    let interval2 =
+      interval || this.availableIntervals[this.availableIntervals.length - 1];
+
+    let url = `stats/sensor/${this.sensor.identifier}/${
+      this.statsType.url
+    }?intervalStart=${this.dateTimeToBackendISO(
+      interval2.start
+    )}&intervalEnd=${this.dateTimeToBackendISO(interval2.end)}`;
 
     HTTP.get(url)
-      .then(response => {
+      .then((response) => {
         // JSON responses are automatically parsed.
         let labels: string[] = ["x"];
         let minValues: Array<string | number> = ["min"];
@@ -143,16 +144,16 @@ export default class StatsPlot extends Vue {
         //return [labels, minValues, meanValues, maxValues]
         return [labels, meanValues];
       })
-      .catch(e => {
+      .catch((e) => {
         console.error(e);
         this.isError = true;
         //return [["x"], ["min"], ["mean"], ["max"]]
         return [["x"], ["mean"]];
       })
-      .then(data => {
+      .then((data) => {
         this.chart.load({
           columns: data,
-          unload: true
+          unload: true,
         });
         this.isLoading = false;
       });
@@ -182,13 +183,13 @@ export interface StatsType {
 export const HOUR_OF_DAY: StatsType = {
   title: "Power Consumption per Hour of Day",
   url: "hour-of-day",
-  accessor: stats => stats.hourOfDay
+  accessor: (stats) => stats.hourOfDay,
 };
 
 export const DAY_OF_WEEK: StatsType = {
   title: "Power Consumption per Day of Week",
   url: "day-of-week",
-  accessor: stats => getDayOfWeekText(stats.dayOfWeek)
+  accessor: (stats) => getDayOfWeekText(stats.dayOfWeek),
 };
 
 function getDayOfWeekText(number: number) {
