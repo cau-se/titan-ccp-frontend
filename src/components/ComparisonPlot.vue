@@ -50,9 +50,7 @@ import "@riophae/vue-treeselect/dist/vue-treeselect.css";
 // @ts-ignore
 import { CanvasTimeSeriesPlot } from "../canvasplot.js";
 import { DataPoint } from "../MovingTimeSeriesPlot";
-import ComparisonSettingBar from "./../model/comparison-view-settings";
 
-// import { watch } from "fs";
 declare var d3version3: any;
 
 @Component({
@@ -61,8 +59,8 @@ declare var d3version3: any;
   },
 })
 export default class ComparisonPlot extends Vue {
-  //readonly after = new Date().getTime() - (1 * 3600 * 1000)
-  readonly after = 0;
+  readonly now = new Date().getTime(); //- 1 * 3600 * 1000;
+  //readonly after = 0;
 
   dataSets = new Array<DataSet>();
 

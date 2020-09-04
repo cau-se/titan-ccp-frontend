@@ -36,15 +36,12 @@ import BootstrapVue from "bootstrap-vue";
 import "bootstrap/dist/css/bootstrap.css";
 import "bootstrap-vue/dist/bootstrap-vue.css";
 
-import ComparisonSettingBar from "./../model/comparison-view-settings";
-
 import DateRangePicker from "vue2-daterange-picker";
 import "vue2-daterange-picker/dist/vue2-daterange-picker.css";
-import ComparisonViewSettings from "./../model/comparison-view-settings";
 
 @Component({
   components: {
-    DateRangePicker
+    DateRangePicker,
   },
   filters: {
     date(value: any) {
@@ -54,17 +51,17 @@ import ComparisonViewSettings from "./../model/comparison-view-settings";
         year: "numeric",
         month: "long",
         day: "numeric",
-        hour: "numeric"
+        hour: "numeric",
       };
       return Intl.DateTimeFormat("en-EN", options).format(value);
-    }
-  }
+    },
+  },
 })
 export default class comparisonSettingBar extends Vue {
   now = new Date().getTime();
   private dateRange = {
     startDate: new Date(this.now - 2 * 3600 * 1000),
-    endDate: new Date(this.now)
+    endDate: new Date(this.now),
   };
 
   resolution: string = "1:1";
