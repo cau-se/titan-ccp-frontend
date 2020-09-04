@@ -26,12 +26,12 @@
         </b-row>
         <b-row class="mb-4">
             <b-col cols="12">
-                <stats-plot :sensor="sensor" :stats-type="statsDayOfWeek" />
+                <stats-plot :timeMode="timeMode" :sensor="sensor" :stats-type="statsDayOfWeek" />
             </b-col>
         </b-row>
         <b-row class="mb-4">
             <b-col cols="12">
-                <stats-plot :sensor="sensor" :stats-type="statsHourOfDay" />
+                <stats-plot :timeMode="timeMode" :sensor="sensor" :stats-type="statsHourOfDay" />
             </b-col>
         </b-row>
     </b-container>
