@@ -92,7 +92,7 @@ export default class SensorHistoryPlot extends Vue {
   private createPlot() {
     this.plot = new MovingTimeSeriesPlot(this.canvasplotContainer, {
       plotStartsWithZero: true,
-      yAxisLabel: "Active Power in Watt",
+      yAxisLabel: "Active Power in kW",
     });
     // BETTER fetch already earlier and then wait for mount
     this.isLoading = true;

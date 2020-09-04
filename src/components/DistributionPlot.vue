@@ -91,7 +91,7 @@ export default class DistributionPlot extends Vue {
         let values: Array<string | number> = [this.sensor.identifier];
         for (let bucket of response.data) {
           labels.push(
-            "" + bucket.lower.toFixed(1) + " - " + bucket.upper.toFixed(1)
+            "" + (bucket.lower / 1000).toFixed(1) + " - " + (bucket.upper / 1000).toFixed(1)
           );
           values.push(bucket.elements);
         }

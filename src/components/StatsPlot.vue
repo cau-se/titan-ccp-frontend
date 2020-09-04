@@ -130,9 +130,9 @@ export default class StatsPlot extends Vue {
         let maxValues: Array<string | number> = ["max"];
         for (let stats of response.data) {
           labels.push(this.statsType.accessor(stats));
-          minValues.push(stats.min);
-          meanValues.push(stats.mean);
-          maxValues.push(stats.max);
+          minValues.push(stats.min / 1000);
+          meanValues.push(stats.mean / 1000);
+          maxValues.push(stats.max / 1000);
         }
         // Update selected interval
         if (response.data.length > 0 && this.selectedInterval == null) {

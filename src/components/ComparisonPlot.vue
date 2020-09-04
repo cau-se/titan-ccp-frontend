@@ -122,6 +122,7 @@ export default class ComparisonPlot extends Vue {
         this.canvasplotContainer.clientHeight,
       ],
       {
+        yAxisLabel: "Active Power in kW",
         //plotMargins: { top: 20, right: 20, bottom: 30, left: this.yAxisSpacing },
         updateViewCallback: this.updatedView.bind(this),
       }
