@@ -1,9 +1,7 @@
 <template>
   <div>
-    <div>
-      <comparison-setting-header v-if="plots.length > 0" @updatedViewSettings="changeViewSettings"></comparison-setting-header>
-    </div>
     <b-container v-if="plots.length > 0" class>
+      <comparison-setting-header @updatedViewSettings="changeViewSettings" />
       <comparison-plot
         ref="comp"
         v-for="plot in plots"
@@ -35,7 +33,7 @@ import {
   Sensor,
   AggregatedSensor,
   MachineSensor,
-  SensorRegistry
+  SensorRegistry,
 } from "../SensorRegistry";
 
 import BootstrapVue from "bootstrap-vue";
@@ -46,7 +44,6 @@ import ComparisonPlot from "./ComparisonPlot.vue";
 import ComparisonSettingHeader from "./ComparisonSettingHeader.vue";
 import ColorRepository from "../ColorRepository";
 import { faClosedCaptioning } from "@fortawesome/free-solid-svg-icons";
-import ComparisonSettingBar from "./../model/comparison-view-settings";
 import DateRangePicker from "vue2-daterange-picker";
 import "vue2-daterange-picker/dist/vue2-daterange-picker.css";
 import { start } from "repl";
@@ -55,7 +52,7 @@ import { start } from "repl";
   components: {
     ComparisonPlot,
     ComparisonSettingHeader,
-    DateRangePicker
+    DateRangePicker,
   },
   filters: {
     date(value: any) {
@@ -65,11 +62,11 @@ import { start } from "repl";
         year: "numeric",
         month: "long",
         day: "numeric",
-        hour: "numeric"
+        hour: "numeric",
       };
       return Intl.DateTimeFormat("en-EN", options).format(value);
-    }
-  }
+    },
+  },
 })
 export default class Comparision extends Vue {
   @Prop({ required: true })

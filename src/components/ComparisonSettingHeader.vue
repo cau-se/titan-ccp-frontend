@@ -1,7 +1,7 @@
 <template>
   <b-row class="text-center">
     <b-col>
-      <b-container fluid class="m-md-2">
+      <b-container class="m-md-2">
         <date-range-picker
           ref="picker"
           :timePicker="true"
