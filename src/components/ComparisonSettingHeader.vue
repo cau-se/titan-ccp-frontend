@@ -39,6 +39,8 @@ import "bootstrap-vue/dist/bootstrap-vue.css";
 import DateRangePicker from "vue2-daterange-picker";
 import "vue2-daterange-picker/dist/vue2-daterange-picker.css";
 
+import TimeMode from "../model/time-mode";
+
 @Component({
   components: {
     DateRangePicker,
@@ -58,10 +60,15 @@ import "vue2-daterange-picker/dist/vue2-daterange-picker.css";
   },
 })
 export default class comparisonSettingBar extends Vue {
-  now = new Date().getTime();
+  @Prop({ required: true }) timeMode!: TimeMode;
+
+  private get now() {
+    return this.timeMode.getTime();
+  }
+
   private dateRange = {
-    startDate: new Date(this.now - 2 * 3600 * 1000),
-    endDate: new Date(this.now),
+    startDate: this.now.minus({ hours: 2 }).toJSDate(),
+    endDate: this.now.toJSDate(),
   };
 
   resolution: string = "1:1";

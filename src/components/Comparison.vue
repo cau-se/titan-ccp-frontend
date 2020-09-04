@@ -1,7 +1,7 @@
 <template>
   <div>
     <b-container v-if="plots.length > 0" class>
-      <comparison-setting-header @updatedViewSettings="changeViewSettings" />
+      <comparison-setting-header :timeMode="timeMode" @updatedViewSettings="changeViewSettings" />
       <comparison-plot
         ref="comp"
         v-for="plot in plots"
@@ -47,6 +47,7 @@ import { faClosedCaptioning } from "@fortawesome/free-solid-svg-icons";
 import DateRangePicker from "vue2-daterange-picker";
 import "vue2-daterange-picker/dist/vue2-daterange-picker.css";
 import { start } from "repl";
+import TimeMode from "../model/time-mode";
 
 @Component({
   components: {
@@ -71,6 +72,8 @@ import { start } from "repl";
 export default class Comparision extends Vue {
   @Prop({ required: true })
   sensorRegistry!: SensorRegistry;
+
+  @Prop({ required: true }) timeMode!: TimeMode;
 
   private dateRange = { startDate: "", endDate: "" };
   private from: any;
