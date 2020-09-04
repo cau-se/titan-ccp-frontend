@@ -113,7 +113,7 @@ export default class ComparisonPlot extends Vue {
       endDate: this.now,
     };
 
-    this.resolution = "1:1";
+    this.resolution = "highest";
 
     this.plot = new CanvasTimeSeriesPlot(
       d3version3.select(this.canvasplotContainer),
@@ -208,7 +208,7 @@ export default class ComparisonPlot extends Vue {
     console.log("to,", this.dateRange.endDate);
     console.log(this.resolution);
     let resource = "";
-    if (this.resolution == "1:1") {
+    if (this.resolution == "highest") {
       resource =
         sensor instanceof AggregatedSensor
           ? "aggregated-power-consumption"
@@ -219,7 +219,7 @@ export default class ComparisonPlot extends Vue {
 
     return HTTP.get(
       resource +
-        (this.resolution != "1:1"
+        (this.resolution != "highest"
           ? "/windowed/" + this.resolution + "/"
           : "/") +
         sensor.identifier +
@@ -236,11 +236,11 @@ export default class ComparisonPlot extends Vue {
           (x: any) =>
             new DataPoint(
               new Date(
-                this.resolution == "1:1" ? x.timestamp : x.startTimestamp
+                this.resolution == "highest" ? x.timestamp : x.startTimestamp
               ),
-              this.resolution == "1:1"
+              this.resolution == "highest"
                 ? sensor instanceof AggregatedSensor
-                  ? x.sumInW
+                  ? x.minInW
                   : x.valueInW
                 : x.mean
             )

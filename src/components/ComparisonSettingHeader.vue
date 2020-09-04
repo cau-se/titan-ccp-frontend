@@ -20,9 +20,9 @@
     <b-col>
       <div>
         <b-dropdown variant="success" :text="resolution" class="m-md-2">
-          <b-dropdown-item @click="setResolution('1:1')">1:1</b-dropdown-item>
-          <b-dropdown-item @click="setResolution('minutely')">minutely</b-dropdown-item>
+          <b-dropdown-item @click="setResolution('highest')">highest</b-dropdown-item>
           <b-dropdown-item @click="setResolution('hourly')">hourly</b-dropdown-item>
+          <b-dropdown-item @click="setResolution('daily')">daily</b-dropdown-item>
         </b-dropdown>
       </div>
     </b-col>
@@ -67,11 +67,11 @@ export default class comparisonSettingBar extends Vue {
   }
 
   private dateRange = {
-    startDate: this.now.minus({ hours: 2 }).toJSDate(),
+    startDate: this.now.minus({ days: 7 }).toJSDate(),
     endDate: this.now.toJSDate(),
   };
 
-  resolution: string = "1:1";
+  resolution: string = "highest";
 
   private updateValues() {
     this.$emit(
