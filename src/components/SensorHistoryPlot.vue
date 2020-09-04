@@ -135,6 +135,8 @@ export default class SensorHistoryPlot extends Vue {
     this.latest = this.completeHistory
       ? 0
       : this.timeMode.getTime().toMillis() - 3600 * 1000;
+    this.isLoading = false;
+    this.isError = false;
     this.plot.destroy();
   }
 
