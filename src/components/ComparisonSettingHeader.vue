@@ -5,6 +5,7 @@
           ref="picker"
           :timePicker="true"
           :showWeekNumbers="true"
+          :ranges="defaultRanges"
           :autoApply="true"
           v-model="dateRange"
           @update="updateRange"
@@ -63,9 +64,9 @@ export default class comparisonSettingBar extends Vue {
 
   @Prop({ required: true }) rangeNew!: Interval;
 
-  // private get now() {
-  //   return this.timeMode.getTime();
-  // }
+  private get now() {
+     return this.timeMode.getTime();
+  }
 
   // private dateRange = {
   //   startDate: this.now.minus({ days: 7 }).toJSDate(),
@@ -85,6 +86,38 @@ export default class comparisonSettingBar extends Vue {
         DateTime.fromJSDate(new Date(this.dateRange.startDate)),
         DateTime.fromJSDate(new Date(this.dateRange.endDate)))
     );
+  }
+
+  private get defaultRanges() {
+    let now = this.timeMode.getTime();
+    let today = now.set({
+      hour: 0,
+      minute: 0,
+      second: 0
+    });
+    let yesterday = today.minus({days: 1});
+    let thisMonthStart = now.set({
+      day: 1,
+      hour: 0,
+      minute: 0,
+      second: 0
+    });
+    let lastMonthStart = thisMonthStart.minus({month: 1});
+    let thisYearStart = now.set({
+      month: 1,
+      day: 1,
+      hour: 0,
+      minute: 0,
+      second: 0
+    });
+
+    return {
+        'Today': [today.toJSDate(), today.plus({days: 1}).minus({seconds: 1}).toJSDate()],
+        'Yesterday': [yesterday.toJSDate(), yesterday.plus({days: 1}).minus({seconds: 1}).toJSDate()],
+        'This month': [thisMonthStart.toJSDate(), thisMonthStart.plus({month: 1}).minus({seconds: 1}).toJSDate()],
+        'This year': [thisYearStart.toJSDate(), thisYearStart.plus({year: 1}).minus({seconds: 1}).toJSDate()],
+        'Last month': [lastMonthStart.toJSDate(), lastMonthStart.plus({month: 1}).minus({seconds: 1}).toJSDate()],
+    }
   }
 }
 </script>
