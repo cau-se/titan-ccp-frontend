@@ -76,7 +76,7 @@ export default class DistributionPlot extends Vue {
         ? "aggregated-power-consumption"
         : "power-consumption";
     // Distribution of last hour
-    let after = this.timeMode.getTime().minus({ hours: 7 });
+    let after = this.timeMode.getTime().minus({ hours: 1 });
     let to = this.timeMode.getTime();
     HTTP.get(
       resource +
