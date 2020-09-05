@@ -7,7 +7,7 @@
           :showWeekNumbers="true"
           :autoApply="true"
           v-model="dateRange"
-          @update="updateValues"
+          @update="updateRange"
           class="m-md-2"
         >
           <template
@@ -16,12 +16,11 @@
             {{ picker.startDate | date }} - {{ picker.endDate | date }}
           </template>
         </date-range-picker>
-        <b-dropdown variant="success" :text="resolution" class="m-md-2">
-          <b-dropdown-item @click="setResolution('highest')">highest</b-dropdown-item>
-          <b-dropdown-item @click="setResolution('hourly')">hourly</b-dropdown-item>
-          <b-dropdown-item @click="setResolution('daily')">daily</b-dropdown-item>
+        <b-dropdown variant="success" :text="resolutionNew" class="m-md-2">
+          <b-dropdown-item @click="$emit('update-resolution', 'highest')">highest</b-dropdown-item>
+          <b-dropdown-item @click="$emit('update-resolution', 'hourly')">hourly</b-dropdown-item>
+          <b-dropdown-item @click="$emit('update-resolution', 'daily')">daily</b-dropdown-item>
         </b-dropdown>
-      
     </b-col>
   </b-row>
 </template>
@@ -37,6 +36,7 @@ import DateRangePicker from "vue2-daterange-picker";
 import "vue2-daterange-picker/dist/vue2-daterange-picker.css";
 
 import TimeMode from "../model/time-mode";
+import { DateTime, Interval } from "luxon";
 
 @Component({
   components: {
@@ -59,29 +59,32 @@ import TimeMode from "../model/time-mode";
 export default class comparisonSettingBar extends Vue {
   @Prop({ required: true }) timeMode!: TimeMode;
 
+  @Prop({ required: true }) resolutionNew!: string;
+
+  @Prop({ required: true }) rangeNew!: Interval;
+
   private get now() {
     return this.timeMode.getTime();
   }
 
+  // private dateRange = {
+  //   startDate: this.now.minus({ days: 7 }).toJSDate(),
+  //   endDate: this.now.toJSDate(),
+  // };
+
+  // modifiable in contrast to rangeNew
   private dateRange = {
-    startDate: this.now.minus({ days: 7 }).toJSDate(),
-    endDate: this.now.toJSDate(),
+    startDate: this.rangeNew.start.toJSDate(),
+    endDate: this.rangeNew.end.toJSDate()
   };
 
-  resolution: string = "highest";
-
-  private updateValues() {
+  private updateRange() {
     this.$emit(
-      "updatedViewSettings",
-      this.dateRange.startDate,
-      this.dateRange.endDate,
-      this.resolution
+      "update-range",
+      Interval.fromDateTimes(
+        DateTime.fromJSDate(new Date(this.dateRange.startDate)),
+        DateTime.fromJSDate(new Date(this.dateRange.endDate)))
     );
-  }
-
-  setResolution(resolution: string) {
-    this.resolution = resolution;
-    this.updateValues();
   }
 }
 </script>
