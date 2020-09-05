@@ -63,9 +63,9 @@ export default class comparisonSettingBar extends Vue {
 
   @Prop({ required: true }) rangeNew!: Interval;
 
-  private get now() {
-    return this.timeMode.getTime();
-  }
+  // private get now() {
+  //   return this.timeMode.getTime();
+  // }
 
   // private dateRange = {
   //   startDate: this.now.minus({ days: 7 }).toJSDate(),
