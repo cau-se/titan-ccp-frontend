@@ -1,6 +1,7 @@
 <template>
   <b-row class="text-right">
     <b-col>
+      Time range:
       <date-range-picker
           ref="picker"
           :timePicker="true"
@@ -17,7 +18,9 @@
             {{ picker.startDate | date }} - {{ picker.endDate | date }}
           </template>
         </date-range-picker>
-        <b-dropdown variant="success" :text="resolutionNew" class="m-md-2">
+
+        Resolution: 
+        <b-dropdown variant="outline-secondary" :text="resolutionNew" class="m-md-2">
           <b-dropdown-item @click="$emit('update-resolution', 'highest')">highest</b-dropdown-item>
           <b-dropdown-item @click="$emit('update-resolution', 'hourly')">hourly</b-dropdown-item>
           <b-dropdown-item @click="$emit('update-resolution', 'daily')">daily</b-dropdown-item>
