@@ -8,10 +8,11 @@ import SensorDetails from "./components/SensorDetails.vue"
 import Comparison from "./components/Comparison.vue"
 import SensorHierarchy from "./components/SensorHierarchy.vue"
 //import SensorHierarchyList from "./components/SensorHierarchyList.vue"
+import Anomalies from "./components/Anomalies.vue"
 import Examples from "./components/Examples.vue"
 
 import { library } from '@fortawesome/fontawesome-svg-core'
-import { faTachometerAlt, faChartBar, faBalanceScale, faSlidersH, faPlay, faMinus, faArrowRight, faPen, faTrash, faSpinner, faChartLine, faCog, faTimes, faPause, faCheck, faHistory } from '@fortawesome/free-solid-svg-icons'
+import { faTachometerAlt, faChartBar, faBalanceScale, faSlidersH, faPlay, faMinus, faArrowRight, faPen, faTrash, faSpinner, faChartLine, faCog, faTimes, faPause, faCheck, faHistory, faExclamationTriangle } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 
 if (process.env.DEMO === "true") {
@@ -23,7 +24,7 @@ if (process.env.SHOW_COMPLETE_HISTORY === "true") {
 
 Vue.use(BootstrapVue);
 
-library.add(faTachometerAlt, faChartBar, faBalanceScale, faSlidersH, faPlay, faMinus, faArrowRight, faPen, faTrash, faSpinner, faChartLine, faCog, faTimes, faPause, faCheck, faHistory)
+library.add(faTachometerAlt, faChartBar, faBalanceScale, faSlidersH, faPlay, faMinus, faArrowRight, faPen, faTrash, faSpinner, faChartLine, faCog, faTimes, faPause, faCheck, faHistory, faExclamationTriangle)
 Vue.component('font-awesome-icon', FontAwesomeIcon)
 //Vue.config.productionTip = false
 
@@ -47,6 +48,7 @@ const routes = [
   { path: '/', component: Dashboard },
   { path: '/sensor-details', component: SensorDetails },
   { path: '/comparison', component: Comparison },
+  { path: '/anomalies', component: Anomalies },
   { path: '/sensor-management/:id?', component: SensorHierarchy },
   //{ path: '/sensor-hierarchy', component: SensorHierarchyList },
   { path: '/examples', component: Examples }
