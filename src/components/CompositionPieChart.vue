@@ -16,6 +16,7 @@ import { HTTP } from "../http-common"
 import LoadingSpinner from "./LoadingSpinner.vue"
 import { ChartAPI, generate } from 'c3'
 import 'c3/c3.css'
+import TimeMode from "../model/time-mode";
 
 @Component({
     components: {
@@ -25,6 +26,8 @@ import 'c3/c3.css'
 export default class CompositionPieChart extends Vue {
 
     @Prop({ required: true }) sensor!: AggregatedSensor
+
+    @Prop({ required: true }) timeMode!: TimeMode;
 
     private isLoading = false
     private isError = false
@@ -50,11 +53,19 @@ export default class CompositionPieChart extends Vue {
         this.updateChart()
     }
 
+    @Watch("timeMode")
+    onTimeModeChanged() {
+        this.updateChart();
+    }
+
     private updateChart() {
         this.isLoading = true
+        
+        let to = this.timeMode.getTime();
+
         Promise.all(this.sensor.children.map(child => {
             let resource = child instanceof AggregatedSensor ? 'aggregated-power-consumption' : 'power-consumption'
-            return HTTP.get(resource + '/' + child.identifier + '/latest')
+            return HTTP.get(resource + '/' + child.identifier + '/latest?to=' + to.toMillis())
                 .then(response => {
                     // JSON responses are automatically parsed.
                     let value
