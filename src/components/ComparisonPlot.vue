@@ -240,7 +240,7 @@ export default class ComparisonPlot extends Vue {
               ),
               this.resolution == "highest"
                 ? sensor instanceof AggregatedSensor
-                  ? x.minInW
+                  ? x.sumInW
                   : x.valueInW
                 : x.mean
             )
