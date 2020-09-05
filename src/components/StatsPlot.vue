@@ -119,15 +119,7 @@ export default class StatsPlot extends Vue {
 
   private createPlot(interval?: Interval) {
     let defaultInterval = this.availableIntervals.find(interval => interval.end >= this.timeMode.getTime())! ||  this.availableIntervals[this.availableIntervals.length - 1];
-    //let interval2 = interval || defaultInterval;
-    let interval2 = interval || this.availableIntervals[0]
-
-    //this.availableIntervals.slice().reverse().find(interval => interval.end)
-    
-    console.log(this.dateTimeToBackendISO(interval2.start))
-    console.log(this.dateTimeToBackendISO(interval2.end))
-
-    //console.log(interval2.toString())
+    let interval2 = interval || defaultInterval;
 
     let url = `stats/sensor/${this.sensor.identifier}/${
       this.statsType.url
