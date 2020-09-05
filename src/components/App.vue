@@ -52,6 +52,11 @@
                 </router-link>
               </li>
               <li class="nav-item">
+                <router-link to="/anomalies" class="nav-link">
+                  <font-awesome-icon icon="exclamation-triangle" fixed-width class="feather" />Anomalies
+                </router-link>
+              </li>
+              <li class="nav-item">
                 <router-link to="/sensor-management" class="nav-link">
                   <font-awesome-icon icon="sliders-h" fixed-width class="feather" />Sensor Management
                 </router-link>
@@ -99,6 +104,8 @@ import SensorHierarchy from "./SensorHierarchy.vue";
 import SensorHierarchyList from "./SensorHierarchyList.vue";
 import { DateTime } from "luxon";
 import flatPickr from "vue-flatpickr-component";
+import Anomalies from "./Anomalies.vue";
+
 import "flatpickr/dist/flatpickr.css";
 import TimeMode from "./../model/time-mode";
 
@@ -109,8 +116,9 @@ import TimeMode from "./../model/time-mode";
     SensorDetails,
     SensorHierarchy,
     SensorHierarchyList,
-    flatPickr
-  }
+    flatPickr,
+    Anomalies
+  },
 })
 export default class App extends Vue {
   private sensorRegistry: SensorRegistry | null = null;
