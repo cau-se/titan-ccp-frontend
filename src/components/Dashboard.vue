@@ -21,7 +21,7 @@
                 <distribution-plot :timeMode="timeMode" :sensor="sensor" />
             </b-col>
             <b-col cols="6">
-                <composition-pie-chart :sensor="sensor" />
+                <composition-pie-chart :sensor="sensor" :timeMode="timeMode" />
             </b-col>
         </b-row>
         <b-row class="mb-4">
