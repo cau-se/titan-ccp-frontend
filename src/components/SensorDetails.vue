@@ -34,7 +34,7 @@
                     <distribution-plot :sensor="internalSensor" :timeMode="timeMode" />
                 </b-col>
                 <b-col v-if="isAggregated" cols="6">
-                    <composition-pie-chart :sensor="internalSensor" />
+                    <composition-pie-chart :sensor="internalSensor" :timeMode="timeMode" />
                 </b-col>
             </b-row>
             <b-row class="mb-4">
