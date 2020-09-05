@@ -2,10 +2,10 @@
   <div class="card">
     <div class="card-body">
       <b-row>
-        <b-col cols="9">
+        <b-col cols="6">
           <h5 class="card-title">{{ statsType.title }}</h5>
         </b-col>
-        <b-col cols="3">
+        <b-col cols="6">
           <b-form-select
             v-if="selectedInterval"
             v-model="selectedInterval"
@@ -29,6 +29,7 @@ import { Sensor, AggregatedSensor } from "../SensorRegistry";
 import { ChartAPI, generate } from "c3";
 import "c3/c3.css";
 import { DateTime, Interval } from "luxon";
+import TimeMode from "../model/time-mode";
 
 @Component({
   components: {
@@ -39,6 +40,8 @@ export default class StatsPlot extends Vue {
   @Prop({ required: true }) sensor!: Sensor;
 
   @Prop({ required: true }) statsType!: StatsType;
+
+  @Prop({ required: true }) timeMode!: TimeMode;
 
   private availableIntervals: Interval[] = [];
   private selectedInterval: Interval | null = null;
@@ -66,6 +69,9 @@ export default class StatsPlot extends Vue {
       axis: {
         x: {
           type: "category",
+          tick: {
+            multiline:false,
+          }
         },
         y: {
           min: 0,
@@ -112,8 +118,16 @@ export default class StatsPlot extends Vue {
   }
 
   private createPlot(interval?: Interval) {
-    let interval2 =
-      interval || this.availableIntervals[this.availableIntervals.length - 1];
+    let defaultInterval = this.availableIntervals.find(interval => interval.end >= this.timeMode.getTime())! ||  this.availableIntervals[this.availableIntervals.length - 1];
+    //let interval2 = interval || defaultInterval;
+    let interval2 = interval || this.availableIntervals[0]
+
+    //this.availableIntervals.slice().reverse().find(interval => interval.end)
+    
+    console.log(this.dateTimeToBackendISO(interval2.start))
+    console.log(this.dateTimeToBackendISO(interval2.end))
+
+    //console.log(interval2.toString())
 
     let url = `stats/sensor/${this.sensor.identifier}/${
       this.statsType.url
@@ -181,13 +195,13 @@ export interface StatsType {
 }
 
 export const HOUR_OF_DAY: StatsType = {
-  title: "Power Consumption per Hour of Day",
+  title: "Daily Course",
   url: "hour-of-day",
   accessor: (stats) => stats.hourOfDay,
 };
 
 export const DAY_OF_WEEK: StatsType = {
-  title: "Power Consumption per Day of Week",
+  title: "Weekly Course",
   url: "day-of-week",
   accessor: (stats) => getDayOfWeekText(stats.dayOfWeek),
 };
