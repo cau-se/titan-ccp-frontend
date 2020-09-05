@@ -26,12 +26,12 @@
             </b-row>
             <b-row class="mb-4">
                 <b-col>
-                    <sensor-history-plot :sensor="internalSensor" :timeMode="timeMode" />
+                    <sensor-history-plot :sensor="internalSensor" :timeMode="timeMode"  :key="internalSensor.identifier" />
                 </b-col>
             </b-row>
             <b-row class="mb-4">
                 <b-col cols="6">
-                    <distribution-plot :sensor="internalSensor" :timeMode="timeMode" />
+                    <distribution-plot :sensor="internalSensor" :timeMode="timeMode"  :key="internalSensor.identifier" />
                 </b-col>
                 <b-col v-if="isAggregated" cols="6">
                     <composition-pie-chart :sensor="internalSensor" />
