@@ -50,6 +50,12 @@ export default class AnomalyView extends Vue {
     this.loadData();
   }
 
+  @Watch("interval")
+  onIntervalChanged() {
+    this.anomalies = [];
+    this.loadData();
+  }
+
   private loadData() {
     this.isLoading = true;
 
