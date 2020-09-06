@@ -85,12 +85,14 @@ export default class Anomalies extends Vue {
 
     private internalSensor: Sensor = this.sensorRegistry.registeredSensors.find(s => s.identifier == "e-druckluft-e2")!
 
-    private interval: Interval = Interval.fromDateTimes(
-        this.timeMode.getTime().minus({ days: 7 }),
-        this.timeMode.getTime(),
-    )
-
     private threshold: number = 3;
+
+    private get interval(): Interval {
+        return Interval.fromDateTimes(
+            this.timeMode.getTime().minus({ days: 7 }),
+            this.timeMode.getTime(),
+        )
+    }
 
     covertSensorToSelectable(sensor: Sensor) {
         if (sensor instanceof AggregatedSensor) {
@@ -118,6 +120,16 @@ export default class Anomalies extends Vue {
     }
 
     mounted() {
+        this.plot = new MovingTimeSeriesPlot(this.canvasplotContainer, {
+            plotStartsWithZero: true,
+            yAxisLabel: "Active Power in kW",
+        });
+        this.fetchHistoryData();
+    }
+
+    @Watch("timeMode")
+    ontimeModeChanged() {
+        this.plot.destroy();
         this.plot = new MovingTimeSeriesPlot(this.canvasplotContainer, {
             plotStartsWithZero: true,
             yAxisLabel: "Active Power in kW",
