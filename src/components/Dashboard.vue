@@ -1,5 +1,5 @@
 <template>
-    <b-container class="">
+    <b-container>
         <b-row class="mb-4">
             <b-col>
                 <trend-arrow :timeMode="timeMode" :sensor="sensor" :timespan="trendLastHour" />
