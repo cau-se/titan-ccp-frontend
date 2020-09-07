@@ -39,7 +39,7 @@ export default class SensorHistoryPlot extends Vue {
 
   private latest = this.completeHistory
     ? 0
-    : this.timeMode.getTime().toMillis() - 3600 * 1000;
+    : this.timeMode.getTime().minus({month: 3}).toMillis();
 
   private isLoading = false;
   private isError = false;
@@ -57,9 +57,9 @@ export default class SensorHistoryPlot extends Vue {
   }
 
   get completeHistory() {
-    return true;
-    //console.log("SHOW_COMPLETE_HISTORY " + process.env.SHOW_COMPLETE_HISTORY);
-    //return process.env.SHOW_COMPLETE_HISTORY === "true"
+    //return false;
+    console.log("SHOW_COMPLETE_HISTORY " + process.env.SHOW_COMPLETE_HISTORY);
+    return process.env.SHOW_COMPLETE_HISTORY === "true"
   }
 
   created() {}
@@ -134,7 +134,7 @@ export default class SensorHistoryPlot extends Vue {
   private destroyPlot() {
     this.latest = this.completeHistory
       ? 0
-      : this.timeMode.getTime().toMillis() - 3600 * 1000;
+      : this.timeMode.getTime().minus({years: 1}).toMillis();
     this.isLoading = false;
     this.isError = false;
     this.plot.destroy();
