@@ -1,7 +1,7 @@
 <template>
-  <b-row class="text-center">
+  <b-row class="text-right">
     <b-col>
-      <b-container fluid class="m-md-2">
+        Time range:
         <date-range-picker
           ref="picker"
           :timePicker="true"
@@ -9,22 +9,21 @@
           :autoApply="true"
           v-model="dateRange"
           @update="updateValues"
+          class="m-md-2"
         >
           <template
             v-slot:input="picker"
-            style="min-width: 350px;"
-          >{{ picker.startDate | date }} - {{ picker.endDate | date }}</template>
+            style="min-width: 350px;">
+            {{ picker.startDate | date }} - {{ picker.endDate | date }}
+          </template>
         </date-range-picker>
-      </b-container>
-    </b-col>
-    <b-col>
-      <div>
-        <b-dropdown variant="success" :text="resolution" class="m-md-2">
+  
+        Resolution:
+        <b-dropdown variant="outline-secondary" :text="resolution" class="m-md-2">
           <b-dropdown-item @click="setResolution('1:1')">1:1</b-dropdown-item>
           <b-dropdown-item @click="setResolution('minutely')">minutely</b-dropdown-item>
           <b-dropdown-item @click="setResolution('hourly')">hourly</b-dropdown-item>
         </b-dropdown>
-      </div>
     </b-col>
   </b-row>
 </template>

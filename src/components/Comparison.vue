@@ -1,9 +1,7 @@
 <template>
   <div>
-    <div>
-      <comparison-setting-header v-if="plots.length > 0" @updatedViewSettings="changeViewSettings"></comparison-setting-header>
-    </div>
-    <b-container v-if="plots.length > 0" class>
+    <b-container v-if="plots.length > 0">
+      <comparison-setting-header @updatedViewSettings="changeViewSettings"/>
       <comparison-plot
         ref="comp"
         v-for="plot in plots"
