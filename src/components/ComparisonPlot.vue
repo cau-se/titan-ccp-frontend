@@ -50,6 +50,7 @@ import "@riophae/vue-treeselect/dist/vue-treeselect.css";
 // @ts-ignore
 import { CanvasTimeSeriesPlot } from "../canvasplot.js";
 import { DataPoint } from "../MovingTimeSeriesPlot";
+import { DateTime, Interval } from "luxon";
 
 // import { watch } from "fs";
 declare var d3version3: any;
@@ -61,6 +62,10 @@ declare var d3version3: any;
 })
 export default class ComparisonPlot extends Vue {
   readonly now = new Date().getTime();
+
+  @Prop({ required: true }) resolutionNew!: string;
+
+  @Prop({ required: true }) rangeNew!: Interval;
 
   dataSets = new Array<DataSet>();
 
@@ -108,13 +113,6 @@ export default class ComparisonPlot extends Vue {
   }
 
   mounted() {
-    this.dateRange = {
-      startDate: this.now - 2 * 3600 * 1000,
-      endDate: this.now
-    };
-
-    this.resolution = "1:1";
-
     this.plot = new CanvasTimeSeriesPlot(
       d3version3.select(this.canvasplotContainer),
       [
@@ -160,17 +158,16 @@ export default class ComparisonPlot extends Vue {
     }
   }
 
+  // TODO Reduce duplicate code
   async refreshDataSet(dataSet: DataSet) {
-    this.dataSets.push(dataSet);
-    let color = this.colors.get(dataSet.sensor.identifier);
-    let updateDomains = true;
     let dataPoints = await this.fetchNewData(dataSet.sensor);
+    this.plot.removeDataSet(dataSet.sensor.identifier);
     this.plot.addDataSet(
       dataSet.sensor.identifier,
       dataSet.sensor.title,
-      dataPoints.map(dataPoint => dataPoint.toArray()),
-      color,
-      updateDomains,
+      dataPoints.map((dataPoint) => dataPoint.toArray()),
+      this.colors.get(dataSet.sensor.identifier), //color
+      true, // updateDomains
       false
     );
   }
@@ -190,24 +187,20 @@ export default class ComparisonPlot extends Vue {
     }
   }
 
-  private updateDataSet(startDate: any, endDate: any, resolution: string) {
-    this.dateRange.startDate = startDate;
-    this.dateRange.endDate = endDate;
-    this.resolution = resolution;
-    let tmp = this.dataSets;
-    for (var i = 0; i < tmp.length; i++) {
-      let dataSet = tmp[i];
-      this.removeDataSet(dataSet);
+  @Watch("resolutionNew")
+  @Watch("rangeNew")
+  onSettingsChanged() {
+    for (let dataSet of this.dataSets) {
       this.refreshDataSet(dataSet);
     }
   }
 
   private fetchNewData(sensor: Sensor): Promise<DataPoint[]> {
-    console.log("from", this.dateRange.startDate);
-    console.log("to,", this.dateRange.endDate);
-    console.log(this.resolution);
+    console.log("from", this.rangeNew.start);
+    console.log("to,", this.rangeNew.end);
+    console.log(this.resolutionNew);
     let resource = "";
-    if (this.resolution == "1:1") {
+    if (this.resolutionNew == "highest") {
       resource =
         sensor instanceof AggregatedSensor
           ? "aggregated-power-consumption"
@@ -218,16 +211,16 @@ export default class ComparisonPlot extends Vue {
 
     return HTTP.get(
       resource +
-        (this.resolution != "1:1"
-          ? "/windowed/" + this.resolution + "/"
+        (this.resolutionNew != "highest"
+          ? "/windowed/" + this.resolutionNew + "/"
           : "/") +
         sensor.identifier +
         "?from=" +
-        this.dateRange.startDate +
+        this.rangeNew.start.toMillis() +
         "&to=" +
-        this.dateRange.endDate
+        this.rangeNew.end.toMillis()
     )
-      .then(response => {
+      .then((response) => {
         // JSON responses are automatically parsed.
         // TODO access sum generically
         console.log("response", response);
@@ -235,9 +228,9 @@ export default class ComparisonPlot extends Vue {
           (x: any) =>
             new DataPoint(
               new Date(
-                this.resolution == "1:1" ? x.timestamp : x.startTimestamp
+                this.resolutionNew == "highest" ? x.timestamp : x.startTimestamp
               ),
-              this.resolution == "1:1"
+              this.resolutionNew == "highest"
                 ? sensor instanceof AggregatedSensor
                   ? x.sumInW
                   : x.valueInW
@@ -245,11 +238,12 @@ export default class ComparisonPlot extends Vue {
             )
         );
       })
-      .catch(e => {
+      .catch((e) => {
         console.error(e);
         return [];
       });
   }
+
 }
 
 class DataSet {

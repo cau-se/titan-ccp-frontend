@@ -6,9 +6,10 @@
           ref="picker"
           :timePicker="true"
           :showWeekNumbers="true"
+          :ranges="defaultRanges"
           :autoApply="true"
           v-model="dateRange"
-          @update="updateValues"
+          @update="updateRange"
           class="m-md-2"
         >
           <template
@@ -19,10 +20,11 @@
         </date-range-picker>
   
         Resolution:
-        <b-dropdown variant="outline-secondary" :text="resolution" class="m-md-2">
-          <b-dropdown-item @click="setResolution('1:1')">1:1</b-dropdown-item>
-          <b-dropdown-item @click="setResolution('minutely')">minutely</b-dropdown-item>
-          <b-dropdown-item @click="setResolution('hourly')">hourly</b-dropdown-item>
+        <b-dropdown variant="outline-secondary" :text="resolutionNew" class="m-md-2">
+          <b-dropdown-item @click="$emit('update-resolution', 'highest')">highest</b-dropdown-item>
+          <b-dropdown-item @click="$emit('update-resolution', 'minutely')">minutely</b-dropdown-item>
+          <b-dropdown-item @click="$emit('update-resolution', 'hourly')">hourly</b-dropdown-item>
+          <!--<b-dropdown-item @click="$emit('update-resolution', 'daily')">daily</b-dropdown-item>-->
         </b-dropdown>
     </b-col>
   </b-row>
@@ -34,8 +36,12 @@ import { Vue, Component, Prop, Watch } from "vue-property-decorator";
 import BootstrapVue from "bootstrap-vue";
 import "bootstrap/dist/css/bootstrap.css";
 import "bootstrap-vue/dist/bootstrap-vue.css";
+
 import DateRangePicker from "vue2-daterange-picker";
 import "vue2-daterange-picker/dist/vue2-daterange-picker.css";
+
+import TimeMode from "../model/time-mode";
+import { DateTime, Interval } from "luxon";
 
 @Component({
   components: {
@@ -56,26 +62,57 @@ import "vue2-daterange-picker/dist/vue2-daterange-picker.css";
   }
 })
 export default class comparisonSettingBar extends Vue {
-  now = new Date().getTime();
+  @Prop({ required: true }) timeMode!: TimeMode;
+
+  @Prop({ required: true }) resolutionNew!: string;
+
+  @Prop({ required: true }) rangeNew!: Interval;
+
+  // modifiable in contrast to rangeNew
   private dateRange = {
-    startDate: new Date(this.now - 2 * 3600 * 1000),
-    endDate: new Date(this.now)
+    startDate: this.rangeNew.start.toJSDate(),
+    endDate: this.rangeNew.end.toJSDate()
   };
 
-  resolution: string = "1:1";
-
-  private updateValues() {
+  private updateRange() {
     this.$emit(
-      "updatedViewSettings",
-      this.dateRange.startDate,
-      this.dateRange.endDate,
-      this.resolution
+      "update-range",
+      Interval.fromDateTimes(
+        DateTime.fromJSDate(this.dateRange.startDate),
+        DateTime.fromJSDate(this.dateRange.endDate))
     );
   }
 
-  setResolution(resolution: string) {
-    this.resolution = resolution;
-    this.updateValues();
+  private get defaultRanges() {
+    let now = this.timeMode.getTime();
+    let today = now.set({
+      hour: 0,
+      minute: 0,
+      second: 0
+    });
+    let yesterday = today.minus({days: 1});
+    let thisMonthStart = now.set({
+      day: 1,
+      hour: 0,
+      minute: 0,
+      second: 0
+    });
+    let lastMonthStart = thisMonthStart.minus({month: 1});
+    let thisYearStart = now.set({
+      month: 1,
+      day: 1,
+      hour: 0,
+      minute: 0,
+      second: 0
+    });
+
+    return {
+        'Today': [today.toJSDate(), today.plus({days: 1}).minus({seconds: 1}).toJSDate()],
+        'Yesterday': [yesterday.toJSDate(), yesterday.plus({days: 1}).minus({seconds: 1}).toJSDate()],
+        'This month': [thisMonthStart.toJSDate(), thisMonthStart.plus({month: 1}).minus({seconds: 1}).toJSDate()],
+        'This year': [thisYearStart.toJSDate(), thisYearStart.plus({year: 1}).minus({seconds: 1}).toJSDate()],
+        'Last month': [lastMonthStart.toJSDate(), lastMonthStart.plus({month: 1}).minus({seconds: 1}).toJSDate()],
+    }
   }
 }
 </script>

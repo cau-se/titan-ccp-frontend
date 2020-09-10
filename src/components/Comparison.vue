@@ -1,12 +1,20 @@
 <template>
   <div>
     <b-container v-if="plots.length > 0">
-      <comparison-setting-header @updatedViewSettings="changeViewSettings"/>
+      <comparison-setting-header
+        :timeMode="timeMode"
+        :resolution-new="resolutionNew"
+        :range-new="rangeNew"
+        @update-resolution="updateResolution"
+        @update-range="updateRange" 
+      />
       <comparison-plot
         ref="comp"
         v-for="plot in plots"
         :key="plot"
         :sensorRegistry="sensorRegistry"
+        :resolution-new="resolutionNew"
+        :range-new="rangeNew"
         :domainX="domainX"
         :colors="colorRepository"
         @remove="removePlot(plot)"
@@ -47,6 +55,9 @@ import { faClosedCaptioning } from "@fortawesome/free-solid-svg-icons";
 import DateRangePicker from "vue2-daterange-picker";
 import "vue2-daterange-picker/dist/vue2-daterange-picker.css";
 
+import TimeMode from "../model/time-mode";
+import { DateTime, Interval } from "luxon";
+
 @Component({
   components: {
     ComparisonPlot,
@@ -68,13 +79,21 @@ import "vue2-daterange-picker/dist/vue2-daterange-picker.css";
   }
 })
 export default class Comparision extends Vue {
-  @Prop({ required: true })
-  sensorRegistry!: SensorRegistry;
+  @Prop({ required: true }) sensorRegistry!: SensorRegistry;
+  
+  @Prop({ required: true }) timeMode!: TimeMode;
 
-  private dateRange = { startDate: "", endDate: "" };
-  private from: any;
-  private to: any;
-  private resolution: number = 1;
+  //private dateRange = { startDate: "", endDate: "" };
+  //private from: any;
+  //private to: any;
+  //private resolution: number = 1;
+
+  private resolutionNew: string = "highest";
+
+  private rangeNew: Interval = Interval.fromDateTimes(
+    this.timeMode.getTime().minus({ days: 7 }),
+    this.timeMode.getTime()
+  );
 
   private plots = new Array<number>();
 
@@ -100,21 +119,16 @@ export default class Comparision extends Vue {
     }
   }
 
-  private changeViewSettings(
-    startDate: number,
-    endDate: number,
-    resolution: string
-  ) {
-    console.log(new Date(startDate).getTime());
-    console.log(new Date(endDate).getTime());
-    this.$refs.comp[0].updateDataSet(
-      new Date(startDate).getTime(),
-      new Date(endDate).getTime(),
-      resolution
-    );
+  private updateResolution(resolution: string) {
+    console.log("Changed resolution")
+    this.resolutionNew = resolution;
   }
 
-  private setResolution() {}
+  private updateRange(range: Interval) {
+    console.log("Changed range")
+    console.log(range)
+    this.rangeNew = range;
+  }
 }
 
 class Plot {
