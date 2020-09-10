@@ -3,25 +3,26 @@
     <b-col>
       Time range:
       <date-range-picker
-          ref="picker"
-          :timePicker="true"
-          :showWeekNumbers="true"
-          :ranges="defaultRanges"
-          :autoApply="true"
-          v-model="dateRange"
-          @update="updateRange"
-          class="m-md-2"
-        >
-          <template
-            v-slot:input="picker"
-            style="min-width: 350px;">
-            {{ picker.startDate | date }} - {{ picker.endDate | date }}
-          </template>
-        </date-range-picker>
-
-        Resolution: 
-        <b-dropdown variant="outline-secondary" :text="resolutionNew" class="m-md-2">
+        ref="picker"
+        :timePicker="true"
+        :showWeekNumbers="true"
+        :ranges="defaultRanges"
+        :autoApply="true"
+        v-model="dateRange"
+        @update="updateRange"
+        class="m-md-2"
+      >
+        <template
+          v-slot:input="picker"
+          style="min-width: 350px;">
+          {{ picker.startDate | date }} - {{ picker.endDate | date }}
+        </template>
+      </date-range-picker>
+  
+        Resolution:
+        <b-dropdown variant="outline-secondary" :text="resolution" class="m-md-2">
           <b-dropdown-item @click="$emit('update-resolution', 'highest')">highest</b-dropdown-item>
+          <!--<b-dropdown-item @click="$emit('update-resolution', 'minutely')">minutely</b-dropdown-item>-->
           <b-dropdown-item @click="$emit('update-resolution', 'hourly')">hourly</b-dropdown-item>
           <b-dropdown-item @click="$emit('update-resolution', 'daily')">daily</b-dropdown-item>
         </b-dropdown>
@@ -63,31 +64,22 @@ import { DateTime, Interval } from "luxon";
 export default class comparisonSettingBar extends Vue {
   @Prop({ required: true }) timeMode!: TimeMode;
 
-  @Prop({ required: true }) resolutionNew!: string;
+  @Prop({ required: true }) resolution!: string;
 
-  @Prop({ required: true }) rangeNew!: Interval;
+  @Prop({ required: true }) range!: Interval;
 
-  private get now() {
-     return this.timeMode.getTime();
-  }
-
-  // private dateRange = {
-  //   startDate: this.now.minus({ days: 7 }).toJSDate(),
-  //   endDate: this.now.toJSDate(),
-  // };
-
-  // modifiable in contrast to rangeNew
+  // modifiable in contrast to range
   private dateRange = {
-    startDate: this.rangeNew.start.toJSDate(),
-    endDate: this.rangeNew.end.toJSDate()
+    startDate: this.range.start.toJSDate(),
+    endDate: this.range.end.toJSDate()
   };
 
   private updateRange() {
     this.$emit(
       "update-range",
       Interval.fromDateTimes(
-        DateTime.fromJSDate(new Date(this.dateRange.startDate)),
-        DateTime.fromJSDate(new Date(this.dateRange.endDate)))
+        DateTime.fromJSDate(this.dateRange.startDate),
+        DateTime.fromJSDate(this.dateRange.endDate))
     );
   }
 

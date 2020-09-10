@@ -60,12 +60,12 @@ declare var d3version3: any;
   },
 })
 export default class ComparisonPlot extends Vue {
-  readonly now = new Date().getTime(); //- 1 * 3600 * 1000;
+  //readonly now = new Date().getTime(); //- 1 * 3600 * 1000;
   //readonly after = 0;
 
-  @Prop({ required: true }) resolutionNew!: string;
+  @Prop({ required: true }) resolution!: string;
 
-  @Prop({ required: true }) rangeNew!: Interval;
+  @Prop({ required: true }) range!: Interval;
 
   dataSets = new Array<DataSet>();
 
@@ -89,10 +89,6 @@ export default class ComparisonPlot extends Vue {
 
   private plot!: CanvasTimeSeriesPlot; // Will definitely be assigned in mounted
 
-  //private dateRange!: { startDate: number; endDate: number }; // Will definitely be assigned in mounted
-
-  //private resolution!: string; // Will definitely be assigned in mounted
-
   get canvasplotContainer() {
     return this.$el.querySelector(".canvasplot-container")!;
   }
@@ -113,13 +109,6 @@ export default class ComparisonPlot extends Vue {
   }
 
   mounted() {
-    //this.dateRange = {
-  //      startDate: this.now - 2 * 3600 * 1000,
-      //endDate: this.now,
-    //};
-
-    //this.resolution = "highest";
-
     this.plot = new CanvasTimeSeriesPlot(
       d3version3.select(this.canvasplotContainer),
       [
@@ -195,8 +184,8 @@ export default class ComparisonPlot extends Vue {
     }
   }
 
-  @Watch("resolutionNew")
-  @Watch("rangeNew")
+  @Watch("resolution")
+  @Watch("range")
   onSettingsChanged() {
     for (let dataSet of this.dataSets) {
       this.refreshDataSet(dataSet);
@@ -216,11 +205,11 @@ export default class ComparisonPlot extends Vue {
   // }
 
   private fetchNewData(sensor: Sensor): Promise<DataPoint[]> {
-    console.log("from", this.rangeNew.start);
-    console.log("to,", this.rangeNew.end);
-    console.log(this.resolutionNew);
+    console.log("from", this.range.start);
+    console.log("to,", this.range.end);
+    console.log(this.resolution);
     let resource = "";
-    if (this.resolutionNew == "highest") {
+    if (this.resolution == "highest") {
       resource =
         sensor instanceof AggregatedSensor
           ? "aggregated-power-consumption"
@@ -231,14 +220,14 @@ export default class ComparisonPlot extends Vue {
 
     return HTTP.get(
       resource +
-        (this.resolutionNew != "highest"
-          ? "/windowed/" + this.resolutionNew + "/"
+        (this.resolution != "highest"
+          ? "/windowed/" + this.resolution + "/"
           : "/") +
         sensor.identifier +
         "?from=" +
-        this.rangeNew.start.toMillis() +
+        this.range.start.toMillis() +
         "&to=" +
-        this.rangeNew.end.toMillis()
+        this.range.end.toMillis()
     )
       .then((response) => {
         // JSON responses are automatically parsed.
@@ -248,9 +237,9 @@ export default class ComparisonPlot extends Vue {
           (x: any) =>
             new DataPoint(
               new Date(
-                this.resolutionNew == "highest" ? x.timestamp : x.startTimestamp
+                this.resolution == "highest" ? x.timestamp : x.startTimestamp
               ),
-              this.resolutionNew == "highest"
+              this.resolution == "highest"
                 ? sensor instanceof AggregatedSensor
                   ? x.sumInW
                   : x.valueInW
@@ -263,6 +252,7 @@ export default class ComparisonPlot extends Vue {
         return [];
       });
   }
+
 }
 
 class DataSet {

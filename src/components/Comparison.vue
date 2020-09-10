@@ -1,19 +1,20 @@
 <template>
   <div>
-    <b-container v-if="plots.length > 0" class>
+    <b-container v-if="plots.length > 0">
       <comparison-setting-header
         :timeMode="timeMode"
-        :resolution-new="resolutionNew"
-        :range-new="rangeNew"
+        :resolution="resolution"
+        :range="range"
         @update-resolution="updateResolution"
-        @update-range="updateRange" />
+        @update-range="updateRange" 
+      />
       <comparison-plot
         v-for="plot in plots"
         :key="plot"
         :sensorRegistry="sensorRegistry"
+        :resolution="resolution"
+        :range="range"
         :domainX="domainX"
-        :resolution-new="resolutionNew"
-        :range-new="rangeNew"
         :colors="colorRepository"
         @remove="removePlot(plot)"
         @update-domain-x="updateDomainX"
@@ -52,7 +53,6 @@ import ColorRepository from "../ColorRepository";
 import { faClosedCaptioning } from "@fortawesome/free-solid-svg-icons";
 import DateRangePicker from "vue2-daterange-picker";
 import "vue2-daterange-picker/dist/vue2-daterange-picker.css";
-import { start } from "repl";
 import TimeMode from "../model/time-mode";
 import { DateTime, Interval } from "luxon";
 
@@ -77,19 +77,13 @@ import { DateTime, Interval } from "luxon";
   },
 })
 export default class Comparision extends Vue {
-  @Prop({ required: true })
-  sensorRegistry!: SensorRegistry;
-
+  @Prop({ required: true }) sensorRegistry!: SensorRegistry;
+  
   @Prop({ required: true }) timeMode!: TimeMode;
 
-  private dateRange = { startDate: "", endDate: "" };
-  private from: any;
-  private to: any;
-  private resolution: number = 1;
+  private resolution: string = "highest";
 
-  private resolutionNew: string = "highest";
-
-  private rangeNew: Interval = Interval.fromDateTimes(
+  private range: Interval = Interval.fromDateTimes(
     this.timeMode.getTime().minus({ days: 7 }),
     this.timeMode.getTime()
   );
@@ -120,15 +114,14 @@ export default class Comparision extends Vue {
 
   private updateResolution(resolution: string) {
     console.log("Changed resolution")
-    this.resolutionNew = resolution;
+    this.resolution = resolution;
   }
 
   private updateRange(range: Interval) {
     console.log("Changed range")
     console.log(range)
-    this.rangeNew = range;
+    this.range = range;
   }
-
 }
 
 class Plot {
