@@ -50,7 +50,6 @@ import "@riophae/vue-treeselect/dist/vue-treeselect.css";
 // @ts-ignore
 import { CanvasTimeSeriesPlot } from "../canvasplot.js";
 import { DataPoint } from "../MovingTimeSeriesPlot";
-import ComparisonSettingBar from "./../model/comparison-view-settings";
 
 // import { watch } from "fs";
 declare var d3version3: any;

@@ -46,10 +46,8 @@ import ComparisonPlot from "./ComparisonPlot.vue";
 import ComparisonSettingHeader from "./ComparisonSettingHeader.vue";
 import ColorRepository from "../ColorRepository";
 import { faClosedCaptioning } from "@fortawesome/free-solid-svg-icons";
-import ComparisonSettingBar from "./../model/comparison-view-settings";
 import DateRangePicker from "vue2-daterange-picker";
 import "vue2-daterange-picker/dist/vue2-daterange-picker.css";
-import { start } from "repl";
 
 @Component({
   components: {
