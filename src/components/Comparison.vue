@@ -3,8 +3,8 @@
     <b-container v-if="plots.length > 0">
       <comparison-setting-header
         :timeMode="timeMode"
-        :resolution-new="resolutionNew"
-        :range-new="rangeNew"
+        :resolution="resolution"
+        :range="range"
         @update-resolution="updateResolution"
         @update-range="updateRange" 
       />
@@ -13,8 +13,8 @@
         v-for="plot in plots"
         :key="plot"
         :sensorRegistry="sensorRegistry"
-        :resolution-new="resolutionNew"
-        :range-new="rangeNew"
+        :resolution="resolution"
+        :range="range"
         :domainX="domainX"
         :colors="colorRepository"
         @remove="removePlot(plot)"
@@ -83,14 +83,9 @@ export default class Comparision extends Vue {
   
   @Prop({ required: true }) timeMode!: TimeMode;
 
-  //private dateRange = { startDate: "", endDate: "" };
-  //private from: any;
-  //private to: any;
-  //private resolution: number = 1;
+  private resolution: string = "highest";
 
-  private resolutionNew: string = "highest";
-
-  private rangeNew: Interval = Interval.fromDateTimes(
+  private range: Interval = Interval.fromDateTimes(
     this.timeMode.getTime().minus({ days: 7 }),
     this.timeMode.getTime()
   );
@@ -121,13 +116,13 @@ export default class Comparision extends Vue {
 
   private updateResolution(resolution: string) {
     console.log("Changed resolution")
-    this.resolutionNew = resolution;
+    this.resolution = resolution;
   }
 
   private updateRange(range: Interval) {
     console.log("Changed range")
     console.log(range)
-    this.rangeNew = range;
+    this.range = range;
   }
 }
 

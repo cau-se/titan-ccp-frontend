@@ -20,7 +20,7 @@
         </date-range-picker>
   
         Resolution:
-        <b-dropdown variant="outline-secondary" :text="resolutionNew" class="m-md-2">
+        <b-dropdown variant="outline-secondary" :text="resolution" class="m-md-2">
           <b-dropdown-item @click="$emit('update-resolution', 'highest')">highest</b-dropdown-item>
           <b-dropdown-item @click="$emit('update-resolution', 'minutely')">minutely</b-dropdown-item>
           <b-dropdown-item @click="$emit('update-resolution', 'hourly')">hourly</b-dropdown-item>
@@ -64,14 +64,14 @@ import { DateTime, Interval } from "luxon";
 export default class comparisonSettingBar extends Vue {
   @Prop({ required: true }) timeMode!: TimeMode;
 
-  @Prop({ required: true }) resolutionNew!: string;
+  @Prop({ required: true }) resolution!: string;
 
-  @Prop({ required: true }) rangeNew!: Interval;
+  @Prop({ required: true }) range!: Interval;
 
   // modifiable in contrast to rangeNew
   private dateRange = {
-    startDate: this.rangeNew.start.toJSDate(),
-    endDate: this.rangeNew.end.toJSDate()
+    startDate: this.range.start.toJSDate(),
+    endDate: this.range.end.toJSDate()
   };
 
   private updateRange() {
