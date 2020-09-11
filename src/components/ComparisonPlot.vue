@@ -141,15 +141,13 @@ export default class ComparisonPlot extends Vue {
       this.newDataSet = null;
       this.addDataSetActive = false;
 
-      let color = this.colors.get(dataSet.sensor.identifier);
-      let updateDomains = true;
       let dataPoints = await this.fetchNewData(dataSet.sensor);
       this.plot.addDataSet(
         dataSet.sensor.identifier,
         dataSet.sensor.title,
         dataPoints.map(dataPoint => dataPoint.toArray()),
-        color,
-        updateDomains,
+        this.colors.get(dataSet.sensor.identifier), //color
+        true, // updateDomains
         false
       );
     }
