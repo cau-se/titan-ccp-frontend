@@ -60,9 +60,6 @@ declare var d3version3: any;
   },
 })
 export default class ComparisonPlot extends Vue {
-  //readonly now = new Date().getTime(); //- 1 * 3600 * 1000;
-  //readonly after = 0;
-
   @Prop({ required: true }) resolution!: string;
 
   @Prop({ required: true }) range!: Interval;
@@ -191,18 +188,6 @@ export default class ComparisonPlot extends Vue {
       this.refreshDataSet(dataSet);
     }
   }
-
-  // private updateDataSet(startDate: any, endDate: any, resolution: string) {
-  //   //this.dateRange.startDate = startDate;
-  //   //this.dateRange.endDate = endDate;
-  //   //this.resolution = resolution;
-  //   let tmp = this.dataSets;
-  //   for (var i = 0; i < tmp.length; i++) {
-  //     let dataSet = tmp[i];
-  //     this.removeDataSet(dataSet);
-  //     this.refreshDataSet(dataSet);
-  //   }
-  // }
 
   private fetchNewData(sensor: Sensor): Promise<DataPoint[]> {
     console.log("from", this.range.start);
