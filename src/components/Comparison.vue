@@ -52,8 +52,6 @@ import ComparisonPlot from "./ComparisonPlot.vue";
 import ComparisonSettingHeader from "./ComparisonSettingHeader.vue";
 import ColorRepository from "../ColorRepository";
 import { faClosedCaptioning } from "@fortawesome/free-solid-svg-icons";
-import DateRangePicker from "vue2-daterange-picker";
-import "vue2-daterange-picker/dist/vue2-daterange-picker.css";
 
 import TimeMode from "../model/time-mode";
 import { DateTime, Interval } from "luxon";
@@ -61,21 +59,7 @@ import { DateTime, Interval } from "luxon";
 @Component({
   components: {
     ComparisonPlot,
-    ComparisonSettingHeader,
-    DateRangePicker
-  },
-  filters: {
-    date(value: any) {
-      if (!value) return "";
-
-      let options = {
-        year: "numeric",
-        month: "long",
-        day: "numeric",
-        hour: "numeric"
-      };
-      return Intl.DateTimeFormat("en-EN", options).format(value);
-    }
+    ComparisonSettingHeader
   }
 })
 export default class Comparision extends Vue {

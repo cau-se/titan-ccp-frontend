@@ -183,7 +183,7 @@ export default class ComparisonPlot extends Vue {
   }
 
   @Watch("resolution")
-  @Watch("rangeNew")
+  @Watch("range")
   onSettingsChanged() {
     for (let dataSet of this.dataSets) {
       this.refreshDataSet(dataSet);
