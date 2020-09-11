@@ -6,6 +6,7 @@
           ref="picker"
           :timePicker="true"
           :showWeekNumbers="true"
+          :showDropdowns="true"
           :ranges="defaultRanges"
           :autoApply="true"
           v-model="dateRange"
@@ -55,7 +56,9 @@ import { DateTime, Interval } from "luxon";
         year: "numeric",
         month: "long",
         day: "numeric",
-        hour: "numeric"
+        hour: "numeric",
+        hour12: false,
+        minute: "numeric"
       };
       return Intl.DateTimeFormat("en-EN", options).format(value);
     }
