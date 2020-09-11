@@ -115,13 +115,10 @@ export default class Comparision extends Vue {
   }
 
   private updateResolution(resolution: string) {
-    console.log("Changed resolution")
     this.resolution = resolution;
   }
 
   private updateRange(range: Interval) {
-    console.log("Changed range")
-    console.log(range)
     this.range = range;
   }
 }
