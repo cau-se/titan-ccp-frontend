@@ -21,11 +21,13 @@
         </date-range-picker>
   
         Resolution:
-        <b-dropdown variant="outline-secondary" :text="resolution" class="m-md-2">
-          <b-dropdown-item @click="$emit('update-resolution', 'highest')">highest</b-dropdown-item>
-          <b-dropdown-item @click="$emit('update-resolution', 'minutely')">minutely</b-dropdown-item>
-          <b-dropdown-item @click="$emit('update-resolution', 'hourly')">hourly</b-dropdown-item>
-          <!--<b-dropdown-item @click="$emit('update-resolution', 'daily')">daily</b-dropdown-item>-->
+        <b-dropdown variant="outline-secondary" :text="resolution.name" class="m-md-2">
+          <b-dropdown-item
+            v-for="resolution in availableResolutions"
+            :key="resolution.name"
+            @click="$emit('update-resolution', resolution)">
+            {{ resolution.name }}
+          </b-dropdown-item>
         </b-dropdown>
     </b-col>
   </b-row>
@@ -43,6 +45,7 @@ import "vue2-daterange-picker/dist/vue2-daterange-picker.css";
 
 import TimeMode from "../model/time-mode";
 import { DateTime, Interval } from "luxon";
+import Resolution from "./Comparison.vue";
 
 @Component({
   components: {
@@ -67,9 +70,11 @@ import { DateTime, Interval } from "luxon";
 export default class comparisonSettingBar extends Vue {
   @Prop({ required: true }) timeMode!: TimeMode;
 
-  @Prop({ required: true }) resolution!: string;
+  @Prop({ required: true }) resolution!: Resolution;
 
   @Prop({ required: true }) range!: Interval;
+
+  @Prop({ required: true }) availableResolutions!: Resolution[];
 
   // modifiable in contrast to rangeNew
   private dateRange = {
