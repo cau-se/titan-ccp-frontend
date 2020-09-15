@@ -1,4 +1,4 @@
-export class Domain {
+export class TimeDomain {
 	public start: number;
 	public end: number;
 
@@ -28,16 +28,16 @@ export class Domain {
 		return [new Date(this.start), new Date(this.end)]
 	}
 
-	public shift(time: number): Domain {
+	public shift(time: number): TimeDomain {
 		this.start += time;
 		this.end += time;
 		return this;
 	}
 
-	public static of(domain: number[] | Date[]): Domain {
+	public static of(domain: number[] | Date[]): TimeDomain {
 		if (domain.length < 2) {
 			new Error('Domain array must have at least two elements.')
 		}
-		return new Domain(domain[0], domain[1])
+		return new TimeDomain(domain[0], domain[1])
 	}
 }

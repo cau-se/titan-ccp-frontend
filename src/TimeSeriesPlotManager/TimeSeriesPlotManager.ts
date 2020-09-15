@@ -1,7 +1,7 @@
 import { MultiResolutionData } from "./DataSet";
 import { DataPoint } from "./DataPoint";
 import TimeMode from "../model/time-mode";
-import { Domain } from "./Domain";
+import { TimeDomain } from "./Domain";
 import { DownloadManager } from "./api";
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
@@ -83,7 +83,7 @@ export class TimeSeriesPlotManager {
 
   handleZoom = (xDomainArray: [Date, Date]): void => {
     // calculate the domain span in the plot
-    const xDomain = Domain.of(xDomainArray);    
+    const xDomain = TimeDomain.of(xDomainArray);    
     const span = xDomain.getLength();
     let from = xDomain.start;
     let to = xDomain.end;
@@ -105,7 +105,7 @@ export class TimeSeriesPlotManager {
 
   updateRealTimeData = async (): Promise<void> => {
     // 1. Determine what data to fetch
-    const xDomain = Domain.of(this.plot.getXDomain());
+    const xDomain = TimeDomain.of(this.plot.getXDomain());
     const resolutionLevel = this.determineResolutionLevel(xDomain);
 
     // 2. Fetch data asynchronous
@@ -126,7 +126,7 @@ export class TimeSeriesPlotManager {
     if (latestWasDisplayed) {
       const shift =
         latestFetched - this.latestByResolutionLevel[resolutionLevel];
-      const newXDomain = Domain.of(xDomain.toArray()).shift(shift);
+      const newXDomain = TimeDomain.of(xDomain.toArray()).shift(shift);
       this.plot.updateDomains(
         newXDomain.toArray(),
         this.plot.getYDomain(),
@@ -138,7 +138,7 @@ export class TimeSeriesPlotManager {
     this.latestByResolutionLevel[resolutionLevel] = latestFetched;
   };
 
-  private determineResolutionLevel(xDomain: Domain): number {
+  private determineResolutionLevel(xDomain: TimeDomain): number {
     const length = xDomain.getLength();
     if (length <= 15 * 60 * 1000) {
       // less than 15 minutes
@@ -191,7 +191,7 @@ export class TimeSeriesPlotManager {
 
   private updateDomains(): void {
     if (!this.plot) return;
-    const yDomain = Domain.of(this.plot.calculateYDomain());
+    const yDomain = TimeDomain.of(this.plot.calculateYDomain());
     const enlargement = yDomain.getLength() * this.yDomainEnlargement;
     yDomain.start -= enlargement;
     yDomain.end += enlargement;
