@@ -41,7 +41,7 @@ import {
   Sensor,
   AggregatedSensor,
   MachineSensor,
-  SensorRegistry
+  SensorRegistry,
 } from "../SensorRegistry";
 import ColorRepository from "../ColorRepository";
 // @ts-ignore
@@ -53,7 +53,6 @@ import { DataPoint } from "../MovingTimeSeriesPlot";
 import { DateTime, Interval } from "luxon";
 import { Resolution } from "./Comparison.vue";
 
-// import { watch } from "fs";
 declare var d3version3: any;
 
 @Component({
@@ -62,7 +61,6 @@ declare var d3version3: any;
   }
 })
 export default class ComparisonPlot extends Vue {
-
   @Prop({ required: true }) resolution!: Resolution;
 
   @Prop({ required: true }) range!: Interval;

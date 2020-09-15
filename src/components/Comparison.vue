@@ -11,7 +11,6 @@
         class="mb-3"
       />
       <comparison-plot
-        ref="comp"
         v-for="plot in plots"
         :key="plot"
         :sensorRegistry="sensorRegistry"
@@ -43,7 +42,7 @@ import {
   Sensor,
   AggregatedSensor,
   MachineSensor,
-  SensorRegistry
+  SensorRegistry,
 } from "../SensorRegistry";
 
 import BootstrapVue from "bootstrap-vue";
