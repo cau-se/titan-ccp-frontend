@@ -62,7 +62,6 @@ declare var d3version3: any;
   }
 })
 export default class ComparisonPlot extends Vue {
-  readonly now = new Date().getTime();
 
   @Prop({ required: true }) resolution!: Resolution;
 
