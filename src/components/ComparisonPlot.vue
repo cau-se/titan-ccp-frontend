@@ -9,7 +9,7 @@
         <b-button-close @click="remove()" />
       </div>
       <ul class="list-group list-group-flush">
-        <li v-for="dataSet in dataSets" :key="dataSet.sensor" class="list-group-item">
+        <li v-for="dataSet in dataSets" :key="dataSet.sensor.identifier" class="list-group-item">
           {{ dataSet.sensor.title }}
           <b-button-close @click="removeDataSet(dataSet)" />
         </li>
@@ -51,6 +51,7 @@ import "@riophae/vue-treeselect/dist/vue-treeselect.css";
 import { CanvasTimeSeriesPlot } from "../canvasplot.js";
 import { DataPoint } from "../MovingTimeSeriesPlot";
 import { DateTime, Interval } from "luxon";
+import { Resolution } from "./Comparison.vue";
 
 declare var d3version3: any;
 
@@ -60,7 +61,7 @@ declare var d3version3: any;
   },
 })
 export default class ComparisonPlot extends Vue {
-  @Prop({ required: true }) resolution!: string;
+  @Prop({ required: true }) resolution!: Resolution;
 
   @Prop({ required: true }) range!: Interval;
 
@@ -138,15 +139,13 @@ export default class ComparisonPlot extends Vue {
       this.newDataSet = null;
       this.addDataSetActive = false;
 
-      let color = this.colors.get(dataSet.sensor.identifier);
-      let updateDomains = true;
       let dataPoints = await this.fetchNewData(dataSet.sensor);
       this.plot.addDataSet(
         dataSet.sensor.identifier,
         dataSet.sensor.title,
-        dataPoints.map((dataPoint) => dataPoint.toArray()),
-        color,
-        updateDomains,
+        dataPoints.map(dataPoint => dataPoint.toArray()),
+        this.colors.get(dataSet.sensor.identifier), //color
+        true, // updateDomains
         false
       );
     }
@@ -190,45 +189,15 @@ export default class ComparisonPlot extends Vue {
   }
 
   private fetchNewData(sensor: Sensor): Promise<DataPoint[]> {
-    console.log("from", this.range.start);
-    console.log("to,", this.range.end);
-    console.log(this.resolution);
-    let resource = "";
-    if (this.resolution == "highest") {
-      resource =
-        sensor instanceof AggregatedSensor
-          ? "aggregated-power-consumption"
-          : "power-consumption";
-    } else {
-      resource = "active-power";
-    }
-
-    return HTTP.get(
-      resource +
-        (this.resolution != "highest"
-          ? "/windowed/" + this.resolution + "/"
-          : "/") +
-        sensor.identifier +
-        "?from=" +
-        this.range.start.toMillis() +
-        "&to=" +
-        this.range.end.toMillis()
-    )
+    return HTTP.get(this.resolution.getQueryUrl(sensor, this.range))
       .then((response) => {
         // JSON responses are automatically parsed.
-        // TODO access sum generically
         console.log("response", response);
         return response.data.map(
           (x: any) =>
             new DataPoint(
-              new Date(
-                this.resolution == "highest" ? x.timestamp : x.startTimestamp
-              ),
-              this.resolution == "highest"
-                ? sensor instanceof AggregatedSensor
-                  ? x.sumInW
-                  : x.valueInW
-                : x.mean
+              this.resolution.timestampAccessor(x, sensor),
+              this.resolution.valueAccessor(x, sensor)
             )
         );
       })
