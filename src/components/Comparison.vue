@@ -7,7 +7,8 @@
         :availableResolutions="availableResolutions"
         :range="range"
         @update-resolution="updateResolution"
-        @update-range="updateRange" 
+        @update-range="updateRange"
+        class="mb-3"
       />
       <comparison-plot
         ref="comp"
@@ -20,9 +21,9 @@
         :colors="colorRepository"
         @remove="removePlot(plot)"
         @update-domain-x="updateDomainX"
-        class="mb-4"
+        class="mb-3"
       />
-      <b-row class="mb-4">
+      <b-row>
         <b-col>
           <b-button variant="success" @click="addPlot">Add Plot</b-button>
         </b-col>

@@ -1,34 +1,34 @@
 <template>
   <b-row class="text-right">
     <b-col>
-        Time range:
-        <date-range-picker
-          ref="picker"
-          :timePicker="true"
-          :showWeekNumbers="true"
-          :showDropdowns="true"
-          :ranges="defaultRanges"
-          :autoApply="true"
-          v-model="dateRange"
-          @update="updateRange"
-          class="m-md-2"
-        >
-          <template
-            v-slot:input="picker"
-            style="min-width: 350px;">
-            {{ picker.startDate | date }} - {{ picker.endDate | date }}
-          </template>
-        </date-range-picker>
-  
-        Resolution:
-        <b-dropdown variant="outline-secondary" :text="resolution.name" class="m-md-2">
-          <b-dropdown-item
-            v-for="resolution in availableResolutions"
-            :key="resolution.name"
-            @click="$emit('update-resolution', resolution)">
-            {{ resolution.name }}
-          </b-dropdown-item>
-        </b-dropdown>
+      Time range:
+      <date-range-picker
+        ref="picker"
+        :timePicker="true"
+        :showWeekNumbers="true"
+        :showDropdowns="true"
+        :ranges="defaultRanges"
+        :autoApply="true"
+        v-model="dateRange"
+        @update="updateRange"
+        class="mr-md-2"
+      >
+        <template
+          v-slot:input="picker"
+          style="min-width: 350px;">
+          {{ picker.startDate | date }} - {{ picker.endDate | date }}
+        </template>
+      </date-range-picker>
+
+      Resolution:
+      <b-dropdown variant="outline-secondary" :text="resolution.name">
+        <b-dropdown-item
+          v-for="resolution in availableResolutions"
+          :key="resolution.name"
+          @click="$emit('update-resolution', resolution)">
+          {{ resolution.name }}
+        </b-dropdown-item>
+      </b-dropdown>
     </b-col>
   </b-row>
 </template>
@@ -45,7 +45,7 @@ import "vue2-daterange-picker/dist/vue2-daterange-picker.css";
 
 import TimeMode from "../model/time-mode";
 import { DateTime, Interval } from "luxon";
-import Resolution from "./Comparison.vue";
+import { Resolution } from "./Comparison.vue";
 
 @Component({
   components: {

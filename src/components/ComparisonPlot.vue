@@ -9,7 +9,7 @@
         <b-button-close @click="remove()" />
       </div>
       <ul class="list-group list-group-flush">
-        <li v-for="dataSet in dataSets" :key="dataSet.sensor" class="list-group-item">
+        <li v-for="dataSet in dataSets" :key="dataSet.sensor.identifier" class="list-group-item">
           {{ dataSet.sensor.title }}
           <b-button-close @click="removeDataSet(dataSet)" />
         </li>
