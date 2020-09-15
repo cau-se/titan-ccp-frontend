@@ -57,8 +57,8 @@ declare var d3version3: any;
 
 @Component({
   components: {
-    Treeselect,
-  },
+    Treeselect
+  }
 })
 export default class ComparisonPlot extends Vue {
   @Prop({ required: true }) resolution!: Resolution;
@@ -96,12 +96,12 @@ export default class ComparisonPlot extends Vue {
       return {
         id: sensor.identifier,
         label: sensor.title,
-        children: sensor.children,
+        children: sensor.children
       };
     } else {
       return {
         id: sensor.identifier,
-        label: sensor.title,
+        label: sensor.title
       };
     }
   }
@@ -111,12 +111,12 @@ export default class ComparisonPlot extends Vue {
       d3version3.select(this.canvasplotContainer),
       [
         this.canvasplotContainer.clientWidth,
-        this.canvasplotContainer.clientHeight,
+        this.canvasplotContainer.clientHeight
       ],
       {
         yAxisLabel: "Active Power in kW",
         //plotMargins: { top: 20, right: 20, bottom: 30, left: this.yAxisSpacing },
-        updateViewCallback: this.updatedView.bind(this),
+        updateViewCallback: this.updatedView.bind(this)
       }
     );
     this.plot.setZoomYAxis(false);

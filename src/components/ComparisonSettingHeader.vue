@@ -49,7 +49,7 @@ import { Resolution } from "./Comparison.vue";
 
 @Component({
   components: {
-    DateRangePicker,
+    DateRangePicker
   },
   filters: {
     date(value: any) {
@@ -64,8 +64,8 @@ import { Resolution } from "./Comparison.vue";
         minute: "numeric"
       };
       return Intl.DateTimeFormat("en-EN", options).format(value);
-    },
-  },
+    }
+  }
 })
 export default class comparisonSettingBar extends Vue {
   @Prop({ required: true }) timeMode!: TimeMode;
@@ -76,7 +76,7 @@ export default class comparisonSettingBar extends Vue {
 
   @Prop({ required: true }) availableResolutions!: Resolution[];
 
-  // modifiable in contrast to rangeNew
+  // modifiable in contrast to range
   private dateRange = {
     startDate: this.range.start.toJSDate(),
     endDate: this.range.end.toJSDate()
