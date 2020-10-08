@@ -166,7 +166,7 @@ export class RawResolution implements Resolution {
   timestampAccessor = (json, _) => new Date(json.timestamp);
 
   getQueryUrl(sensor: Sensor, range: Interval) {
-    return `${sensor instanceof AggregatedSensor ? "aggregated-power-consumption" : "power-consumption"}/${sensor.identifier}?from=${range.start.toMillis()}&to=${range.end.toMillis()}`;
+    return `${sensor instanceof AggregatedSensor ? "active-power/aggregated" : "active-power/raw"}/${sensor.identifier}?from=${range.start.toMillis()}&to=${range.end.toMillis()}`;
   }
 
 }

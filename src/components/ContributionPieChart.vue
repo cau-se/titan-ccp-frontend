@@ -41,7 +41,7 @@ export default class ContributionPieChart extends Vue {
                 columns: [],
                 type : 'pie',
                 order: null,
-                colors: {  
+                colors: {
                     Others: '#BBBBBB'
                 },
             },
@@ -68,12 +68,12 @@ export default class ContributionPieChart extends Vue {
         let to = this.timeMode.getTime();
 
         Promise.all([
-            HTTP.get('power-consumption/' + this.sensor.identifier + '/latest?to=' + to.toMillis())
+            HTTP.get('active-power/raw/' + this.sensor.identifier + '/latest?to=' + to.toMillis())
             .then(response => {
                 // JSON responses are automatically parsed.
                 return response.data.length <= 0 ? 0 : response.data[0].valueInW;
             }),
-            HTTP.get('aggregated-power-consumption/' + this.sensor.parent!.identifier + '/latest?to=' + to.toMillis())
+            HTTP.get('active-power/aggregated/' + this.sensor.parent!.identifier + '/latest?to=' + to.toMillis())
             .then(response => {
                 // JSON responses are automatically parsed.
                 return response.data.length <= 0 ? 0 : response.data[0].sumInW;

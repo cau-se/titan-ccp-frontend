@@ -73,8 +73,8 @@ export default class DistributionPlot extends Vue {
   private createPlot() {
     let resource =
       this.sensor instanceof AggregatedSensor
-        ? "aggregated-power-consumption"
-        : "power-consumption";
+        ? "active-power/aggregated"
+        : "active-power/raw";
     // Distribution of last hour
     let after = this.timeMode.getTime().minus({ hours: 1 });
     let to = this.timeMode.getTime();
