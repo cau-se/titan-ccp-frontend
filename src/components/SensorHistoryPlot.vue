@@ -133,7 +133,7 @@ export default class SensorHistoryPlot extends Vue {
     }
 
     private fetchNewData(): Promise<DataPoint[]> {
-        let resource = this.sensor instanceof AggregatedSensor ? 'aggregated-power-consumption' : 'power-consumption' 
+        let resource = this.sensor instanceof AggregatedSensor ? 'active-power/aggregated' : 'active-power/raw' 
         return HTTP.get(resource + '/' + this.sensor.identifier + '?after=' + this.latest)
             .then(response => {
                 // JSON responses are automatically parsed.

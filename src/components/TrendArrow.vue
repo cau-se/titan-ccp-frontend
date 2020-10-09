@@ -60,8 +60,8 @@ export default class TrendArrow extends Vue {
   private updateChart() {
     let resource =
       this.sensor instanceof AggregatedSensor
-        ? "aggregated-power-consumption"
-        : "power-consumption";
+        ? "active-power/aggregated"
+        : "active-power/raw";
     return HTTP.get(
       resource +
         "/" +

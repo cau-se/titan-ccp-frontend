@@ -64,7 +64,7 @@ export default class CompositionPieChart extends Vue {
         let to = this.timeMode.getTime();
 
         Promise.all(this.sensor.children.map(child => {
-            let resource = child instanceof AggregatedSensor ? 'aggregated-power-consumption' : 'power-consumption'
+            let resource = child instanceof AggregatedSensor ? 'active-power/aggregated' : 'active-power/raw'
             return HTTP.get(resource + '/' + child.identifier + '/latest?to=' + to.toMillis())
                 .then(response => {
                     // JSON responses are automatically parsed.
