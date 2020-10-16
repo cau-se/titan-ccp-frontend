@@ -33,7 +33,6 @@ export default class SensorHistoryPlot extends Vue {
 
     @Prop({  required: true }) timeMode!: TimeMode
 
-
     private isLoading = false
     private isError = false
 

@@ -1,5 +1,5 @@
 <template>
-    <b-container class="">
+    <b-container>
         <b-row class="mb-4">
             <b-col>
                 <trend-arrow :timeMode="timeMode" :sensor="sensor" :timespan="trendLastHour" />
@@ -21,7 +21,7 @@
                 <distribution-plot :timeMode="timeMode" :sensor="sensor" />
             </b-col>
             <b-col cols="6">
-                <composition-pie-chart :sensor="sensor" />
+                <composition-pie-chart :sensor="sensor" :timeMode="timeMode" />
             </b-col>
         </b-row>
         <b-row class="mb-4">

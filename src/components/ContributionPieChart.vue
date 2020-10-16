@@ -1,7 +1,7 @@
 <template>
     <div class="card">
         <div class="card-body">
-            <h5 class="card-title">Composition</h5>
+            <h5 class="card-title">Contribution</h5>
             <loading-spinner :is-loading="isLoading" :is-error="isError">
                 <div class="c3-container"></div>
             </loading-spinner>
@@ -11,7 +11,7 @@
 
 <script lang="ts">
 import { Vue, Component, Prop, Watch } from "vue-property-decorator"
-import { SensorRegistryRequester, AggregatedSensor, Sensor, SensorRegistry } from '../SensorRegistry'
+import { SensorRegistryRequester, AggregatedSensor, MachineSensor, Sensor, SensorRegistry } from '../SensorRegistry'
 import { HTTP } from "../http-common"
 import LoadingSpinner from "./LoadingSpinner.vue"
 import { ChartAPI, generate } from 'c3'
@@ -23,9 +23,9 @@ import TimeMode from "../model/time-mode";
         LoadingSpinner
     }
 })
-export default class CompositionPieChart extends Vue {
+export default class ContributionPieChart extends Vue {
 
-    @Prop({ required: true }) sensor!: AggregatedSensor
+    @Prop({ required: true }) sensor!: MachineSensor
 
     @Prop({ required: true }) timeMode!: TimeMode;
 
@@ -39,7 +39,11 @@ export default class CompositionPieChart extends Vue {
             bindto: this.$el.querySelector(".c3-container") as HTMLElement,
             data: {
                 columns: [],
-                type : 'pie'
+                type : 'pie',
+                order: null,
+                colors: {
+                    Others: '#BBBBBB'
+                },
             },
             tooltip: {
                 show: false
@@ -60,35 +64,28 @@ export default class CompositionPieChart extends Vue {
 
     private updateChart() {
         this.isLoading = true
-        
+
         let to = this.timeMode.getTime();
 
-        Promise.all(this.sensor.children.map(child => {
-            let resource = child instanceof AggregatedSensor ? 'active-power/aggregated' : 'active-power/raw'
-            return HTTP.get(resource + '/' + child.identifier + '/latest?to=' + to.toMillis())
-                .then(response => {
-                    // JSON responses are automatically parsed.
-                    let value
-                    if (response.data.length <= 0) {
-                        value = 0
-                    } else if (child instanceof AggregatedSensor) {
-                        value = response.data[0].sumInW
-                    } else {
-                        value = response.data[0].valueInW
-                    }
-                    return <[string, number]> [child.title, value]
-                })
-        })).catch(e => {
-            console.error(e)
-            this.isError = true
-            return []
-        }).then(columns => {
+        Promise.all([
+            HTTP.get('active-power/raw/' + this.sensor.identifier + '/latest?to=' + to.toMillis())
+            .then(response => {
+                // JSON responses are automatically parsed.
+                return response.data.length <= 0 ? 0 : response.data[0].valueInW;
+            }),
+            HTTP.get('active-power/aggregated/' + this.sensor.parent!.identifier + '/latest?to=' + to.toMillis())
+            .then(response => {
+                // JSON responses are automatically parsed.
+                return response.data.length <= 0 ? 0 : response.data[0].sumInW;
+            })
+        ])
+        .then(values => {
             this.isLoading = false
             this.chart.load({
-                columns: columns,
+                columns: [[this.sensor.title, values[0]], ["Others", values[1]-values[0]]],
                 unload: true
-            })
-        })
+            });
+        });
     }
 
 }
