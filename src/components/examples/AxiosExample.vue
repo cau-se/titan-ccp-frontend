@@ -15,7 +15,7 @@ export default class AxiosExample extends Vue {
     created() {
         // load photos
         let identifier = "root"
-        HTTP.get('aggregated-power-consumption/' + identifier)
+        HTTP.get('active-power/aggregated/' + identifier)
         .then(response => {
             // JSON responses are automatically parsed.
             //console.log(response.data);
