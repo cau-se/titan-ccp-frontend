@@ -2,10 +2,10 @@
   <div class="card">
     <div class="card-body">
       <b-row>
-        <b-col cols="9">
+        <b-col cols="6">
           <h5 class="card-title">{{ statsType.title }}</h5>
         </b-col>
-        <b-col cols="3">
+        <b-col cols="6">
           <b-form-select
             v-if="selectedInterval"
             v-model="selectedInterval"
@@ -29,17 +29,20 @@ import { Sensor, AggregatedSensor } from "../SensorRegistry";
 import { ChartAPI, generate } from "c3";
 import "c3/c3.css";
 import { DateTime, Interval } from "luxon";
+import TimeMode from "../model/time-mode";
 
 @Component({
   components: {
-    LoadingSpinner
-  }
+    LoadingSpinner,
+  },
 })
 export default class StatsPlot extends Vue {
   @Prop({ required: true }) sensor!: Sensor;
 
   @Prop({ required: true }) statsType!: StatsType;
 
+  @Prop({ required: true }) timeMode!: TimeMode;
+  
   private availableIntervals: Interval[] = [];
   private selectedInterval: Interval | null = null;
 
@@ -49,7 +52,7 @@ export default class StatsPlot extends Vue {
   private isError = false;
 
   get intervalSelectOptions(): Array<IntervalSelectOption> {
-    return this.availableIntervals.map(i => new IntervalSelectOption(i));
+    return this.availableIntervals.map((i) => new IntervalSelectOption(i));
   }
 
   mounted() {
@@ -58,33 +61,35 @@ export default class StatsPlot extends Vue {
       data: {
         x: "x",
         columns: [],
-        type: "spline"
+        type: "spline",
       },
       legend: {
-        show: false
+        show: false,
       },
       axis: {
         x: {
-          type: "category"
+          type: "category",
+          tick: {
+            multiline:false,
+          }
         },
         y: {
-          min: 0
-        }
+          min: 0,
+        },
       },
       grid: {
         x: {
-          show: true
+          show: true,
         },
         y: {
-          show: true
-        }
+          show: true,
+        },
       },
       tooltip: {
-        show: false
-      }
+        show: false,
+      },
     });
-    this.loadAvailableIntervals();
-    this.createPlot();
+    this.loadAvailableIntervals().then(() => this.createPlot());
   }
 
   @Watch("sensor")
@@ -93,14 +98,16 @@ export default class StatsPlot extends Vue {
   }
 
   private loadAvailableIntervals() {
-    HTTP.get(`/stats/interval/${this.statsType.url}`).then(response => {
-      this.availableIntervals = response.data.map((i: any) =>
-        Interval.fromDateTimes(
-          DateTime.fromISO(i.intervalStart),
-          DateTime.fromISO(i.intervalEnd)
-        )
-      );
-    });
+    return HTTP.get(`/stats/interval/${this.statsType.url}`).then(
+      (response) => {
+        this.availableIntervals = response.data.map((i: any) =>
+          Interval.fromDateTimes(
+            DateTime.fromISO(i.intervalStart),
+            DateTime.fromISO(i.intervalEnd)
+          )
+        );
+      }
+    );
   }
 
   @Watch("selectedInterval")
@@ -111,17 +118,17 @@ export default class StatsPlot extends Vue {
   }
 
   private createPlot(interval?: Interval) {
-    let url =
-      interval != undefined
-        ? `stats/sensor/${this.sensor.identifier}/${
-            this.statsType.url
-          }?intervalStart=${this.dateTimeToBackendISO(
-            interval.start
-          )}&intervalEnd=${this.dateTimeToBackendISO(interval.end)}`
-        : `stats/sensor/${this.sensor.identifier}/${this.statsType.url}`;
+    let defaultInterval = this.availableIntervals.find(interval => interval.end >= this.timeMode.getTime())! ||  this.availableIntervals[this.availableIntervals.length - 1];
+    let interval2 = interval || defaultInterval;
+
+    let url = `stats/sensor/${this.sensor.identifier}/${
+      this.statsType.url
+    }?intervalStart=${this.dateTimeToBackendISO(
+      interval2.start
+    )}&intervalEnd=${this.dateTimeToBackendISO(interval2.end)}`;
 
     HTTP.get(url)
-      .then(response => {
+      .then((response) => {
         // JSON responses are automatically parsed.
         let labels: string[] = ["x"];
         let minValues: Array<string | number> = ["min"];
@@ -143,16 +150,16 @@ export default class StatsPlot extends Vue {
         //return [labels, minValues, meanValues, maxValues]
         return [labels, meanValues];
       })
-      .catch(e => {
+      .catch((e) => {
         console.error(e);
         this.isError = true;
         //return [["x"], ["min"], ["mean"], ["max"]]
         return [["x"], ["mean"]];
       })
-      .then(data => {
+      .then((data) => {
         this.chart.load({
           columns: data,
-          unload: true
+          unload: true,
         });
         this.isLoading = false;
       });
@@ -180,15 +187,15 @@ export interface StatsType {
 }
 
 export const HOUR_OF_DAY: StatsType = {
-  title: "Power Consumption per Hour of Day",
+  title: "Daily Course",
   url: "hour-of-day",
-  accessor: stats => stats.hourOfDay
+  accessor: (stats) => stats.hourOfDay,
 };
 
 export const DAY_OF_WEEK: StatsType = {
-  title: "Power Consumption per Day of Week",
+  title: "Weekly Course",
   url: "day-of-week",
-  accessor: stats => getDayOfWeekText(stats.dayOfWeek)
+  accessor: (stats) => getDayOfWeekText(stats.dayOfWeek),
 };
 
 function getDayOfWeekText(number: number) {
