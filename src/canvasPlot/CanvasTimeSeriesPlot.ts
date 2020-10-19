@@ -23,6 +23,7 @@ class CanvasTimeSeriesPlot extends CanvasDataPlot {
 
   public addDataSet(uniqueID: string, label: string, dataSet: d3Point[], colorString: string, updateDomains: boolean, copyData: boolean): void {
     this.informationDensity.push(1);
+    // TODO Can be replaces by super calls?
     CanvasDataPlot.prototype.addDataSet.call(this, uniqueID, label, dataSet, colorString, updateDomains, copyData);
   }
 
@@ -31,6 +32,7 @@ class CanvasTimeSeriesPlot extends CanvasDataPlot {
     if (index >= 0) {
       this.informationDensity.splice(index, 1);
     }
+    // TODO Can be replaces by super calls?
     CanvasDataPlot.prototype.removeDataSet.call(this, uniqueID);
   }
 
