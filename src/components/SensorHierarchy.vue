@@ -99,7 +99,7 @@ export default class SensorHierarchy extends Vue {
     );
     this.loaded = true;
 
-    const response = await HTTP.get("power-consumption");
+    const response = await HTTP.get("active-power/raw");
     let unselectedSensors = response.data as Array<string>;
     let registeredSensors = this.sensorRegistry.registeredSensors.map(
       s => s.identifier

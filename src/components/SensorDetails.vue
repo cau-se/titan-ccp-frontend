@@ -6,7 +6,7 @@
                     <sensor-parents :sensor="internalSensor" v-on:select="setSensor"/>
                 </b-col>
                 <b-col v-if="isAggregated" cols ="2">
-                    <b-dropdown right text="Children" variant="secondary" size="lg" block class="children-dropdown">
+                    <b-dropdown right text="Subconsumers" variant="secondary" size="lg" block class="children-dropdown">
                         <b-dropdown-item v-for="child in internalSensor.children" :key="child.identifier" v-on:click="internalSensor = child">
                                 {{ child.title }}
                         </b-dropdown-item>
@@ -26,25 +26,26 @@
             </b-row>
             <b-row class="mb-4">
                 <b-col>
-                    <sensor-history-plot :sensor="internalSensor" :timeMode="timeMode" />
+                    <sensor-history-plot :sensor="internalSensor" :timeMode="timeMode" :key="internalSensor.identifier" />
                 </b-col>
             </b-row>
             <b-row class="mb-4">
                 <b-col cols="6">
-                    <distribution-plot :sensor="internalSensor" :timeMode="timeMode" />
+                    <distribution-plot :sensor="internalSensor" :timeMode="timeMode" :key="internalSensor.identifier" />
                 </b-col>
                 <b-col v-if="isAggregated" cols="6">
-                    <composition-pie-chart :sensor="internalSensor" />
+                    <composition-pie-chart :sensor="internalSensor" :timeMode="timeMode" />
+                </b-col>
+                <b-col v-else cols="6">
+                    <contribution-pie-chart :sensor="internalSensor" :timeMode="timeMode" />
                 </b-col>
             </b-row>
             <b-row class="mb-4">
-                <b-col cols="12">
-                    <stats-plot :sensor="internalSensor" :stats-type="statsDayOfWeek" />
+                <b-col cols="6">
+                    <stats-plot :sensor="internalSensor" :stats-type="statsDayOfWeek" :timeMode="timeMode" />
                 </b-col>
-            </b-row>
-            <b-row class="mb-4">
-                <b-col cols="12">
-                    <stats-plot :sensor="internalSensor" :stats-type="statsHourOfDay" />
+                <b-col cols="6">
+                    <stats-plot :sensor="internalSensor" :stats-type="statsHourOfDay" :timeMode="timeMode" />
                 </b-col>
             </b-row>
         </b-container>
@@ -64,6 +65,7 @@ import DistributionPlot from "./DistributionPlot.vue"
 import StatsPlot from "./StatsPlot.vue"
 import { HOUR_OF_DAY } from "./StatsPlot.vue"
 import { DAY_OF_WEEK } from "./StatsPlot.vue"
+import ContributionPieChart from "./ContributionPieChart.vue"
 import CompositionPieChart from "./CompositionPieChart.vue"
 import SensorHistoryPlot from "./SensorHistoryPlot.vue"
 import TrendArrow from "./TrendArrow.vue"
@@ -76,6 +78,7 @@ import TimeMode from "../model/time-mode";
         SensorParents,
         SensorHistoryPlot,
         CompositionPieChart,
+        ContributionPieChart,
         DistributionPlot,
         StatsPlot,
         TrendArrow

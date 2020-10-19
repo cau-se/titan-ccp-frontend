@@ -1,184 +1,227 @@
-<template>  
-    <div class="card-group row no-gutters">
-        <div class="card col-9">
-            <div class="canvasplot-container"></div>
-        </div>
-        <div class="card col-3">
-            <div class="card-header">
-                Data Sets
-                <b-button-close @click="remove()" />
-            </div>
-            <ul class="list-group list-group-flush">
-                <li v-for="dataSet in dataSets" :key="dataSet.sensor" class="list-group-item">
-                    {{ dataSet.sensor.title }}
-                    <b-button-close @click="removeDataSet(dataSet)" />
-                </li>
-                <li class="list-group-item">
-                    <b-button variant="success" v-if="!addDataSetActive" @click="addDataSetActive = true">
-                        Add Data Set
-                    </b-button>
-                    <treeselect v-else
-                        v-model="newDataSet"
-                        :options="[ this.sensorRegistry.topLevelSensor ]"
-                        :normalizer="covertSensorToSelectable"
-                        :clearable="false"
-                        valueFormat="object"
-                        @input="addDataSet()" />
-                </li>
-            </ul>
-        </div>
+<template>
+  <div class="card-group row no-gutters">
+    <div class="card col-9">
+      <div class="canvasplot-container"></div>
     </div>
+    <div class="card col-3">
+      <div class="card-header">
+        Data Sets
+        <b-button-close @click="remove()" />
+      </div>
+      <ul class="list-group list-group-flush">
+        <li v-for="dataSet in dataSets" :key="dataSet.sensor.identifier" class="list-group-item">
+          {{ dataSet.sensor.title }}
+          <b-button-close @click="removeDataSet(dataSet)" />
+        </li>
+        <li class="list-group-item">
+          <b-button
+            variant="success"
+            v-if="!addDataSetActive"
+            @click="addDataSetActive = true"
+          >Add Data Set</b-button>
+          <treeselect
+            v-else
+            v-model="newDataSet"
+            :options="[ this.sensorRegistry.topLevelSensor ]"
+            :normalizer="covertSensorToSelectable"
+            :clearable="false"
+            valueFormat="object"
+            @input="addDataSet()"
+          />
+        </li>
+      </ul>
+    </div>
+  </div>
 </template>
 
 <script lang="ts">
 import { Vue, Component, Prop, Watch } from "vue-property-decorator";
 import { HTTP } from "../http-common";
-import { Sensor, AggregatedSensor, MachineSensor, SensorRegistry } from '../SensorRegistry'
-import ColorRepository from '../ColorRepository'
+import {
+  Sensor,
+  AggregatedSensor,
+  MachineSensor,
+  SensorRegistry,
+} from "../SensorRegistry";
+import ColorRepository from "../ColorRepository";
 // @ts-ignore
-import Treeselect from '@riophae/vue-treeselect'
-import '@riophae/vue-treeselect/dist/vue-treeselect.css'
+import Treeselect from "@riophae/vue-treeselect";
+import "@riophae/vue-treeselect/dist/vue-treeselect.css";
 // @ts-ignore
 import { CanvasTimeSeriesPlot } from '../canvasPlot/CanvasTimeSeriesPlot';
 import { DataPoint } from '../TimeSeriesPlotManager';
+import { DateTime, Interval } from "luxon";
+import { Resolution } from "./Comparison.vue";
+
 declare var d3version3: any;
 
 @Component({
-    components: {
-        Treeselect
-    }
+  components: {
+    Treeselect
+  }
 })
 export default class ComparisonPlot extends Vue {
+  @Prop({ required: true }) resolution!: Resolution;
 
-    readonly after = new Date().getTime() - (1 * 3600 * 1000)
+  @Prop({ required: true }) range!: Interval;
 
-    readonly dataSets = new Array<DataSet>()
+  dataSets = new Array<DataSet>();
 
-    newDataSet: Sensor|null = null
+  newDataSet: Sensor | null = null;
 
-    addDataSetActive = false
+  addDataSetActive = false;
 
-    value = null
+  value = null;
 
-    get options() {
-        return [ this.sensorRegistry.topLevelSensor ]
+  get options() {
+    return [this.sensorRegistry.topLevelSensor];
+  }
+
+  @Prop({ required: true })
+  sensorRegistry!: SensorRegistry;
+
+  @Prop() domainX!: Array<Date>;
+
+  @Prop()
+  colors!: ColorRepository;
+
+  private plot!: CanvasTimeSeriesPlot; // Will definitely be assigned in mounted
+
+  get canvasplotContainer() {
+    return this.$el.querySelector(".canvasplot-container")!;
+  }
+
+  covertSensorToSelectable(sensor: Sensor) {
+    if (sensor instanceof AggregatedSensor) {
+      return {
+        id: sensor.identifier,
+        label: sensor.title,
+        children: sensor.children
+      };
+    } else {
+      return {
+        id: sensor.identifier,
+        label: sensor.title
+      };
     }
+  }
 
-    @Prop({ required: true })
-    sensorRegistry!: SensorRegistry
+  mounted() {
+    this.plot = new CanvasTimeSeriesPlot(
+      d3version3.select(this.canvasplotContainer),
+      [
+        this.canvasplotContainer.clientWidth,
+        this.canvasplotContainer.clientHeight
+      ],
+      {
+        yAxisLabel: "Active Power in Watt",
+        //plotMargins: { top: 20, right: 20, bottom: 30, left: this.yAxisSpacing },
+        updateViewCallback: this.updatedView.bind(this)
+      }
+    );
+    this.plot.setZoomYAxis(false);
+  }
 
-    @Prop() domainX!: Array<Date>
+  remove() {
+    this.$emit("remove");
+  }
 
-    @Prop()
-    colors!: ColorRepository
+  removeDataSet(dataSet: DataSet) {
+    this.dataSets.splice(this.dataSets.indexOf(dataSet), 1);
+    this.colors.free(dataSet.sensor.identifier);
+    this.plot.removeDataSet(dataSet.sensor.identifier);
+  }
 
-    private plot!: CanvasTimeSeriesPlot // Will definitely be assigned in mounted
+  async addDataSet() {
+    if (this.newDataSet) {
+      let dataSet = new DataSet(this.newDataSet);
+      this.dataSets.push(dataSet);
+      this.newDataSet = null;
+      this.addDataSetActive = false;
 
-    get canvasplotContainer() {
-        return this.$el.querySelector(".canvasplot-container")!
+      let dataPoints = await this.fetchNewData(dataSet.sensor);
+      this.plot.addDataSet(
+        dataSet.sensor.identifier,
+        dataSet.sensor.title,
+        dataPoints.map(dataPoint => dataPoint.toArray()),
+        this.colors.get(dataSet.sensor.identifier), //color
+        true, // updateDomains
+        false
+      );
     }
+  }
 
-    covertSensorToSelectable(sensor: Sensor) {
-        if (sensor instanceof AggregatedSensor) {
-            return {
-                    id: sensor.identifier,
-                    label: sensor.title,
-                    children: sensor.children
-                }
-        } else {
-            return {
-                    id: sensor.identifier,
-                    label: sensor.title
-                }
-        }
+  // TODO Reduce duplicate code
+  async refreshDataSet(dataSet: DataSet) {
+    let dataPoints = await this.fetchNewData(dataSet.sensor);
+    this.plot.removeDataSet(dataSet.sensor.identifier);
+    this.plot.addDataSet(
+      dataSet.sensor.identifier,
+      dataSet.sensor.title,
+      dataPoints.map((dataPoint) => dataPoint.toArray()),
+      this.colors.get(dataSet.sensor.identifier), //color
+      true, // updateDomains
+      false
+    );
+  }
+
+  updatedView(except: any, xDomain: any, yDomain: any) {
+    this.$emit("update-domain-x", xDomain);
+  }
+
+  @Watch("domainX")
+  syncView() {
+    let currentXDomain = this.plot.getXDomain();
+    if (
+      currentXDomain[0].getTime() != this.domainX[0].getTime() ||
+      currentXDomain[1].getTime() != this.domainX[1].getTime()
+    ) {
+      this.plot.updateDomains(this.domainX, this.plot.getYDomain(), false);
     }
+  }
 
-    mounted() {
-        this.plot = new CanvasTimeSeriesPlot(
-            d3version3.select(this.canvasplotContainer),
-            [this.canvasplotContainer.clientWidth, this.canvasplotContainer.clientHeight],
-            {
-                //plotMargins: { top: 20, right: 20, bottom: 30, left: this.yAxisSpacing },
-                updateViewCallback: (this.updatedView).bind(this)
-            }
-        )
-        this.plot.setZoomYAxis(false);
+  @Watch("resolution")
+  @Watch("range")
+  onSettingsChanged() {
+    for (let dataSet of this.dataSets) {
+      this.refreshDataSet(dataSet);
     }
+  }
 
-    remove() {
-        this.$emit('remove')
-    }
-
-    removeDataSet(dataSet: DataSet) {
-        this.dataSets.splice(this.dataSets.indexOf(dataSet), 1)
-        this.colors.free(dataSet.sensor.identifier)
-        this.plot.removeDataSet(dataSet.sensor.identifier)
-    }
-
-    async addDataSet() {
-        if (this.newDataSet) {
-            let dataSet = new DataSet(this.newDataSet)
-            this.dataSets.push(dataSet)
-            this.newDataSet = null
-            this.addDataSetActive = false
-
-            let color = this.colors.get(dataSet.sensor.identifier)
-            let updateDomains = true
-            let dataPoints = await this.fetchNewData(dataSet.sensor)
-            this.plot.addDataSet(dataSet.sensor.identifier,
-                                dataSet.sensor.title,
-                                dataPoints.map(dataPoint => dataPoint.toArray()),
-                                color,
-                                updateDomains,
-                                false)
-        }
-    }
-
-    updatedView(except: any, xDomain: any, yDomain: any) {
-        this.$emit("update-domain-x", xDomain)
-    }
-
-    @Watch('domainX')
-    syncView() {
-        let currentXDomain = this.plot.getXDomain()
-        if (currentXDomain[0].getTime() != this.domainX[0].getTime() || currentXDomain[1].getTime() != this.domainX[1].getTime()) {
-            this.plot.updateDomains(this.domainX, this.plot.getYDomain(), false)
-        }
-    }
-
-    private fetchNewData(sensor: Sensor): Promise<DataPoint[]> {
-        let resource = sensor instanceof AggregatedSensor ? 'aggregated-power-consumption' : 'power-consumption'
-        let after = sensor.identifier == '46' ? 1530372100000 : this.after // Temporary hack to reduce amount of data in live demo
-        return HTTP.get(resource + '/' + sensor.identifier + '?after=' + after)
-            .then(response => {
-                // JSON responses are automatically parsed.
-                // TODO access sum generically
-                return response.data.map((x: any) => new DataPoint(new Date(x.timestamp), sensor instanceof AggregatedSensor ? x.sumInW : x.valueInW));
-            })
-            .catch(e => {
-                console.error(e);
-                return []
-            });
-    }
+  private fetchNewData(sensor: Sensor): Promise<DataPoint[]> {
+    return HTTP.get(this.resolution.getQueryUrl(sensor, this.range))
+      .then((response) => {
+        // JSON responses are automatically parsed.
+        console.log("response", response);
+        return response.data.map(
+          (x: any) =>
+            new DataPoint(
+              this.resolution.timestampAccessor(x, sensor),
+              this.resolution.valueAccessor(x, sensor)
+            )
+        );
+      })
+      .catch((e) => {
+        console.error(e);
+        return [];
+      });
+  }
 
 }
 
 class DataSet {
-
-    constructor (readonly sensor: Sensor) {}
-
+  constructor(readonly sensor: Sensor) {}
 }
-
 </script>
 
 <style scoped>
-    .canvasplot-container {
-        height: 300px;
-    }
-    .card-group {
-        width: 100%;
-    }
-    .card-body {
-        width: 100%;
-    }
+.canvasplot-container {
+  height: 300px;
+}
+.card-group {
+  width: 100%;
+}
+.card-body {
+  width: 100%;
+}
 </style>

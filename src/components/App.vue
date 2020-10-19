@@ -99,6 +99,8 @@ import SensorHierarchy from "./SensorHierarchy.vue";
 import SensorHierarchyList from "./SensorHierarchyList.vue";
 import { DateTime } from "luxon";
 import flatPickr from "vue-flatpickr-component";
+import DateRangePicker from "vue2-daterange-picker";
+
 import "flatpickr/dist/flatpickr.css";
 import TimeMode from "./../model/time-mode";
 
