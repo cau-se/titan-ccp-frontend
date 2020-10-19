@@ -36,10 +36,6 @@ module.exports = {
         }
       },
       {
-        test: require.resolve('./src/canvasplot.js'),
-        use: 'exports-loader?CanvasDataPlot,CanvasTimeSeriesPlot,CanvasVectorSeriesPlot,CanvasDataPlotGroup'
-      },
-      {
         test: /\.css$/,
         use: [
           'vue-style-loader',

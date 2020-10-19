@@ -44,11 +44,6 @@
             </b-row>
             <b-row>
                 <b-col>
-                    <moving-time-series-plot-example />
-                </b-col>
-            </b-row>
-            <b-row>
-                <b-col>
                     Name: <input v-model="name" type="text">
                 <hello-decorator :name="name" :initialEnthusiasm="5" />
                 </b-col>
@@ -69,7 +64,6 @@ import Main2 from "./Main2.vue"
 import HelloDecorator from "./examples/HelloDecorator.vue"
 import AxiosExample from "./examples/AxiosExample.vue"
 import CanvasTimeSeriesPlotExample from "./examples/CanvasTimeSeriesPlotExample.vue"
-import MovingTimeSeriesPlotExample from "./examples/MovingTimeSeriesPlotExample.vue"
 import BritechartsExample from "./examples/BritechartsExample.vue"
 import C3Example from "./examples/C3Example.vue"
 import C3PieExample from "./examples/C3PieExample.vue"
@@ -79,7 +73,6 @@ import C3PieExample from "./examples/C3PieExample.vue"
         HelloDecorator,
         AxiosExample,
         CanvasTimeSeriesPlotExample,
-        MovingTimeSeriesPlotExample,
         C3Example,
         C3PieExample
     }
