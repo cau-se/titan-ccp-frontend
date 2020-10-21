@@ -38,7 +38,7 @@ export default class SensorHistoryPlot extends Vue {
 
     private dataPoints: any[] = []
 
-    private latest = this.completeHistory ? 0 : this.timeMode.getTime().toMillis() - (3600*1000)
+    private latest = this.completeHistory ? 0 : this.timeMode.getTime().minus({hours: 1}).toMillis();
 
     private isLoading = false
     private isError = false
@@ -126,12 +126,14 @@ export default class SensorHistoryPlot extends Vue {
     }
 
     private destroyPlot() {
-        this.latest = this.completeHistory ? 0 : this.timeMode.getTime().toMillis() - (3600*1000)
+        this.latest = this.completeHistory ? 0 : this.timeMode.getTime().minus({hours: 1}).toMillis();
+        this.isLoading = false;
+        this.isError = false;
         this.plot.destroy()
     }
 
     private fetchNewData(): Promise<DataPoint[]> {
-        let resource = this.sensor instanceof AggregatedSensor ? 'aggregated-power-consumption' : 'power-consumption' 
+        let resource = this.sensor instanceof AggregatedSensor ? 'active-power/aggregated' : 'active-power/raw' 
         return HTTP.get(resource + '/' + this.sensor.identifier + '?after=' + this.latest)
             .then(response => {
                 // JSON responses are automatically parsed.
