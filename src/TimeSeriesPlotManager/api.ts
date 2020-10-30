@@ -89,11 +89,13 @@ export class DownloadManager {
     const resource = `active-power/windowed/${windowSize}/${this.sensorIdentifier}`;
     const params = `?from=${from}&to=${to}`;
     const url = resource + params;
+    const now = this.timeMode.getTime().toMillis();
     return HTTP.get(url).then((response) => {
       // Map the response to an array of datapoints and return it
-      return response.data.map((x: { endTimestamp: number; mean: number }) => {
-        return new DataPoint(new Date(x.endTimestamp), x.mean);
-      });
+      return response.data.filter((x: { endTimestamp: number; mean: number }) => x.endTimestamp <= now)
+        .map((x: { endTimestamp: number; mean: number }) => {
+          return new DataPoint(new Date(x.endTimestamp), x.mean);
+        });
     });
   }
 
