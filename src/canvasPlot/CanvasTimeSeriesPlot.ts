@@ -10,15 +10,19 @@ class CanvasTimeSeriesPlot extends CanvasDataPlot {
   private plotLineWidth: number;
   private showMarkerDensity: number;
   private maxInformationDensity: number;
+  localTimeFormat: boolean;
 
   public constructor(parentElement: HTMLElement, canvasDimensions: Array<number>, config: any) {
     super(parentElement, canvasDimensions, config);
     config = config || {};
     this.informationDensity = []
 
+    this.localTimeFormat = config.localTimeFormat || true;
     this.plotLineWidth = config.plotLineWidth || 1;
     this.maxInformationDensity = config.maxInformationDensity || 2.0;
     this.showMarkerDensity = config.showMarkerDensity || 0.14;
+
+    this.setupXScaleAndAxis();
   }
 
   public addDataSet(uniqueID: string, label: string, dataSet: d3Point[], colorString: string, updateDomains: boolean, copyData: boolean): void {
@@ -94,6 +98,20 @@ class CanvasTimeSeriesPlot extends CanvasDataPlot {
       return n < 10 ? ("0" + n) : n.toString();
     };
     const date = dataPoint[0];
+    return this.localTimeFormat ? this.buildLocalDateFormatString(date, zeroPad2) : this.buildUTCDateFormatString(date, zeroPad2);
+  }
+
+  private buildLocalDateFormatString(date: Date, zeroPad2: Function): string {
+    const Y = date.getFullYear();
+    const M = zeroPad2(date.getMonth());
+    const D = zeroPad2(date.getDay());
+    const h = zeroPad2(date.getHours());
+    const m = zeroPad2(date.getMinutes());
+    const s = zeroPad2(date.getSeconds());
+    return Y + "-" + M + "-" + D + " " + h + ":" + m + ":" + s;
+  }
+
+  private buildUTCDateFormatString(date: Date, zeroPad2: Function): string {
     const Y = date.getUTCFullYear();
     const M = zeroPad2(date.getUTCMonth());
     const D = zeroPad2(date.getUTCDay());
@@ -103,28 +121,47 @@ class CanvasTimeSeriesPlot extends CanvasDataPlot {
     return Y + "-" + M + "-" + D + " " + h + ":" + m + ":" + s;
   }
 
-  protected setupXScaleAndAxis(): void {
-    this.xScale = d3.time.scale.utc()
-      .domain(this.calculateXDomain())
-      .range([0, this.width])
-      .nice();
 
-    const customTimeFormat = d3.time.format.utc.multi([
-      [".%L", function (d: Date) { return d.getUTCMilliseconds(); }],
-      [":%S", function (d: Date) { return d.getUTCSeconds(); }],
-      //["%I:%M", function(d: Date) { return d.getUTCMinutes(); }],
-      ["%H:%M", function (d: Date) { return d.getUTCHours() + d.getUTCMinutes(); }],
-      //["%a %d", function(d: Date) { return d.getUTCDay() && d.getUTCDate() != 1; }],
-      ["%b %d", function (d: Date) { return d.getUTCDate() != 1; }],
-      ["%B '%y", function (d: Date) { return d.getUTCMonth(); }],
-      ["%Y", function () { return true; }]
-    ]);
+  protected setupXScaleAndAxis(): void {
+    const customTimeFormat = this.localTimeFormat ? this.buildCustomLocalDateFormat() : this.buildCustomUTCDateFormat();
 
     this.xAxis = d3.svg.axis()
       .scale(this.xScale)
       .orient("bottom")
       .tickFormat(customTimeFormat)
       .ticks(Math.round(this.xTicksPerPixel * this.width));
+  }
+
+  buildCustomLocalDateFormat(): any{
+    this.xScale = d3.time.scale()
+      .domain(this.calculateXDomain())
+      .range([0, this.width])
+      .nice();
+
+    return d3.time.format.multi([
+      [".%L", function (d: Date) { return d.getMilliseconds(); }],
+      [":%S", function (d: Date) { return d.getSeconds(); }],
+      ["%H:%M", function (d: Date) { return d.getHours() + d.getMinutes(); }],
+      ["%b %d", function (d: Date) { return d.getDate() != 1; }],
+      ["%B '%y", function (d: Date) { return d.getMonth(); }],
+      ["%Y", function () { return true; }]
+    ]);
+  }
+
+  buildCustomUTCDateFormat(): any{
+    this.xScale = d3.time.scale.utc()
+    .domain(this.calculateXDomain())
+    .range([0, this.width])
+    .nice();
+
+    return d3.time.format.utc.multi([
+      [".%L", function (d: Date) { return d.getUTCMilliseconds(); }],
+      [":%S", function (d: Date) { return d.getUTCSeconds(); }],
+      ["%H:%M", function (d: Date) { return d.getUTCHours() + d.getUTCMinutes(); }],
+      ["%b %d", function (d: Date) { return d.getUTCDate() != 1; }],
+      ["%B '%y", function (d: Date) { return d.getUTCMonth(); }],
+      ["%Y", function () { return true; }]
+    ]);
   }
 
   drawDataSet(dataIndex: number): void {
@@ -166,6 +203,31 @@ class CanvasTimeSeriesPlot extends CanvasDataPlot {
         this.canvas.stroke();
       }
     }
+  }
+
+  calculateYDomain(): [number, number] {
+    const nonEmptySets: d3Point[][] = [];
+    this.data.forEach(function (ds: d3Point[]) {
+      if (ds && ds.length > 0) {
+        nonEmptySets.push(ds);
+      }
+    });
+
+    if (nonEmptySets.length < 1) {
+      return [0, 1];
+    }
+
+    let min = d3.min(nonEmptySets[0], function (d: number[]) { return d[1]; });
+    let max = d3.max(nonEmptySets[0], function (d: number[]) { return d[1]; });
+    for (let i = 1; i < nonEmptySets.length; ++i) {
+      min = Math.min(min, d3.min(nonEmptySets[i], function (d: number[]) { return d[1]; }));
+      max = Math.max(max, d3.max(nonEmptySets[i], function (d: number[]) { return d[1]; }));
+    }
+    if (max - min <= 0) {
+      min = max - 1;
+      max += 1;
+    }
+    return [min, max];
   }
 }
 
