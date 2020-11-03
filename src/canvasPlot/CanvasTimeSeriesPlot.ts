@@ -204,31 +204,6 @@ class CanvasTimeSeriesPlot extends CanvasDataPlot {
       }
     }
   }
-
-  calculateYDomain(): [number, number] {
-    const nonEmptySets: d3Point[][] = [];
-    this.data.forEach(function (ds: d3Point[]) {
-      if (ds && ds.length > 0) {
-        nonEmptySets.push(ds);
-      }
-    });
-
-    if (nonEmptySets.length < 1) {
-      return [0, 1];
-    }
-
-    let min = d3.min(nonEmptySets[0], function (d: number[]) { return d[1]; });
-    let max = d3.max(nonEmptySets[0], function (d: number[]) { return d[1]; });
-    for (let i = 1; i < nonEmptySets.length; ++i) {
-      min = Math.min(min, d3.min(nonEmptySets[i], function (d: number[]) { return d[1]; }));
-      max = Math.max(max, d3.max(nonEmptySets[i], function (d: number[]) { return d[1]; }));
-    }
-    if (max - min <= 0) {
-      min = max - 1;
-      max += 1;
-    }
-    return [min, max];
-  }
 }
 
 export { CanvasTimeSeriesPlot }
