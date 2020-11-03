@@ -37,6 +37,8 @@ export class TimeSeriesPlotManager {
   private readonly plotStartsWithZero: boolean;
   private readonly color: string;
 
+  private oldYStart: number;
+  private oldYEnd: number;
   private latest: number;
   private latestByResolutionLevel: number[];
   private downloadManager: DownloadManager;
@@ -56,6 +58,8 @@ export class TimeSeriesPlotManager {
     this.plotStartsWithZero = config.plotStartsWithZero || true;
     this.color = config.color || "orange";
     this.latestByResolutionLevel = [this.latest, this.latest, this.latest];
+    this.oldYStart = 0;
+    this.oldYEnd = 0;
 
     this.plot.setOnZoom(debounce(this.handleZoom, 100));
     this.downloadManager = new DownloadManager(
@@ -195,6 +199,13 @@ export class TimeSeriesPlotManager {
     const enlargement = yDomain.getLength() * this.yDomainEnlargement;
     yDomain.start -= enlargement;
     yDomain.end += enlargement;
+
+    yDomain.start = this.oldYStart > yDomain.start ? this.oldYStart : yDomain.start
+    yDomain.end = this.oldYEnd > yDomain.end ? this.oldYEnd : yDomain.end
+
+    this.oldYStart = yDomain.start
+    this.oldYEnd = yDomain.end
+
     if (this.plotStartsWithZero) {
       yDomain.start = 0;
     }
