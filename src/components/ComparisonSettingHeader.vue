@@ -45,7 +45,7 @@ import "vue2-daterange-picker/dist/vue2-daterange-picker.css";
 
 import TimeMode from "../model/time-mode";
 import { DateTime, Interval } from "luxon";
-import { Resolution } from "./Comparison.vue";
+import { Resolution } from "../model/resolution";
 
 @Component({
   components: {
