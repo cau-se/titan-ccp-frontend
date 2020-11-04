@@ -1,3 +1,4 @@
+import { Resolution } from "../model/resolution";
 import { DataPoint } from "./DataPoint";
 import {
   inject,
@@ -48,31 +49,35 @@ class DataSet {
 }
 
 export class MultiResolutionData {
-  private readonly dataSetsPerResolution: DataSet[] = [];
+  private dataSetsPerResolution: {[key: string]: DataSet} = {}
 
-  public constructor(numberOfResolutionLevels: number) {
-    for (let i = 0; i < numberOfResolutionLevels; i++) {
-      this.dataSetsPerResolution.push(new DataSet([]));
-    }
+  public constructor(resolutions: Resolution[]){
+    resolutions.forEach(res => {
+      this.dataSetsPerResolution[res.name] = new DataSet([]);
+    });
   }
 
-  public getDataPoints(resolutionLevel: number): d3Point[] {
-    return this.dataSetsPerResolution[resolutionLevel].getDataPoints();
+  public addResolution(resolution: Resolution): void {
+    this.dataSetsPerResolution[resolution.name] = new DataSet([]);
   }
 
-  public setDataPoints(resolutionLevel: number, dataPoints: DataPoint[]): void {
-    this.dataSetsPerResolution[resolutionLevel].setDataPoints(dataPoints);
+  public getDataPoints(resolution: Resolution): d3Point[] {
+    return this.dataSetsPerResolution[resolution.name].getDataPoints();
+  }
+
+  public setDataPoints(resolution: Resolution, dataPoints: DataPoint[]): void {
+    this.dataSetsPerResolution[resolution.name].setDataPoints(dataPoints);
   }
 
   public injectDataPoints(
-    resolutionLevel: number,
+    resolution: Resolution,
     dataPoints: DataPoint[]
   ): void {
-    this.dataSetsPerResolution[resolutionLevel].injectDataPoints(dataPoints);
+    this.dataSetsPerResolution[resolution.name].injectDataPoints(dataPoints);
   }
 
-  public getUncachedIntervals(resolutionLevel: number, start: number, end: number): [number, number][] {
-    return this.dataSetsPerResolution[resolutionLevel].getUncachedIntervals(
+  public getUncachedIntervals(resolution: Resolution, start: number, end: number): [number, number][] {
+    return this.dataSetsPerResolution[resolution.name].getUncachedIntervals(
       start,
       end
     );

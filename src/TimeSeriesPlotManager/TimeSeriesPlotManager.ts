@@ -9,11 +9,13 @@ const debounce = require("lodash.debounce");
 
 // import CanvasTimeSeriesPlot as interface only, shall not get instantiated here for loose coupling
 import { CanvasTimeSeriesPlot as TimeSeriesPlot } from "../canvasPlot/CanvasTimeSeriesPlot";
+import { Sensor } from "../SensorRegistry";
+import { RawResolution,Resolution,WindowedResolution } from "../model/resolution";
+import { HTTP } from "../http-common";
 
 interface PlotManagerConstructor {
   plot: TimeSeriesPlot;
-  sensorIdentifier: string;
-  isAggregatedSensor: boolean;
+  sensor: Sensor;
   timeMode: TimeMode;
   defaultTimeSpan?: number;
   yDomainEnlargement?: number;
@@ -30,34 +32,34 @@ export class TimeSeriesPlotManager {
   private readonly plot: TimeSeriesPlot;
   private readonly data: MultiResolutionData;
   private readonly timeMode: TimeMode;
-  private readonly sensorIdentifier: string;
-  private readonly isAggregatedSensor: boolean;
   private readonly datasetId: string;
   private readonly yDomainEnlargement: number;
   private readonly plotStartsWithZero: boolean;
   private readonly color: string;
+  private readonly sensor: Sensor;
 
   private oldYStart: number;
   private oldYEnd: number;
   private latest: number;
-  private latestByResolutionLevel: number[];
+  private latestByResolution: {[key: string]: number} = {}
   private downloadManager: DownloadManager;
+  private readonly DEFAULT_RESOLUTION = new RawResolution();
+  private availableResolutions: Resolution[] = [ this.DEFAULT_RESOLUTION,]
 
   /**
    * Constructor
    */
   constructor(config: PlotManagerConstructor) {
     this.plot = config.plot;
-    this.data = new MultiResolutionData(3);
-    this.sensorIdentifier = config.sensorIdentifier;
-    this.isAggregatedSensor = config.isAggregatedSensor;
+    this.data = new MultiResolutionData([ this.DEFAULT_RESOLUTION ]);
+    this.sensor = config.sensor;
     this.timeMode = config.timeMode;
     this.latest = this.timeMode.getTime().toMillis() - 3600 * 10000;
     this.datasetId = "measurement";
     this.yDomainEnlargement = config.yDomainEnlargement || 0.1;
     this.plotStartsWithZero = config.plotStartsWithZero || true;
     this.color = config.color || "orange";
-    this.latestByResolutionLevel = [this.latest, this.latest, this.latest];
+    this.latestByResolution[this.DEFAULT_RESOLUTION.name] = this.latest;
     this.oldYStart = 0;
     this.oldYEnd = 0;
 
@@ -65,24 +67,41 @@ export class TimeSeriesPlotManager {
     this.downloadManager = new DownloadManager(
       this.data,
       this.timeMode,
-      this.sensorIdentifier,
-      this.isAggregatedSensor
-    );
-    window.setInterval(this.updateRealTimeData, 5000);
+      this.sensor
+      );
 
-    // fetch first data
-    const defaultResolutionLevel = 1;
-    this.downloadManager.fetchNewData(defaultResolutionLevel, this.latest).then((dataPoints) => {
-      this.injectDataPoints(dataPoints, 1, true);
-      config.onFinishedLoading && config.onFinishedLoading();
+      this.loadAvailableResolutions()
+      .then(resolutions => resolutions.forEach(
+        res => {
+          this.availableResolutions.push(res)
+          this.latestByResolution[res.name] = this.latest;
+          this.data.addResolution(res);
+        })
+        )
+      .then(
+        ()=> {
+          window.setInterval(this.updateRealTimeData, 5000);
 
-      // set timestamp of latest point fetched
-      if (dataPoints.length > 0) {
-        const latestPoint = dataPoints[dataPoints.length - 1];
-        const latest = latestPoint.date.getTime();
-        this.latestByResolutionLevel[defaultResolutionLevel] = latest;
-      }
+          // fetch first data
+          const startTimeDomain = TimeDomain.of([ this.latest, this.timeMode.getTime().toMillis()]);
+          const startResolution = (this.determineResolution(startTimeDomain));
+          this.downloadManager.fetchNewData(startResolution, this.latest).then((dataPoints) => {
+            this.injectDataPoints(dataPoints, startResolution, true);
+            config.onFinishedLoading && config.onFinishedLoading();
+            // set timestamp of latest point fetched
+            if (dataPoints.length > 0) {
+              const latestPoint = dataPoints[dataPoints.length - 1];
+              const latest = latestPoint.date.getTime();
+              this.latestByResolution[startResolution.name] = latest;
+            }
+          });
     });
+  }
+
+  private  async loadAvailableResolutions(): Promise<Resolution[]> {
+    return await HTTP.get('active-power/windowed').then(
+      response => response.data.map((i: string) => new WindowedResolution(i))
+    );
   }
 
   handleZoom = (xDomainArray: [Date, Date]): void => {
@@ -97,39 +116,38 @@ export class TimeSeriesPlotManager {
     to += span;
 
     // Define window size for the next data fetch
-    const resolutionLevel = this.determineResolutionLevel(xDomain);
+    const resolution = this.determineResolution(xDomain);
 
     // Start fetching new data with the calculated options
     this.downloadManager
-      .fetchNewData(resolutionLevel, from, to)
+      .fetchNewData(resolution, from, to)
       .then((dataPoints) => {
-        this.injectDataPoints(dataPoints, resolutionLevel);
+        this.injectDataPoints(dataPoints, resolution);
       });
   };
 
   updateRealTimeData = async (): Promise<void> => {
     // 1. Determine what data to fetch
     const xDomain = TimeDomain.of(this.plot.getXDomain());
-    const resolutionLevel = this.determineResolutionLevel(xDomain);
+    const resolution = this.determineResolution(xDomain);
 
     // 2. Fetch data asynchronous
     const dataPoints = await this.downloadManager.fetchNewData(
-      resolutionLevel,
-      this.latestByResolutionLevel[resolutionLevel]
+      resolution,
+      this.latestByResolution[resolution.name]
     );
     if (dataPoints.length <= 0) return;
     const latestPointFetched = dataPoints[dataPoints.length - 1];
     const latestFetched = latestPointFetched.date.getTime();
 
     // 3. Inject data into plot
-    this.injectDataPoints(dataPoints, resolutionLevel);
+    this.injectDataPoints(dataPoints, resolution);
 
     // 4. Update x domain
-    const latest = this.latestByResolutionLevel[resolutionLevel];
+    const latest = this.latestByResolution[resolution.name]
     const latestWasDisplayed = latest >= xDomain.start && latest <= xDomain.end;
     if (latestWasDisplayed) {
-      const shift =
-        latestFetched - this.latestByResolutionLevel[resolutionLevel];
+      const shift = latestFetched - this.latestByResolution[resolution.name]
       const newXDomain = TimeDomain.of(xDomain.toArray()).shift(shift);
       this.plot.updateDomains(
         newXDomain.toArray(),
@@ -139,19 +157,19 @@ export class TimeSeriesPlotManager {
     }
 
     // 5. Set latest fetched data point
-    this.latestByResolutionLevel[resolutionLevel] = latestFetched;
+    this.latestByResolution[resolution.name] = latestFetched;
   };
 
-  private determineResolutionLevel(xDomain: TimeDomain): number {
+  private determineResolution(xDomain: TimeDomain): Resolution {
     const length = xDomain.getLength();
     if (length <= 15 * 60 * 1000) {
       // less than 15 minutes
-      return 0;
+      return this.availableResolutions[0];
     } else if (length <= 11 * 60 * 60 * 1000) {
       // less then 11 hours
-      return 1;
+      return this.availableResolutions[1];
     } else {
-      return 2;
+      return this.availableResolutions[2];
     }
   }
 
@@ -162,12 +180,12 @@ export class TimeSeriesPlotManager {
    */
   private injectDataPoints(
     dataPointsToInject: Array<DataPoint>,
-    resolutionLevel: number,
+    resolution: Resolution,
     updateDomains?: boolean
   ): void {
     // inject new dataPoints into existing ones
-    this.data.injectDataPoints(resolutionLevel, dataPointsToInject);
-    const dataPoints = this.data.getDataPoints(resolutionLevel);
+    this.data.injectDataPoints(resolution, dataPointsToInject);
+    const dataPoints = this.data.getDataPoints(resolution);
     if (dataPoints.length <= 0) return;
 
     // apply new dataPoints to CanvasPlot
