@@ -29,6 +29,7 @@ interface PlotManagerConstructor {
  * It loads new data points every x seconds, handles zoom events in the plots and manages data prefetching.
  */
 export class TimeSeriesPlotManager {
+  private readonly DEFAULT_RESOLUTION = new RawResolution();
   private readonly plot: TimeSeriesPlot;
   private readonly data: MultiResolutionData;
   private readonly timeMode: TimeMode;
@@ -38,13 +39,12 @@ export class TimeSeriesPlotManager {
   private readonly color: string;
   private readonly sensor: Sensor;
 
+  private readonly availableResolutions: Resolution[] = [ this.DEFAULT_RESOLUTION ]
+  private readonly latestByResolution: {[key: string]: number} = {}
   private oldYStart: number;
   private oldYEnd: number;
   private latest: number;
-  private latestByResolution: {[key: string]: number} = {}
   private downloadManager: DownloadManager;
-  private readonly DEFAULT_RESOLUTION = new RawResolution();
-  private availableResolutions: Resolution[] = [ this.DEFAULT_RESOLUTION,]
 
   /**
    * Constructor
@@ -70,32 +70,38 @@ export class TimeSeriesPlotManager {
       this.sensor
       );
 
-      this.loadAvailableResolutions()
-      .then(resolutions => resolutions.forEach(
-        res => {
-          this.availableResolutions.push(res)
-          this.latestByResolution[res.name] = this.latest;
-          this.data.addResolution(res);
-        })
-        )
-      .then(
-        ()=> {
+    this.loadAvailableResolutions()
+      .then(resolutions => this.addAvailableResolutions(resolutions))
+      .then(()=> {
           window.setInterval(this.updateRealTimeData, 5000);
-
-          // fetch first data
-          const startTimeDomain = TimeDomain.of([ this.latest, this.timeMode.getTime().toMillis()]);
-          const startResolution = (this.determineResolution(startTimeDomain));
-          this.downloadManager.fetchNewData(startResolution, this.latest).then((dataPoints) => {
-            this.injectDataPoints(dataPoints, startResolution, true);
-            config.onFinishedLoading && config.onFinishedLoading();
-            // set timestamp of latest point fetched
-            if (dataPoints.length > 0) {
-              const latestPoint = dataPoints[dataPoints.length - 1];
-              const latest = latestPoint.date.getTime();
-              this.latestByResolution[startResolution.name] = latest;
-            }
-          });
+          this.fetchFirstData(config.onFinishedLoading);
     });
+  }
+
+  // fetch first data
+  private fetchFirstData(onFinishedLoading: (() => void) | undefined): void {
+    const startTimeDomain = TimeDomain.of([ this.latest, this.timeMode.getTime().toMillis()]);
+    const startResolution = (this.determineResolution(startTimeDomain));
+
+    this.downloadManager.fetchNewData(startResolution, this.latest).then((dataPoints) => {
+      this.injectDataPoints(dataPoints, startResolution, true);
+      onFinishedLoading && onFinishedLoading();
+      // set timestamp of latest point fetched
+      if (dataPoints.length > 0) {
+        const latestPoint = dataPoints[dataPoints.length - 1];
+        const latest = latestPoint.date.getTime();
+        this.latestByResolution[startResolution.name] = latest;
+      }
+    });
+  }
+
+  private addAvailableResolutions(resolutions: Resolution[]): void{
+    resolutions.forEach(
+      res => {
+        this.availableResolutions.push(res)
+        this.latestByResolution[res.name] = this.latest;
+        this.data.addResolution(res);
+      })
   }
 
   private  async loadAvailableResolutions(): Promise<Resolution[]> {

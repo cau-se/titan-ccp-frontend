@@ -49,7 +49,7 @@ class DataSet {
 }
 
 export class MultiResolutionData {
-  private dataSetsPerResolution: {[key: string]: DataSet} = {}
+  private readonly dataSetsPerResolution: {[key: string]: DataSet} = {}
 
   public constructor(resolutions: Resolution[]){
     resolutions.forEach(res => {
