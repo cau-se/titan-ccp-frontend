@@ -49,35 +49,43 @@ class DataSet {
 }
 
 export class MultiResolutionData {
-  private readonly dataSetsPerResolution: {[key: string]: DataSet} = {}
+  private readonly dataSetsPerResolution = new Map<Resolution, DataSet>();
 
   public constructor(resolutions: Resolution[]){
     resolutions.forEach(res => {
-      this.dataSetsPerResolution[res.name] = new DataSet([]);
+      this.dataSetsPerResolution.set(res, new DataSet([]));
     });
   }
 
   public addResolution(resolution: Resolution): void {
-    this.dataSetsPerResolution[resolution.name] = new DataSet([]);
+    this.dataSetsPerResolution.set(resolution, new DataSet([]));
   }
 
   public getDataPoints(resolution: Resolution): d3Point[] {
-    return this.dataSetsPerResolution[resolution.name].getDataPoints();
+    const dataSet = this.dataSetsPerResolution.get(resolution) || new DataSet([]);
+    return dataSet.getDataPoints();
   }
 
   public setDataPoints(resolution: Resolution, dataPoints: DataPoint[]): void {
-    this.dataSetsPerResolution[resolution.name].setDataPoints(dataPoints);
+    if(!this.dataSetsPerResolution.get(resolution)) {
+      this.addResolution(resolution)
+    }
+    this.dataSetsPerResolution.get(resolution)?.setDataPoints(dataPoints);
   }
 
   public injectDataPoints(
     resolution: Resolution,
     dataPoints: DataPoint[]
   ): void {
-    this.dataSetsPerResolution[resolution.name].injectDataPoints(dataPoints);
+    if(!this.dataSetsPerResolution.get(resolution)) {
+      this.addResolution(resolution)
+    }
+    this.dataSetsPerResolution.get(resolution)?.injectDataPoints(dataPoints);
   }
 
   public getUncachedIntervals(resolution: Resolution, start: number, end: number): [number, number][] {
-    return this.dataSetsPerResolution[resolution.name].getUncachedIntervals(
+    const dataSet = this.dataSetsPerResolution.get(resolution) || new DataSet([]);
+    return dataSet.getUncachedIntervals(
       start,
       end
     );

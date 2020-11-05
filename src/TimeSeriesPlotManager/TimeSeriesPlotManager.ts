@@ -40,7 +40,7 @@ export class TimeSeriesPlotManager {
   private readonly sensor: Sensor;
 
   private readonly availableResolutions: Resolution[] = [ this.DEFAULT_RESOLUTION ]
-  private readonly latestByResolution: {[key: string]: number} = {}
+  private readonly latestByResolution = new Map<Resolution, number>()
   private oldYStart: number;
   private oldYEnd: number;
   private latest: number;
@@ -59,7 +59,7 @@ export class TimeSeriesPlotManager {
     this.yDomainEnlargement = config.yDomainEnlargement || 0.1;
     this.plotStartsWithZero = config.plotStartsWithZero || true;
     this.color = config.color || "orange";
-    this.latestByResolution[this.DEFAULT_RESOLUTION.name] = this.latest;
+    this.latestByResolution.set(this.DEFAULT_RESOLUTION, this.latest);
     this.oldYStart = 0;
     this.oldYEnd = 0;
 
@@ -90,7 +90,7 @@ export class TimeSeriesPlotManager {
       if (dataPoints.length > 0) {
         const latestPoint = dataPoints[dataPoints.length - 1];
         const latest = latestPoint.date.getTime();
-        this.latestByResolution[startResolution.name] = latest;
+        this.latestByResolution.set(startResolution,latest);
       }
     });
   }
@@ -99,7 +99,7 @@ export class TimeSeriesPlotManager {
     resolutions.forEach(
       res => {
         this.availableResolutions.push(res)
-        this.latestByResolution[res.name] = this.latest;
+        this.latestByResolution.set(res, this.latest);
         this.data.addResolution(res);
       })
   }
@@ -140,7 +140,7 @@ export class TimeSeriesPlotManager {
     // 2. Fetch data asynchronous
     const dataPoints = await this.downloadManager.fetchNewData(
       resolution,
-      this.latestByResolution[resolution.name]
+      this.latestByResolution.get(resolution) || this.latest
     );
     if (dataPoints.length <= 0) return;
     const latestPointFetched = dataPoints[dataPoints.length - 1];
@@ -150,10 +150,11 @@ export class TimeSeriesPlotManager {
     this.injectDataPoints(dataPoints, resolution);
 
     // 4. Update x domain
-    const latest = this.latestByResolution[resolution.name]
+    const latest = this.latestByResolution.get(resolution) || this.latest
     const latestWasDisplayed = latest >= xDomain.start && latest <= xDomain.end;
     if (latestWasDisplayed) {
-      const shift = latestFetched - this.latestByResolution[resolution.name]
+      const latestOfCurrentResolution = this.latestByResolution.get(resolution) || this.latest
+      const shift = latestFetched - latestOfCurrentResolution
       const newXDomain = TimeDomain.of(xDomain.toArray()).shift(shift);
       this.plot.updateDomains(
         newXDomain.toArray(),
@@ -163,7 +164,7 @@ export class TimeSeriesPlotManager {
     }
 
     // 5. Set latest fetched data point
-    this.latestByResolution[resolution.name] = latestFetched;
+    this.latestByResolution.set(resolution, latestFetched);
   };
 
   private determineResolution(xDomain: TimeDomain): Resolution {
