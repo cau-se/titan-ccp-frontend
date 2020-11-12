@@ -2,25 +2,23 @@ import TimeMode from "../model/time-mode";
 import { DataPoint } from "./DataPoint";
 import { HTTP } from "../http-common";
 import { MultiResolutionData } from "./DataSet";
-
-const resolutionToEndpointDictionary = ["raw", "minutely", "hourly"];
+import { Resolution } from "../model/resolution";
+import { Interval } from "luxon";
+import { Sensor } from "../SensorRegistry";
 
 export class DownloadManager {
   private readonly timeMode: TimeMode;
-  private readonly sensorIdentifier: string;
-  private readonly isAggregatedSensor: boolean;
   private readonly data: MultiResolutionData;
+  private readonly sensor: Sensor;
 
   constructor(
     data: MultiResolutionData,
     timeMode: TimeMode,
-    sensorIdentifier: string,
-    isAggregatedSensor = false
+    sensor: Sensor
   ) {
     this.data = data;
     this.timeMode = timeMode;
-    this.sensorIdentifier = sensorIdentifier;
-    this.isAggregatedSensor = isAggregatedSensor;
+    this.sensor = sensor;
   }
 
   /**
@@ -33,32 +31,22 @@ export class DownloadManager {
    * @returns Promise resolving to an array of DataPoints.
    */
   public async fetchNewData(
-    resolutionLevel: number,
+    resolution: Resolution,
     from: number,
     to?: number
   ): Promise<DataPoint[]> {
     const toMillis = to ? to : this.timeMode.getTime().toMillis();
-
+    
     // 1. determine, which data is already cached
     const intervalsToFetch = this.data.getUncachedIntervals(
-      resolutionLevel,
+      resolution,
       from,
       toMillis
     );
-    // console.log(
-    //   `Called to fetch ${new Date(from).toLocaleString("de")} - ${new Date(
-    //     toMillis
-    //   ).toLocaleString("de")}. Caching alorithm proposed to download:`
-    // );
-    // intervalsToFetch.forEach(interval => {
-    //   console.log(`${(new Date(interval[0])).toLocaleString("de")} - ${(new Date(interval[1])).toLocaleString("de")}`)
-    // })
 
     // 2. Download data in proposed intervals
     const fetchPromises = intervalsToFetch.map((interval) =>
-      resolutionLevel === 0
-        ? this.fetchNewRawData(interval[0], interval[1])
-        : this.fetchNewWindowedData(resolutionLevel, interval[0], interval[1])
+    this.fetchData(resolution,interval[0], interval[1] )
     );
     const responses = await Promise.all(fetchPromises);
 
@@ -80,50 +68,23 @@ export class DownloadManager {
    *
    * @returns Promise resolving to an array of DataPoints.
    */
-  private fetchNewWindowedData(
-    resolutionLevel: number,
+  private fetchData(
+    resolution: Resolution,
     from: number,
     to: number
   ): Promise<DataPoint[]> {
-    const windowSize = resolutionToEndpointDictionary[resolutionLevel];
-    const resource = `active-power/windowed/${windowSize}/${this.sensorIdentifier}`;
-    const params = `?from=${from}&to=${to}`;
-    const url = resource + params;
-    const now = this.timeMode.getTime().toMillis();
+
+    const interval = Interval.fromDateTimes(new Date(from), new Date(to))
+    const url = resolution.getQueryUrl(this.sensor, interval)
+
     return HTTP.get(url).then((response) => {
       // Map the response to an array of datapoints and return it
-      return response.data.filter((x: { endTimestamp: number; mean: number }) => x.endTimestamp <= now)
-        .map((x: { endTimestamp: number; mean: number }) => {
-          return new DataPoint(new Date(x.endTimestamp), x.mean);
-        });
-    });
-  }
-
-  /**
-   * Fetches raw data for the current sensor, which means a maximum temporal resolution.
-   *
-   * @param windowSize - Determines the temporal resolution of the returned data.
-   * @param from - The earliest data to fetch.
-   * @param to - The latest data to fetch.
-   *
-   * @returns Promise resolving to an array of DataPoints.
-   */
-  private fetchNewRawData(from: number, to: number): Promise<DataPoint[]> {
-    const resource = this.isAggregatedSensor
-      ? "aggregated-power-consumption/"
-      : "power-consumption/";
-    const identifier = this.sensorIdentifier;
-    const params = `?from=${from}&to=${to}`;
-    const url = resource + identifier + params;
-    return HTTP.get(url).then((response) => {
-      // Map response to an array of DataPoints and return it
-      return response.data.map(
-        (x: { timestamp: number; sumInW: number; valueInW: number }) => {
-          const date = new Date(x.timestamp);
-          const value = this.isAggregatedSensor ? x.sumInW : x.valueInW;
-          return new DataPoint(date, value);
-        }
-      );
+      return response.data.map((x: { endTimestamp: number; mean: number }) => {
+        return  new DataPoint(
+          resolution.timestampAccessor(x, this.sensor),
+          resolution.valueAccessor(x, this.sensor)
+        )
+      });
     });
   }
 }

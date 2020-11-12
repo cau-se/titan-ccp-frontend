@@ -79,8 +79,7 @@ export default class SensorHistoryPlot extends Vue {
         this.isLoading = true;
         this.plotManager = new TimeSeriesPlotManager({
            plot: this.plot,
-           sensorIdentifier: this.sensor.identifier,
-           isAggregatedSensor: this.sensor instanceof AggregatedSensor,
+           sensor: this.sensor,
            timeMode: this.timeMode,
            onFinishedLoading: () => this.isLoading = false
        });

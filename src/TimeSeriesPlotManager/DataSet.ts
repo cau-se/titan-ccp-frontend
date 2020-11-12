@@ -1,3 +1,4 @@
+import { Resolution } from "../model/resolution";
 import { DataPoint } from "./DataPoint";
 import {
   inject,
@@ -48,31 +49,43 @@ class DataSet {
 }
 
 export class MultiResolutionData {
-  private readonly dataSetsPerResolution: DataSet[] = [];
+  private readonly dataSetsPerResolution = new Map<Resolution, DataSet>();
 
-  public constructor(numberOfResolutionLevels: number) {
-    for (let i = 0; i < numberOfResolutionLevels; i++) {
-      this.dataSetsPerResolution.push(new DataSet([]));
+  public constructor(resolutions: Resolution[]){
+    resolutions.forEach(res => {
+      this.dataSetsPerResolution.set(res, new DataSet([]));
+    });
+  }
+
+  public addResolution(resolution: Resolution): void {
+    this.dataSetsPerResolution.set(resolution, new DataSet([]));
+  }
+
+  public getDataPoints(resolution: Resolution): d3Point[] {
+    const dataSet = this.dataSetsPerResolution.get(resolution) || new DataSet([]);
+    return dataSet.getDataPoints();
+  }
+
+  public setDataPoints(resolution: Resolution, dataPoints: DataPoint[]): void {
+    if(!this.dataSetsPerResolution.get(resolution)) {
+      this.addResolution(resolution)
     }
-  }
-
-  public getDataPoints(resolutionLevel: number): d3Point[] {
-    return this.dataSetsPerResolution[resolutionLevel].getDataPoints();
-  }
-
-  public setDataPoints(resolutionLevel: number, dataPoints: DataPoint[]): void {
-    this.dataSetsPerResolution[resolutionLevel].setDataPoints(dataPoints);
+    this.dataSetsPerResolution.get(resolution)?.setDataPoints(dataPoints);
   }
 
   public injectDataPoints(
-    resolutionLevel: number,
+    resolution: Resolution,
     dataPoints: DataPoint[]
   ): void {
-    this.dataSetsPerResolution[resolutionLevel].injectDataPoints(dataPoints);
+    if(!this.dataSetsPerResolution.get(resolution)) {
+      this.addResolution(resolution)
+    }
+    this.dataSetsPerResolution.get(resolution)?.injectDataPoints(dataPoints);
   }
 
-  public getUncachedIntervals(resolutionLevel: number, start: number, end: number): [number, number][] {
-    return this.dataSetsPerResolution[resolutionLevel].getUncachedIntervals(
+  public getUncachedIntervals(resolution: Resolution, start: number, end: number): [number, number][] {
+    const dataSet = this.dataSetsPerResolution.get(resolution) || new DataSet([]);
+    return dataSet.getUncachedIntervals(
       start,
       end
     );

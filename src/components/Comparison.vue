@@ -56,6 +56,7 @@ import { faClosedCaptioning } from "@fortawesome/free-solid-svg-icons";
 
 import { HTTP } from "../http-common";
 import TimeMode from "../model/time-mode";
+import {Resolution, RawResolution, WindowedResolution} from "../model/resolution";
 import { DateTime, Interval } from "luxon";
 
 @Component({
@@ -141,48 +142,6 @@ class Plot {
 
 class DataSet {
   constructor(readonly sensor: string) {}
-}
-
-export interface Resolution {
-
-  getQueryUrl(sensor: Sensor, range: Interval): string;
-
-  name: string;
-
-  valueAccessor: (json: any, sensor: Sensor) => number
-
-  timestampAccessor: (json: any, sensor: Sensor) => Date
-
-}
-
-export class RawResolution implements Resolution {
-  
-  constructor() {}
-
-  name = "highest"
-
-  valueAccessor = (json, sensor) => sensor instanceof AggregatedSensor ? json.sumInW : json.valueInW;
-
-  timestampAccessor = (json, _) => new Date(json.timestamp);
-
-  getQueryUrl(sensor: Sensor, range: Interval) {
-    return `${sensor instanceof AggregatedSensor ? "active-power/aggregated" : "active-power/raw"}/${sensor.identifier}?from=${range.start.toMillis()}&to=${range.end.toMillis()}`;
-  }
-
-}
-
-export class WindowedResolution implements Resolution {
-  
-  constructor(readonly name: string) {}
-
-  valueAccessor = (json, _) => json.mean;
-
-  timestampAccessor = (json, _) => new Date(json.startTimestamp);
-
-  getQueryUrl(sensor: Sensor, range: Interval) {
-    return `active-power/windowed/${this.name}/${sensor.identifier}?from=${range.start.toMillis()}&to=${range.end.toMillis()}`;
-  }
-
 }
 </script>
 
