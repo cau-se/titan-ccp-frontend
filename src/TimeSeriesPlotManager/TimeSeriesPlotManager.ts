@@ -30,6 +30,12 @@ interface PlotManagerConstructor {
  */
 export class TimeSeriesPlotManager {
   private readonly DEFAULT_RESOLUTION = new RawResolution();
+  private  readonly resolutionToTimeRange = new Map<string, number>([
+    [ 'minutely', 15 * 60 * 1000 ], // 15 minutes
+    [ 'hourly', 11 * 60 * 60 * 1000 ], // 11 hours
+    [ 'monthly', 30 * 24 * 60 * 60 * 1000 ] // 30 days
+  ]);
+
   private readonly plot: TimeSeriesPlot;
   private readonly data: MultiResolutionData;
   private readonly timeMode: TimeMode;
@@ -169,15 +175,18 @@ export class TimeSeriesPlotManager {
 
   private determineResolution(xDomain: TimeDomain): Resolution {
     const length = xDomain.getLength();
-    if (length <= 15 * 60 * 1000) {
-      // less than 15 minutes
-      return this.availableResolutions[0];
-    } else if (length <= 11 * 60 * 60 * 1000) {
-      // less then 11 hours
-      return this.availableResolutions[1];
-    } else {
-      return this.availableResolutions[2];
-    }
+    let highestMinimalLength = 0;
+    let determinedResolution: Resolution = this.DEFAULT_RESOLUTION;
+
+    // search lowest resolution as possible
+    this.availableResolutions.forEach((resolution) => {
+        const minimalLength = this.resolutionToTimeRange.get(resolution.name) || 0;
+        if(length > minimalLength && minimalLength > highestMinimalLength){
+          highestMinimalLength = minimalLength;
+          determinedResolution = resolution;
+        }
+      })
+    return determinedResolution;
   }
 
   /**
