@@ -2,33 +2,10 @@
   <div>
     <nav class="navbar navbar-dark sticky-top bg-dark flex-md-nowrap p-0">
       <router-link to="/" class="navbar-brand col-sm-3 col-md-2 mr-0">Titan Control Center</router-link>
-      <div class="container justify-content-end">
-        <ul class="navbar-nav">
-          <li class="nav-item text-nowrap">
-            <b-button
-              v-if="timeMode.autoLoading == true"
-              @click="setStartDate(false)"
-              variant="link"
-              class="play-pause-button"
-            >
-              <font-awesome-icon icon="history" />
-            </b-button>
-            <div v-else class="form-inline">
-              <flat-pickr
-                placeholder="Select date"
-                v-model="date"
-                class="date-picker form-control text-center"
-                :config="flatPickrConfig"
-                @on-close="checkDateChanged()"
-                @on-open="setOldDate()"
-              ></flat-pickr>
-              <b-button @click="setStartDate(true)" variant="link" class="play-pause-button">
-                <font-awesome-icon icon="play" />
-              </b-button>
-            </div>
-          </li>
-        </ul>
-      </div>
+      <time-mode-picker
+        :timeMode="timeMode"
+        @update-timeMode="updateTimeMode">
+      </time-mode-picker>
     </nav>
 
     <div class="container-fluid">
@@ -98,10 +75,9 @@ import SensorDetails from "./SensorDetails.vue";
 import SensorHierarchy from "./SensorHierarchy.vue";
 import SensorHierarchyList from "./SensorHierarchyList.vue";
 import { DateTime } from "luxon";
-import flatPickr from "vue-flatpickr-component";
 import DateRangePicker from "vue2-daterange-picker";
+import TimeModePicker from "./TimeModePicker.vue";
 
-import "flatpickr/dist/flatpickr.css";
 import TimeMode from "./../model/time-mode";
 
 @Component({
@@ -111,7 +87,7 @@ import TimeMode from "./../model/time-mode";
     SensorDetails,
     SensorHierarchy,
     SensorHierarchyList,
-    flatPickr
+    TimeModePicker,
   }
 })
 export default class App extends Vue {
@@ -121,43 +97,13 @@ export default class App extends Vue {
 
   private isError = false;
 
-  private flatPickrConfig = {
-    allowInput: true,
-    time_24hr: true,
-    enableTime: true
-  };
-
-  private date: string = new Date().toISOString();
-  private oldDate: string = this.date;
-
   private timeMode: TimeMode = {
     autoLoading: true,
     getTime: () => DateTime.local() // now
   };
 
-  setOldDate() {
-    this.oldDate = this.date;
-  }
-
-  checkDateChanged() {
-    if (this.oldDate !== this.date) {
-      this.setStartDate(false);
-    }
-  }
-
-  setStartDate(now: boolean) {
-    if (!now) {
-      this.timeMode = {
-        autoLoading: false,
-        getTime: () => DateTime.fromJSDate(new Date(this.date))
-      };
-    } else {
-      this.timeMode = {
-        autoLoading: true,
-        getTime: () => DateTime.local() // now
-      };
-      this.date = new Date().toISOString();
-    }
+  updateTimeMode(timeMode: TimeMode){
+    this.timeMode = timeMode;
   }
 
   created() {
@@ -245,16 +191,5 @@ export default class App extends Vue {
   font-size: 1rem;
   background-color: rgba(0, 0, 0, 0.25);
   box-shadow: inset -1px 0 0 rgba(0, 0, 0, 0.25);
-}
-
-/*
- * History dropdown
- */
-.date-picker {
-  width: 10em;
-}
-
-.play-pause-button {
-  color: #aaa;
 }
 </style>
