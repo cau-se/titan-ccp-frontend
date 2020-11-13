@@ -1,29 +1,23 @@
 <template>
-  <div class="container justify-content-end">
-    <ul class="navbar-nav">
-        <li class="nav-item text-nowrap">
-        <b-button
-            v-if="timeModeLocal.autoLoading == true"
-            @click="setStartDate(false)"
-            variant="link"
-            class="play-pause-button">
-            <font-awesome-icon icon="history" />
-        </b-button>
-        <div v-else class="form-inline">
-            <flat-pickr
-            placeholder="Select date"
-            v-model="date"
-            class="date-picker form-control text-center"
-            :config="flatPickrConfig"
-            @on-close="checkDateChanged()"
-            @on-open="setOldDate()"
-            ></flat-pickr>
-            <b-button @click="setStartDate(true)" variant="link" class="play-pause-button">
-            <font-awesome-icon icon="play" />
-            </b-button>
-        </div>
-        </li>
-    </ul>
+  <b-button
+      v-if="timeModeLocal.autoLoading == true"
+      @click="setStartDate(false)"
+      variant="link"
+      class="play-pause-button">
+      <font-awesome-icon icon="history" />
+  </b-button>
+  <div v-else class="form-inline">
+      <flat-pickr
+      placeholder="Select date"
+      v-model="date"
+      class="date-picker form-control text-center"
+      :config="flatPickrConfig"
+      @on-close="checkDateChanged()"
+      @on-open="setOldDate()"
+      ></flat-pickr>
+      <b-button @click="setStartDate(true)" variant="link" class="play-pause-button">
+      <font-awesome-icon icon="play" />
+      </b-button>
   </div>
 </template>
 
@@ -40,17 +34,17 @@ import flatPickr from "vue-flatpickr-component";
     }
 })
 export default class TimeModePicker extends Vue {
-    @Prop({ required: true }) timeMode!: TimeMode;
+  @Prop({ required: true }) timeMode!: TimeMode;
 
-    private timeModeLocal: TimeMode = {
+  private timeModeLocal: TimeMode = {
     autoLoading: this.timeMode.autoLoading,
     getTime: () => this.timeMode.getTime()
   };
 
-    private date: string = new Date().toISOString();
-    private oldDate: string = this.date;
+  private date: string = new Date().toISOString();
+  private oldDate: string = this.date;
 
-    private flatPickrConfig = {
+  private readonly flatPickrConfig = {
     allowInput: true,
     time_24hr: true,
     enableTime: true

@@ -2,10 +2,16 @@
   <div>
     <nav class="navbar navbar-dark sticky-top bg-dark flex-md-nowrap p-0">
       <router-link to="/" class="navbar-brand col-sm-3 col-md-2 mr-0">Titan Control Center</router-link>
-      <time-mode-picker
-        :timeMode="timeMode"
-        @update-timeMode="updateTimeMode">
-      </time-mode-picker>
+      <div class="container justify-content-end">
+        <ul class="navbar-nav">
+          <li class="nav-item text-nowrap">
+            <time-mode-picker
+              :timeMode="timeMode"
+              @update-timeMode="updateTimeMode">
+            </time-mode-picker>
+          </li>
+        </ul>
+      </div>
     </nav>
 
     <div class="container-fluid">
