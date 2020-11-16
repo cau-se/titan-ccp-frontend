@@ -1,7 +1,7 @@
 <template>
-    <div class="">
-        <treeselect v-model="value" :multiple="true" :options="options" />
-    </div>
+  <div class="">
+    <treeselect v-model="value" :multiple="true" :options="options" />
+  </div>
 </template>
 
 <script lang="ts">
@@ -11,12 +11,7 @@ import { HTTP } from "../http-common";
 
 @Component
 export default class SensorRegistrySelect extends Vue {
-
-    @Prop({ required: true }) sensorRegistry!: SensorRegistry
-
-    mounted() {
-    }
-
+  @Prop({ required: true }) sensorRegistry!: SensorRegistry
 }
 </script>
 
