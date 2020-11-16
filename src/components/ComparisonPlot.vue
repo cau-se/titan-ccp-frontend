@@ -48,10 +48,10 @@ import ColorRepository from "../ColorRepository";
 import Treeselect from "@riophae/vue-treeselect";
 import "@riophae/vue-treeselect/dist/vue-treeselect.css";
 // @ts-ignore
-import { CanvasTimeSeriesPlot } from "../canvasplot.js";
-import { DataPoint } from "../MovingTimeSeriesPlot";
+import { CanvasTimeSeriesPlot } from '../canvasPlot/CanvasTimeSeriesPlot';
+import { DataPoint } from '../TimeSeriesPlotManager';
 import { DateTime, Interval } from "luxon";
-import { Resolution } from "./Comparison.vue";
+import { Resolution } from "../model/resolution";
 
 declare var d3version3: any;
 
