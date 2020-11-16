@@ -1,38 +1,38 @@
 <template>
-    <b-container>
-        <b-row class="mb-4">
-            <b-col>
-                <trend-arrow :timeMode="timeMode" :sensor="sensor" :timespan="trendLastHour" />
-            </b-col>
-            <b-col>
-                <trend-arrow :timeMode="timeMode" :sensor="sensor" :timespan="trendLastDay" />
-            </b-col>
-            <b-col>
-                <trend-arrow :timeMode="timeMode" :sensor="sensor" :timespan="trendLastWeek" />
-            </b-col>
-        </b-row>
-        <b-row class="mb-4">
-            <b-col>
-                <sensor-history-plot :timeMode="timeMode" :sensor="sensor" />
-            </b-col>
-        </b-row>
-        <b-row class="mb-4">
-            <b-col cols="6">
-                <distribution-plot :timeMode="timeMode" :sensor="sensor" />
-            </b-col>
-            <b-col cols="6">
-                <composition-pie-chart :sensor="sensor" :timeMode="timeMode" />
-            </b-col>
-        </b-row>
-        <b-row class="mb-4">
-            <b-col cols="6">
-                <stats-plot :sensor="sensor" :stats-type="statsDayOfWeek" :timeMode="timeMode" />
-            </b-col>
-            <b-col cols="6">
-                <stats-plot :sensor="sensor" :stats-type="statsHourOfDay" :timeMode="timeMode" />
-            </b-col>
-        </b-row>
-    </b-container>
+  <b-container>
+    <b-row class="mb-4">
+      <b-col>
+        <trend-arrow :timeMode="timeMode" :sensor="sensor" :timespan="trendLastHour" />
+      </b-col>
+      <b-col>
+        <trend-arrow :timeMode="timeMode" :sensor="sensor" :timespan="trendLastDay" />
+      </b-col>
+      <b-col>
+        <trend-arrow :timeMode="timeMode" :sensor="sensor" :timespan="trendLastWeek" />
+      </b-col>
+    </b-row>
+    <b-row class="mb-4">
+        <b-col>
+          <sensor-history-plot :timeMode="timeMode" :sensor="sensor" />
+        </b-col>
+    </b-row>
+    <b-row class="mb-4">
+        <b-col cols="6">
+          <distribution-plot :timeMode="timeMode" :sensor="sensor" />
+        </b-col>
+        <b-col cols="6">
+          <composition-pie-chart :sensor="sensor" :timeMode="timeMode" />
+        </b-col>
+    </b-row>
+    <b-row class="mb-4">
+      <b-col cols="6">
+        <stats-plot :sensor="sensor" :stats-type="statsDayOfWeek" :timeMode="timeMode" />
+      </b-col>
+      <b-col cols="6">
+        <stats-plot :sensor="sensor" :stats-type="statsHourOfDay" :timeMode="timeMode" />
+      </b-col>
+    </b-row>
+  </b-container>
 </template>
 
 <script lang="ts">

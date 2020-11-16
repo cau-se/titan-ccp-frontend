@@ -62,18 +62,12 @@
 <script lang="ts">
 import { Vue, Component, Prop, Watch } from "vue-property-decorator";
 import VueRouter from "vue-router";
-import {
-  Sensor,
-  AggregatedSensor,
-  MachineSensor,
-  SensorRegistry
-} from "../SensorRegistry";
 
 import BootstrapVue from "bootstrap-vue";
 import "bootstrap/dist/css/bootstrap.css";
 import "bootstrap-vue/dist/bootstrap-vue.css";
 
-import { SensorRegistryRequester } from "../SensorRegistry";
+import { SensorRegistry, SensorRegistryRequester } from "../SensorRegistry";
 
 import LoadingSpinner from "./LoadingSpinner.vue";
 import Dashboard from "./Dashboard.vue";
@@ -115,7 +109,7 @@ export default class App extends Vue {
   created() {
     this.isLoading = true;
     this.loadSensorRegistry()
-      .then(_ => {
+      .then(() => {
         this.isLoading = false;
       })
       .catch(e => {
