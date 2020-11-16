@@ -10,7 +10,7 @@
     <li v-for="sensor in sensors" :key="sensor.identifier" class="list-group-item-container">
       <sensor-registry-entry :sensor="sensor" @remove="remove(sensor)" class="list-group-item" />
       <div v-if="isAggregatedSensor(sensor)">
-        <DragableSensorList :sensors="sensor.children" />
+        <dragable-sensor-list :sensors="sensor.children" />
       </div>
     </li>
   </draggable>
@@ -18,12 +18,8 @@
 
 <script lang="ts">
 import { Vue, Component, Prop, Watch } from "vue-property-decorator";
-import {
-  Sensor,
-  AggregatedSensor,
-  MachineSensor,
-  SensorRegistry
-} from "../SensorRegistry";
+
+import { Sensor, AggregatedSensor } from "../SensorRegistry";
 
 import BootstrapVue from "bootstrap-vue";
 import "bootstrap/dist/css/bootstrap.css";
@@ -37,7 +33,7 @@ import SensorRegistryEntry from "./SensorRegistryEntry.vue";
 @Component({
   components: {
     draggable,
-    DragableSensorList,
+    //DragableSensorList,
     SensorRegistryEntry
   }
 })

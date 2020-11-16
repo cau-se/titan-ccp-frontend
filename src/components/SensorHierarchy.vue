@@ -56,17 +56,12 @@ import BootstrapVue from "bootstrap-vue";
 import "bootstrap/dist/css/bootstrap.css";
 import "bootstrap-vue/dist/bootstrap-vue.css";
 
-// @ts-ignore
-import draggable from "vuedraggable";
-
 import DragableSensorList from "./DragableSensorList.vue";
 import SensorRegistryEntry from "./SensorRegistryEntry.vue";
 
 @Component({
   components: {
-    DragableSensorList,
-    SensorRegistryEntry,
-    draggable
+    DragableSensorList
   }
 })
 export default class SensorHierarchy extends Vue {
