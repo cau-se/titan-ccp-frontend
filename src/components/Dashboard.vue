@@ -66,7 +66,6 @@ import TimeMode from "../model/time-mode";
     }
 })
 export default class App extends Vue {
-
     @Prop({ required: true }) sensor!: Sensor
 
     @Prop() timeMode!: TimeMode
@@ -77,10 +76,8 @@ export default class App extends Vue {
 
     readonly statsDayOfWeek = DAY_OF_WEEK
     readonly statsHourOfDay = HOUR_OF_DAY
-
 }
 </script>
 
 <style scoped>
-
 </style>

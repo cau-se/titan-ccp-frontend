@@ -10,13 +10,13 @@
 </template>
 
 <script lang="ts">
-import { Vue, Component, Prop, Watch } from "vue-property-decorator";
-import LoadingSpinner from "./LoadingSpinner.vue";
-import { HTTP } from "../http-common";
-import { Sensor, AggregatedSensor } from "../SensorRegistry";
-import { ChartAPI, generate } from "c3";
-import "c3/c3.css";
-import TimeMode from "../model/time-mode";
+import { Vue, Component, Prop, Watch } from "vue-property-decorator"
+import LoadingSpinner from "./LoadingSpinner.vue"
+import { HTTP } from "../http-common"
+import { Sensor, AggregatedSensor } from "../SensorRegistry"
+import { ChartAPI, generate } from "c3"
+import "c3/c3.css"
+import TimeMode from "../model/time-mode"
 
 @Component({
   components: {
@@ -24,7 +24,7 @@ import TimeMode from "../model/time-mode";
   }
 })
 export default class DistributionPlot extends Vue {
-  //TODO Rename to histogram
+  // TODO Rename to histogram
 
   @Prop({ required: true }) sensor!: Sensor;
 
@@ -56,28 +56,28 @@ export default class DistributionPlot extends Vue {
       tooltip: {
         show: false
       }
-    });
-    this.createPlot();
+    })
+    this.createPlot()
   }
 
   @Watch("sensor")
   onSensorChanged(sensor: Sensor) {
-    this.createPlot();
+    this.createPlot()
   }
 
   @Watch("timeMode")
   onTimeModeChanged() {
-    this.createPlot();
+    this.createPlot()
   }
 
   private createPlot() {
     let resource =
       this.sensor instanceof AggregatedSensor
         ? "active-power/aggregated"
-        : "active-power/raw";
+        : "active-power/raw"
     // Distribution of last hour
     let after = this.timeMode.getTime().minus({ hours: 1 });
-    let to = this.timeMode.getTime();
+    let to = this.timeMode.getTime()
     HTTP.get(
       resource +
         "/" +
@@ -91,29 +91,29 @@ export default class DistributionPlot extends Vue {
     )
       .then(response => {
         // JSON responses are automatically parsed.
-        let labels: string[] = ["x"];
-        let values: Array<string | number> = [this.sensor.identifier];
+        let labels: string[] = ["x"]
+        let values: Array<string | number> = [this.sensor.identifier]
         for (let bucket of response.data) {
           labels.push(
             "" + bucket.lower.toFixed(1) + " - " + bucket.upper.toFixed(1)
           );
-          values.push(bucket.elements);
+          values.push(bucket.elements)
         }
-        return [labels, values];
+        return [labels, values]
       })
       .catch(e => {
-        console.error(e);
-        this.isError = true;
-        return [["x"], [this.sensor.identifier]];
+        console.error(e)
+        this.isError = true
+        return [["x"], [this.sensor.identifier]]
       })
       .then(data => {
-        this.chart.unload();
+        this.chart.unload()
         this.chart.load({
           columns: data,
           unload: true
-        });
-        this.isLoading = false;
-      });
+        })
+        this.isLoading = false
+      })
   }
 }
 </script>

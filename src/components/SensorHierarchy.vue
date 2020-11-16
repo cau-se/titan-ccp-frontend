@@ -49,11 +49,11 @@ import {
   MachineSensor,
   SensorRegistry,
   SensorRegistryRequester
-} from "../SensorRegistry";
-import { HTTP } from "../http-common";
+} from "../SensorRegistry"
+import { HTTP } from "../http-common"
 
-import DragableSensorList from "./DragableSensorList.vue";
-import SensorRegistryEntry from "./SensorRegistryEntry.vue";
+import DragableSensorList from "./DragableSensorList.vue"
+import SensorRegistryEntry from "./SensorRegistryEntry.vue"
 
 @Component({
   components: {
@@ -88,38 +88,38 @@ export default class SensorHierarchy extends Vue {
     this.modifiableSensorRegistry = await this.sensorRegistryRequester.request(
       this.$route.params.id
     );
-    this.loaded = true;
+    this.loaded = true
 
     const response = await HTTP.get("active-power/raw");
     let unselectedSensors = response.data as Array<string>;
     let registeredSensors = this.sensorRegistry.registeredSensors.map(
       s => s.identifier
-    );
+    )
     this.unselectedSensors = unselectedSensors
       .filter(s => !registeredSensors.includes(s))
-      .map(s => new MachineSensor(s, ""));
+      .map(s => new MachineSensor(s, ""))
   }
 
   get demoMode() {
-    return process.env.DEMO === "true";
+    return process.env.DEMO === "true"
   }
 
   async save() {
     if (this.modifiableSensorRegistry) {
-      this.saving = true;
+      this.saving = true
 
       try {
         await this.sensorRegistryRequester.edit(
           this.$route.params.id,
           this.modifiableSensorRegistry
         );
-        this.$emit("update:sensor-registry");
+        this.$emit("update:sensor-registry")
       } catch (error) {
         if (
           error.response.data.collisions &&
           error.response.data.collisions.length
         ) {
-          this.collidedSensorIdentifier = error.response.data.collisions[0];
+          this.collidedSensorIdentifier = error.response.data.collisions[0]
         }
       }
 
@@ -135,11 +135,11 @@ export default class SensorHierarchy extends Vue {
         []
       )
     );
-    this.newAggregatedSensorName = "";
+    this.newAggregatedSensorName = ""
   }
 
   private get newAggregatedSensorIdentifier() {
-    return this.slugify(this.newAggregatedSensorName);
+    return this.slugify(this.newAggregatedSensorName)
   }
 
   private slugify = (text: String) =>

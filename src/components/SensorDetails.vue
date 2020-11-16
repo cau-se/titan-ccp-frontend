@@ -64,7 +64,7 @@ import CompositionPieChart from "./CompositionPieChart.vue"
 import SensorHistoryPlot from "./SensorHistoryPlot.vue"
 import TrendArrow from "./TrendArrow.vue"
 import { Timespan } from "./TrendArrow.vue"
-import TimeMode from "../model/time-mode";
+import TimeMode from "../model/time-mode"
 
 
 @Component({
@@ -108,7 +108,6 @@ export default class SensorDetails extends Vue {
     width: 100%;
   }
 </style>
-
 <style>
   /* Hack */
   .children-dropdown button {

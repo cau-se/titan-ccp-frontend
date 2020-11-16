@@ -22,19 +22,19 @@
 </template>
 
 <script lang="ts">
-import { Vue, Component, Prop, Watch } from "vue-property-decorator";
-import LoadingSpinner from "./LoadingSpinner.vue";
-import { HTTP } from "../http-common";
-import { Sensor, AggregatedSensor } from "../SensorRegistry";
-import { ChartAPI, generate } from "c3";
-import "c3/c3.css";
-import { DateTime, Interval } from "luxon";
-import TimeMode from "../model/time-mode";
+import { Vue, Component, Prop, Watch } from "vue-property-decorator"
+import LoadingSpinner from "./LoadingSpinner.vue"
+import { HTTP } from "../http-common"
+import { Sensor, AggregatedSensor } from "../SensorRegistry"
+import { ChartAPI, generate } from "c3"
+import "c3/c3.css"
+import { DateTime, Interval } from "luxon"
+import TimeMode from "../model/time-mode"
 
 @Component({
   components: {
-    LoadingSpinner,
-  },
+    LoadingSpinner
+  }
 })
 export default class StatsPlot extends Vue {
   @Prop({ required: true }) sensor!: Sensor;
@@ -52,7 +52,7 @@ export default class StatsPlot extends Vue {
   private isError = false;
 
   get intervalSelectOptions(): Array<IntervalSelectOption> {
-    return this.availableIntervals.map((i) => new IntervalSelectOption(i));
+    return this.availableIntervals.map((i) => new IntervalSelectOption(i))
   }
 
   mounted() {
@@ -61,34 +61,34 @@ export default class StatsPlot extends Vue {
       data: {
         x: "x",
         columns: [],
-        type: "spline",
+        type: "spline"
       },
       legend: {
-        show: false,
+        show: false
       },
       axis: {
         x: {
           type: "category",
           tick: {
-            multiline:false,
+            multiline: false
           }
         },
         y: {
-          min: 0,
-        },
+          min: 0
+        }
       },
       grid: {
         x: {
-          show: true,
+          show: true
         },
         y: {
-          show: true,
-        },
+          show: true
+        }
       },
       tooltip: {
-        show: false,
-      },
-    });
+        show: false
+      }
+    })
     this.loadAvailableIntervals().then(() => this.createPlot());
   }
 
@@ -105,37 +105,37 @@ export default class StatsPlot extends Vue {
             DateTime.fromISO(i.intervalStart),
             DateTime.fromISO(i.intervalEnd)
           )
-        );
+        )
       }
-    );
+    )
   }
 
   @Watch("selectedInterval")
   onIntervalChanged(interval: Interval, oldInterval: Interval) {
     if (oldInterval != null) {
-      this.createPlot(interval);
+      this.createPlot(interval)
     }
   }
 
   private createPlot(interval?: Interval) {
     let defaultInterval = this.availableIntervals.find(interval => interval.end >= this.timeMode.getTime())! ||  this.availableIntervals[this.availableIntervals.length - 1];
-    let interval2 = interval || defaultInterval;
+    let interval2 = interval || defaultInterval
 
     let url = `stats/sensor/${this.sensor.identifier}/${
       this.statsType.url
     }?intervalStart=${this.dateTimeToBackendISO(
       interval2.start
-    )}&intervalEnd=${this.dateTimeToBackendISO(interval2.end)}`;
+    )}&intervalEnd=${this.dateTimeToBackendISO(interval2.end)}`
 
     HTTP.get(url)
       .then((response) => {
         // JSON responses are automatically parsed.
         let labels: string[] = ["x"];
-        let minValues: Array<string | number> = ["min"];
-        let meanValues: Array<string | number> = ["mean"];
-        let maxValues: Array<string | number> = ["max"];
+        let minValues: Array<string | number> = ["min"]
+        let meanValues: Array<string | number> = ["mean"]
+        let maxValues: Array<string | number> = ["max"]
         for (let stats of response.data) {
-          labels.push(this.statsType.accessor(stats));
+          labels.push(this.statsType.accessor(stats))
           minValues.push(stats.min);
           meanValues.push(stats.mean);
           maxValues.push(stats.max);
@@ -145,28 +145,28 @@ export default class StatsPlot extends Vue {
           this.selectedInterval = Interval.fromDateTimes(
             DateTime.fromMillis(response.data[0].periodStart),
             DateTime.fromMillis(response.data[0].periodEnd)
-          );
+          )
         }
         //return [labels, minValues, meanValues, maxValues]
         return [labels, meanValues];
       })
       .catch((e) => {
-        console.error(e);
-        this.isError = true;
+        console.error(e)
+        this.isError = true
         //return [["x"], ["min"], ["mean"], ["max"]]
-        return [["x"], ["mean"]];
+        return [["x"], ["mean"]]
       })
       .then((data) => {
         this.chart.load({
           columns: data,
-          unload: true,
-        });
-        this.isLoading = false;
-      });
+          unload: true
+        })
+        this.isLoading = false
+      })
   }
 
   private dateTimeToBackendISO(dateTime: DateTime): string {
-    return dateTime.toUTC().toISO({ suppressMilliseconds: true });
+    return dateTime.toUTC().toISO({ suppressMilliseconds: true })
   }
 }
 
@@ -175,8 +175,8 @@ class IntervalSelectOption {
   public readonly text: string;
 
   constructor(interval: Interval) {
-    this.value = interval;
-    this.text = interval.toFormat("yyyy/MM/dd");
+    this.value = interval
+    this.text = interval.toFormat("yyyy/MM/dd")
   }
 }
 
@@ -201,28 +201,28 @@ export const DAY_OF_WEEK: StatsType = {
 function getDayOfWeekText(number: number) {
   switch (number) {
     case 1: {
-      return "Monday";
+      return "Monday"
     }
     case 2: {
-      return "Tuesday";
+      return "Tuesday"
     }
     case 3: {
-      return "Wednesday";
+      return "Wednesday"
     }
     case 4: {
-      return "Thursday";
+      return "Thursday"
     }
     case 5: {
-      return "Friday";
+      return "Friday"
     }
     case 6: {
-      return "Saturday";
+      return "Saturday"
     }
     case 7: {
-      return "Sunday";
+      return "Sunday"
     }
     default: {
-      throw new RangeError("Day of week number must be between 1 and 7");
+      throw new RangeError("Day of week number must be between 1 and 7")
     }
   }
 }

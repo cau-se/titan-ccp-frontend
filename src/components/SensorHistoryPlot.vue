@@ -10,16 +10,16 @@
 </template>
 
 <script lang="ts">
-import { Vue, Component, Prop, Watch } from "vue-property-decorator";
+import { Vue, Component, Prop, Watch } from "vue-property-decorator"
 
 import { Sensor } from '../SensorRegistry'
-import TimeMode from "../model/time-mode";
-import { TimeSeriesPlotManager, DataPoint } from '../TimeSeriesPlotManager';
-import { CanvasTimeSeriesPlot } from "../canvasPlot/CanvasTimeSeriesPlot";
+import TimeMode from "../model/time-mode"
+import { TimeSeriesPlotManager, DataPoint } from '../TimeSeriesPlotManager'
+import { CanvasTimeSeriesPlot } from "../canvasPlot/CanvasTimeSeriesPlot"
 
 import LoadingSpinner from "./LoadingSpinner.vue"
 
-declare const d3version3: any; //eslint-disable-line @typescript-eslint/no-explicit-any
+declare const d3version3: any //eslint-disable-line @typescript-eslint/no-explicit-any
 
 @Component({
     components: {
@@ -29,7 +29,7 @@ declare const d3version3: any; //eslint-disable-line @typescript-eslint/no-expli
 export default class SensorHistoryPlot extends Vue {
   @Prop({ required: true }) sensor!: Sensor
 
-  @Prop({  required: true }) timeMode!: TimeMode
+  @Prop({ required: true }) timeMode!: TimeMode
 
   private isLoading = false
   private isError = false
@@ -53,13 +53,13 @@ export default class SensorHistoryPlot extends Vue {
 
   @Watch('timeMode')
   onTimeModeChanged() {
-    this.createPlot();
+    this.createPlot()
   }
 
   private createPlot() {
-    this.plot && this.plot.destroy();
+    this.plot && this.plot.destroy()
 
-    const dimensions = [this.canvasplotContainer.clientWidth, this.canvasplotContainer.clientHeight];
+    const dimensions = [this.canvasplotContainer.clientWidth, this.canvasplotContainer.clientHeight]
     this.plot = new CanvasTimeSeriesPlot(
       d3version3.select(this.canvasplotContainer), 
       dimensions,
@@ -67,17 +67,17 @@ export default class SensorHistoryPlot extends Vue {
         plotStartsWithZero: true,
         yAxisLabel: "Active Power in Watt",
         numberOfResolutionLevels: 3,
-        disableLegend: true,
+        disableLegend: true
       }
     );
-    this.plot.setZoomYAxis(false);
-    this.isLoading = true;
+    this.plot.setZoomYAxis(false)
+    this.isLoading = true
     this.plotManager = new TimeSeriesPlotManager({
       plot: this.plot,
       sensor: this.sensor,
       timeMode: this.timeMode,
       onFinishedLoading: () => this.isLoading = false
-    });
+    })
   }
 }
 </script>

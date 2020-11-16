@@ -22,11 +22,11 @@
 </template>
 
 <script lang="ts">
-import { DateTime } from "luxon";
-import { Vue, Component, Prop, Watch } from "vue-property-decorator";
-import TimeMode from "../model/time-mode";
-import "flatpickr/dist/flatpickr.css";
-import flatPickr from "vue-flatpickr-component";
+import { DateTime } from "luxon"
+import { Vue, Component, Prop, Watch } from "vue-property-decorator"
+import TimeMode from "../model/time-mode"
+import "flatpickr/dist/flatpickr.css"
+import flatPickr from "vue-flatpickr-component"
 
 @Component({
     components: {
@@ -51,12 +51,12 @@ export default class TimeModePicker extends Vue {
   };
 
   setOldDate() {
-    this.oldDate = this.date;
+    this.oldDate = this.date
   }
 
   checkDateChanged() {
     if (this.oldDate !== this.date) {
-      this.setStartDate(false);
+      this.setStartDate(false)
     }
   }
 
@@ -65,24 +65,20 @@ export default class TimeModePicker extends Vue {
       this.timeModeLocal = {
         autoLoading: false,
         getTime: () => DateTime.fromJSDate(new Date(this.date))
-      };
+      }
     } else {
       this.timeModeLocal = {
         autoLoading: true,
         getTime: () => DateTime.local() // now
-      };
-      this.date = new Date().toISOString();
+      }
+      this.date = new Date().toISOString()
     }
-    this.$emit('update-timeMode', this.timeModeLocal);
+    this.$emit('update-timeMode', this.timeModeLocal)
   }
-
 }
 </script>
 
 <style scoped>
-/*
- * History dropdown
- */
 .date-picker {
   width: 10em;
 }
