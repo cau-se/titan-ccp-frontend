@@ -23,9 +23,9 @@ import 'bootstrap-vue/dist/bootstrap-vue.css'
 @Component
 export default class LoadingSpinner extends Vue {
 
-    @Prop({ required: true }) isLoading!: Boolean
+    @Prop({ required: true }) isLoading!: boolean
 
-    @Prop() isError: Boolean = false
+    @Prop() isError = false
 
 }
 </script>

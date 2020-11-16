@@ -10,7 +10,7 @@ export class AggregatedSensor {
     public parent?: AggregatedSensor //TODO make nicer
 
     get title(): string {
-        return this.name != '' ? this.name : this.identifier
+        return this.name !== '' ? this.name : this.identifier
     }
 
     get recursiveChildren(): Array<Sensor> {
@@ -33,7 +33,7 @@ export class MachineSensor {
     parent?: AggregatedSensor //TODO make nicer
 
     get title(): string {
-        return this.name != '' ? this.name : this.identifier
+        return this.name !== '' ? this.name : this.identifier
     }
 
 }
@@ -56,7 +56,7 @@ export class SensorRegistry {
     }
 
     public toJson(pretty?: boolean): string {
-        return JSON.stringify(this.topLevelSensor, (key, val) => key != "parent" ? val : undefined, pretty ? '\t' : undefined)
+        return JSON.stringify(this.topLevelSensor, (key, val) => key !== "parent" ? val : undefined, pretty ? '\t' : undefined)
     }
 
     public toPrettyJson(): string {
@@ -67,7 +67,7 @@ export class SensorRegistry {
         if (sensor.children) {
             const children = sensor.children.map(child => this.parseSensor(child))
             const parsedSensor = new AggregatedSensor(sensor.identifier, sensor.name ? sensor.name : "", children)
-            children.forEach(child => child.parent = parsedSensor)
+            children.forEach(child => { child.parent = parsedSensor })
             return parsedSensor
         } else {
             return new MachineSensor(sensor.identifier, sensor.name ? sensor.name : "")
