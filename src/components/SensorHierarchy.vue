@@ -52,10 +52,6 @@ import {
 } from "../SensorRegistry";
 import { HTTP } from "../http-common";
 
-import BootstrapVue from "bootstrap-vue";
-import "bootstrap/dist/css/bootstrap.css";
-import "bootstrap-vue/dist/bootstrap-vue.css";
-
 import DragableSensorList from "./DragableSensorList.vue";
 import SensorRegistryEntry from "./SensorRegistryEntry.vue";
 

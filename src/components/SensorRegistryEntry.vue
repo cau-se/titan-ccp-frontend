@@ -20,10 +20,6 @@
 import { Vue, Component, Prop, Watch } from "vue-property-decorator"
 import { Sensor } from '../SensorRegistry'
 
-import BootstrapVue from 'bootstrap-vue'
-import 'bootstrap/dist/css/bootstrap.css'
-import 'bootstrap-vue/dist/bootstrap-vue.css'
-
 @Component
 export default class SensorRegistryEntry extends Vue {
   @Prop({ required: true }) sensor!: Sensor
