@@ -72,55 +72,53 @@ import TimeMode from "../model/time-mode";
 
 
 @Component({
-    components: {
-        SensorParents,
-        SensorHistoryPlot,
-        CompositionPieChart,
-        ContributionPieChart,
-        DistributionPlot,
-        StatsPlot,
-        TrendArrow
-    }
+  components: {
+    SensorParents,
+    SensorHistoryPlot,
+    CompositionPieChart,
+    ContributionPieChart,
+    DistributionPlot,
+    StatsPlot,
+    TrendArrow
+  }
 })
 export default class SensorDetails extends Vue {
 
-    @Prop({ required: true }) sensor!: Sensor
+  @Prop({ required: true }) sensor!: Sensor
 
-    @Prop({ required: true }) timeMode!: TimeMode
+  @Prop({ required: true }) timeMode!: TimeMode
 
-    private internalSensor = this.sensor
+  private internalSensor = this.sensor
 
-    readonly trendLastHour = Timespan.LastHour
-    readonly trendLastDay = Timespan.LastDay
-    readonly trendLastWeek = Timespan.LastWeek
+  readonly trendLastHour = Timespan.LastHour
+  readonly trendLastDay = Timespan.LastDay
+  readonly trendLastWeek = Timespan.LastWeek
 
-    readonly statsDayOfWeek = DAY_OF_WEEK
-    readonly statsHourOfDay = HOUR_OF_DAY
+  readonly statsDayOfWeek = DAY_OF_WEEK
+  readonly statsHourOfDay = HOUR_OF_DAY
 
-    get isAggregated() {
-        return this.internalSensor instanceof AggregatedSensor
-    }
+  get isAggregated() {
+    return this.internalSensor instanceof AggregatedSensor
+  }
 
-    setSensor(sensor: Sensor) {
-        this.internalSensor = sensor
-    }
-
+  setSensor(sensor: Sensor) {
+    this.internalSensor = sensor
+  }
 }
 </script>
 
 <style scoped>
-    
-    .children-dropdown {
-        width: 100%;
-    }
+  .children-dropdown {
+    width: 100%;
+  }
 </style>
 
 <style>
-    /* Hack */
-    .children-dropdown button {
-        display: block;
-        width: 100%;
-        padding: 0.68rem 1rem;
-        font-size: 1rem;
-    }
+  /* Hack */
+  .children-dropdown button {
+    display: block;
+    width: 100%;
+    padding: 0.68rem 1rem;
+    font-size: 1rem;
+  }
 </style>
