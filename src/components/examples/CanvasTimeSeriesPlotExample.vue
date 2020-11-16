@@ -6,7 +6,7 @@
 <script lang="ts">
 import { Vue, Component, Prop, Watch } from "vue-property-decorator";
 // @ts-ignore
-import { CanvasTimeSeriesPlot } from '../../canvasplot.js';
+import { CanvasTimeSeriesPlot } from '../../canvasPlot/CanvasTimeSeriesPlot';
 declare var d3: any;
 
 @Component
@@ -29,8 +29,8 @@ export default class CanvasTimeSeriesPlotExample extends Vue {
         var tsPlot = new CanvasTimeSeriesPlot(container, [width, height], {
             yAxisLabel: "Voltage [V]"
         });
-        tsPlot.addDataSet("ds1", "Signal 1", ts1, "orange", false);
-        tsPlot.addDataSet("ds2", "Signal 2", ts2, "steelblue", true);
+        tsPlot.addDataSet("ds1", "Signal 1", ts1, "orange", false, false);
+        tsPlot.addDataSet("ds2", "Signal 2", ts2, "steelblue", true, false);
         tsPlot.setZoomYAxis(false);
     }
 }

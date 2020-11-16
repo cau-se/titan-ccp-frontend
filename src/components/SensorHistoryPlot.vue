@@ -14,12 +14,14 @@ import { Vue, Component, Prop, Watch } from "vue-property-decorator";
 import { HTTP } from "../http-common";
 import { Sensor, AggregatedSensor } from '../SensorRegistry'
 import LoadingSpinner from "./LoadingSpinner.vue"
-// @ts-ignore
-import { CanvasTimeSeriesPlot } from '../canvasplot.js';
-import { MovingTimeSeriesPlot, DataPoint } from '../MovingTimeSeriesPlot';
+import { TimeSeriesPlotManager, DataPoint } from '../TimeSeriesPlotManager';
 import Repeater from "../Repeater";
-import { DateTime } from "luxon";
 import TimeMode from "../model/time-mode";
+import { CanvasTimeSeriesPlot } from "../canvasPlot/CanvasTimeSeriesPlot";
+const sumBy = require('lodash.sumby');
+const debounce = require('lodash.debounce');
+
+declare const d3version3: any; //eslint-disable-line @typescript-eslint/no-explicit-any
 
 @Component({
     components: {
@@ -27,123 +29,62 @@ import TimeMode from "../model/time-mode";
     }
 })
 export default class SensorHistoryPlot extends Vue {
-     
-    private refreshIntervalInMs = 1000
-
     @Prop({ required: true }) sensor!: Sensor
 
     @Prop({  required: true }) timeMode!: TimeMode
 
-    private timeOffset: number = 0
-
-    private dataPoints: any[] = []
-
-    private latest = this.completeHistory ? 0 : this.timeMode.getTime().minus({hours: 1}).toMillis();
-
     private isLoading = false
     private isError = false
 
-    private plot!: MovingTimeSeriesPlot // Will definitely be assigned in mounted
+    private plot!: CanvasTimeSeriesPlot // Will definitely be assigned in mounted
+    private plotManager!: TimeSeriesPlotManager;
 
-    private requester = new Repeater(this.createPlot, this.updatePlot, this.refreshIntervalInMs)
 
     get canvasplotContainer() {
         return this.$el.querySelector(".canvasplot-container")! as HTMLElement
-    }
-
-    get completeHistory() {
-        console.log("SHOW_COMPLETE_HISTORY " + process.env.SHOW_COMPLETE_HISTORY);
-        return process.env.SHOW_COMPLETE_HISTORY === "true"
     }
 
     created() {
     }
 
     mounted() {
-        this.requester.start()
-    }
-
-    destroyed() {
-        this.requester.stop()
+        this.createPlot()
     }
 
     @Watch('sensor')
     onSensorChanged(sensor: Sensor) {
-        this.destroyPlot()
-        this.requester.restart()
+        this.createPlot()
     }
 
     @Watch('timeMode')
     onTimeModeChanged() {
-        this.destroyPlot();
-        if (this.timeMode.autoLoading) {
-            this.requester.restart();
-        } else {
-            this.requester.stop();
-            this.createPlot();
-        }
+        this.createPlot();
     }
 
     private createPlot() {
-        this.plot = new MovingTimeSeriesPlot(this.canvasplotContainer, {
-            plotStartsWithZero: true,
-            yAxisLabel: "Active Power in Watt"
-        })
-        // BETTER fetch already earlier and then wait for mount
-        this.isLoading = true
-        return this.fetchNewData()
-            .catch(e => {
-                console.error(e);
-                this.isError = true
-                return []
-            })
-            .then((dataPoints) => {
-                if (!this.timeMode.autoLoading) {
-                    new Promise<DataPoint[]>((resolve, reject) => {
-                        let acc: DataPoint[] = []
-                        for (let point of dataPoints) {
-                            if (point.date.getTime() < this.timeMode.getTime().toMillis()) {
-                                acc.push(point)
-                            } else break;
-                        }
-                        return resolve(acc);
-                    }).then(points => {
-                        this.plot.setDataPoints(points);
-                        this.isLoading = false
-                    })
-                } else {
-                    this.plot.setDataPoints(dataPoints)
-                    this.isLoading = false
-                }
-            })
-        
+        this.plot && this.plot.destroy();
+
+        const dimensions = [this.canvasplotContainer.clientWidth, this.canvasplotContainer.clientHeight];
+        this.plot = new CanvasTimeSeriesPlot(
+            d3version3.select(this.canvasplotContainer), 
+            dimensions,
+            {
+                plotStartsWithZero: true,
+                yAxisLabel: "Active Power in Watt",
+                numberOfResolutionLevels: 3,
+                disableLegend: true,
+            }
+        );
+        this.plot.setZoomYAxis(false);
+        this.isLoading = true;
+        this.plotManager = new TimeSeriesPlotManager({
+           plot: this.plot,
+           sensor: this.sensor,
+           timeMode: this.timeMode,
+           onFinishedLoading: () => this.isLoading = false
+       });
     }
 
-    private updatePlot() {
-        if (this.timeMode.autoLoading) {      
-            this.fetchNewData().then(dataPoints => this.plot.addDataPoints(dataPoints))
-        }
-    }
-
-    private destroyPlot() {
-        this.latest = this.completeHistory ? 0 : this.timeMode.getTime().minus({hours: 1}).toMillis();
-        this.isLoading = false;
-        this.isError = false;
-        this.plot.destroy()
-    }
-
-    private fetchNewData(): Promise<DataPoint[]> {
-        let resource = this.sensor instanceof AggregatedSensor ? 'active-power/aggregated' : 'active-power/raw' 
-        return HTTP.get(resource + '/' + this.sensor.identifier + '?after=' + this.latest)
-            .then(response => {
-                // JSON responses are automatically parsed.
-                if (response.data.length > 0) {
-                    this.latest = response.data[response.data.length - 1].timestamp
-                }
-                // TODO access sum generically
-                return response.data.map((x: any) => new DataPoint(new Date(x.timestamp), this.sensor instanceof AggregatedSensor ? x.sumInW : x.valueInW));
-            })
-    }
 }
 </script>
 
