@@ -10,13 +10,13 @@
 </template>
 
 <script lang="ts">
-import { Vue, Component, Prop, Watch } from "vue-property-decorator"
+import { Vue, Component, Prop, Watch } from 'vue-property-decorator'
 import { SensorRegistryRequester, AggregatedSensor, MachineSensor, Sensor, SensorRegistry } from '../SensorRegistry'
-import { HTTP } from "../http-common"
-import LoadingSpinner from "./LoadingSpinner.vue"
+import { HTTP } from '../http-common'
+import LoadingSpinner from './LoadingSpinner.vue'
 import { ChartAPI, generate } from 'c3'
 import 'c3/c3.css'
-import TimeMode from "../model/time-mode"
+import TimeMode from '../model/time-mode'
 
 @Component({
   components: {
@@ -36,7 +36,7 @@ export default class ContributionPieChart extends Vue {
 
   mounted() {
     this.chart = generate({
-      bindto: this.$el.querySelector(".c3-container") as HTMLElement,
+      bindto: this.$el.querySelector('.c3-container') as HTMLElement,
       data: {
         columns: [],
         type: 'pie',
@@ -57,7 +57,7 @@ export default class ContributionPieChart extends Vue {
     this.updateChart()
   }
 
-  @Watch("timeMode")
+  @Watch('timeMode')
   onTimeModeChanged() {
     this.updateChart()
   }
@@ -82,7 +82,7 @@ export default class ContributionPieChart extends Vue {
     .then(values => {
       this.isLoading = false
       this.chart.load({
-        columns: [[this.sensor.title, values[0]], ["Others", values[1]-values[0]]],
+        columns: [[this.sensor.title, values[0]], ['Others', values[1]-values[0]]],
         unload: true
       })
     })

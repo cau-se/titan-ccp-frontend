@@ -63,25 +63,25 @@
 </template>
 
 <script lang="ts">
-import { Vue, Component, Prop, Watch } from "vue-property-decorator"
-import VueRouter from "vue-router"
+import { Vue, Component, Prop, Watch } from 'vue-property-decorator'
+import VueRouter from 'vue-router'
 
-import BootstrapVue from "bootstrap-vue"
-import "bootstrap/dist/css/bootstrap.css"
-import "bootstrap-vue/dist/bootstrap-vue.css"
+import BootstrapVue from 'bootstrap-vue'
+import 'bootstrap/dist/css/bootstrap.css'
+import 'bootstrap-vue/dist/bootstrap-vue.css'
 
-import { SensorRegistry, SensorRegistryRequester } from "../SensorRegistry"
+import { SensorRegistry, SensorRegistryRequester } from '../SensorRegistry'
 
-import LoadingSpinner from "./LoadingSpinner.vue"
-import Dashboard from "./Dashboard.vue"
-import SensorDetails from "./SensorDetails.vue"
-import SensorHierarchy from "./SensorHierarchy.vue"
-import SensorHierarchyList from "./SensorHierarchyList.vue"
-import { DateTime } from "luxon"
-import DateRangePicker from "vue2-daterange-picker"
-import TimeModePicker from "./TimeModePicker.vue"
+import LoadingSpinner from './LoadingSpinner.vue'
+import Dashboard from './Dashboard.vue'
+import SensorDetails from './SensorDetails.vue'
+import SensorHierarchy from './SensorHierarchy.vue'
+import SensorHierarchyList from './SensorHierarchyList.vue'
+import { DateTime } from 'luxon'
+import DateRangePicker from 'vue2-daterange-picker'
+import TimeModePicker from './TimeModePicker.vue'
 
-import TimeMode from "./../model/time-mode"
+import TimeMode from './../model/time-mode'
 
 @Component({
   components: {

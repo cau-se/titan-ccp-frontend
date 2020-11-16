@@ -22,11 +22,11 @@
 </template>
 
 <script lang="ts">
-import { DateTime } from "luxon"
-import { Vue, Component, Prop, Watch } from "vue-property-decorator"
-import TimeMode from "../model/time-mode"
-import "flatpickr/dist/flatpickr.css"
-import flatPickr from "vue-flatpickr-component"
+import { DateTime } from 'luxon'
+import { Vue, Component, Prop, Watch } from 'vue-property-decorator'
+import TimeMode from '../model/time-mode'
+import 'flatpickr/dist/flatpickr.css'
+import flatPickr from 'vue-flatpickr-component'
 
 @Component({
     components: {

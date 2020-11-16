@@ -35,23 +35,23 @@
 </template>
 
 <script lang="ts">
-import { Vue, Component, Prop, Watch } from "vue-property-decorator"
-import { HTTP } from "../http-common"
+import { Vue, Component, Prop, Watch } from 'vue-property-decorator'
+import { HTTP } from '../http-common'
 import {
   Sensor,
   AggregatedSensor,
   MachineSensor,
   SensorRegistry,
-} from "../SensorRegistry"
-import ColorRepository from "../ColorRepository"
+} from '../SensorRegistry'
+import ColorRepository from '../ColorRepository'
 // @ts-ignore
-import Treeselect from "@riophae/vue-treeselect"
-import "@riophae/vue-treeselect/dist/vue-treeselect.css"
+import Treeselect from '@riophae/vue-treeselect'
+import '@riophae/vue-treeselect/dist/vue-treeselect.css'
 // @ts-ignore
 import { CanvasTimeSeriesPlot } from '../canvasPlot/CanvasTimeSeriesPlot'
 import { DataPoint } from '../TimeSeriesPlotManager'
-import { DateTime, Interval } from "luxon"
-import { Resolution } from "../model/resolution"
+import { DateTime, Interval } from 'luxon'
+import { Resolution } from '../model/resolution'
 
 declare var d3version3: any
 
@@ -88,7 +88,7 @@ export default class ComparisonPlot extends Vue {
   private plot!: CanvasTimeSeriesPlot; // Will definitely be assigned in mounted
 
   get canvasplotContainer() {
-    return this.$el.querySelector(".canvasplot-container")!
+    return this.$el.querySelector('.canvasplot-container')!
   }
 
   covertSensorToSelectable(sensor: Sensor) {
@@ -114,7 +114,7 @@ export default class ComparisonPlot extends Vue {
         this.canvasplotContainer.clientHeight
       ],
       {
-        yAxisLabel: "Active Power in Watt",
+        yAxisLabel: 'Active Power in Watt',
         //plotMargins: { top: 20, right: 20, bottom: 30, left: this.yAxisSpacing },
         updateViewCallback: this.updatedView.bind(this)
       }
@@ -123,7 +123,7 @@ export default class ComparisonPlot extends Vue {
   }
 
   remove() {
-    this.$emit("remove")
+    this.$emit('remove')
   }
 
   removeDataSet(dataSet: DataSet) {
@@ -166,10 +166,10 @@ export default class ComparisonPlot extends Vue {
   }
 
   updatedView(except: any, xDomain: any, yDomain: any) {
-    this.$emit("update-domain-x", xDomain)
+    this.$emit('update-domain-x', xDomain)
   }
 
-  @Watch("domainX")
+  @Watch('domainX')
   syncView() {
     let currentXDomain = this.plot.getXDomain()
     if (
@@ -180,8 +180,8 @@ export default class ComparisonPlot extends Vue {
     }
   }
 
-  @Watch("resolution")
-  @Watch("range")
+  @Watch('resolution')
+  @Watch('range')
   onSettingsChanged() {
     for (let dataSet of this.dataSets) {
       this.refreshDataSet(dataSet)
@@ -192,7 +192,7 @@ export default class ComparisonPlot extends Vue {
     return HTTP.get(this.resolution.getQueryUrl(sensor, this.range))
       .then((response) => {
         // JSON responses are automatically parsed.
-        console.log("response", response)
+        console.log('response', response)
         return response.data.map(
           (x: any) =>
             new DataPoint(

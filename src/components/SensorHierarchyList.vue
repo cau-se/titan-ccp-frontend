@@ -48,8 +48,8 @@
 </template>
 
 <script lang="ts">
-import { Prop, Vue, Component } from "vue-property-decorator"
-import { SensorRegistryRequester, JsonSensor } from "../SensorRegistry"
+import { Prop, Vue, Component } from 'vue-property-decorator'
+import { SensorRegistryRequester, JsonSensor } from '../SensorRegistry'
 
 @Component({})
 export default class SensorHierarchyList extends Vue {
@@ -57,7 +57,7 @@ export default class SensorHierarchyList extends Vue {
 
   sensorRegistryRequester: SensorRegistryRequester = new SensorRegistryRequester();
 
-  newSensorRegistryName: string = "";
+  newSensorRegistryName: string = '';
 
   hierarchyExists: boolean = false;
   error: boolean = false;
@@ -69,7 +69,7 @@ export default class SensorHierarchyList extends Vue {
     if (name.length) {
       try {
         await this.sensorRegistryRequester.create(this.slugify(name), name)
-        this.newSensorRegistryName = ""
+        this.newSensorRegistryName = ''
         this.sensorRegistries.push({ identifier: this.slugify(name), name })
         this.sensorRegistries.sort((a, b) =>
           a.identifier < b.identifier ? -1 : 1
@@ -100,11 +100,11 @@ export default class SensorHierarchyList extends Vue {
     text
       .toString()
       .toLowerCase()
-      .replace(/\s+/g, "-") // Replace spaces with -
-      .replace(/[^\w\-]+/g, "") // Remove all non-word chars
-      .replace(/\-\-+/g, "-") // Replace multiple - with single -
-      .replace(/^-+/, "") // Trim - from start of text
-      .replace(/-+$/, ""); // Trim - from end of text
+      .replace(/\s+/g, '-') // Replace spaces with -
+      .replace(/[^\w\-]+/g, '') // Remove all non-word chars
+      .replace(/\-\-+/g, '-') // Replace multiple - with single -
+      .replace(/^-+/, '') // Trim - from start of text
+      .replace(/-+$/, ''); // Trim - from end of text
 }
 </script>
 

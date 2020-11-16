@@ -35,7 +35,7 @@ export default class CompositionPieChart extends Vue {
 
   mounted() {
     this.chart = generate({
-      bindto: this.$el.querySelector(".c3-container") as HTMLElement,
+      bindto: this.$el.querySelector('.c3-container') as HTMLElement,
       data: {
         columns: [],
         type: 'pie'
@@ -52,7 +52,7 @@ export default class CompositionPieChart extends Vue {
     this.updateChart()
   }
 
-  @Watch("timeMode")
+  @Watch('timeMode')
   onTimeModeChanged() {
     this.updateChart()
   }

@@ -10,14 +10,14 @@
 </template>
 
 <script lang="ts">
-import { Vue, Component, Prop, Watch } from "vue-property-decorator"
+import { Vue, Component, Prop, Watch } from 'vue-property-decorator'
 
 import { Sensor } from '../SensorRegistry'
-import TimeMode from "../model/time-mode"
+import TimeMode from '../model/time-mode'
 import { TimeSeriesPlotManager, DataPoint } from '../TimeSeriesPlotManager'
-import { CanvasTimeSeriesPlot } from "../canvasPlot/CanvasTimeSeriesPlot"
+import { CanvasTimeSeriesPlot } from '../canvasPlot/CanvasTimeSeriesPlot'
 
-import LoadingSpinner from "./LoadingSpinner.vue"
+import LoadingSpinner from './LoadingSpinner.vue'
 
 declare const d3version3: any //eslint-disable-line @typescript-eslint/no-explicit-any
 
@@ -39,7 +39,7 @@ export default class SensorHistoryPlot extends Vue {
 
 
   get canvasplotContainer() {
-    return this.$el.querySelector(".canvasplot-container")! as HTMLElement
+    return this.$el.querySelector('.canvasplot-container')! as HTMLElement
   }
 
   mounted() {
@@ -65,7 +65,7 @@ export default class SensorHistoryPlot extends Vue {
       dimensions,
       {
         plotStartsWithZero: true,
-        yAxisLabel: "Active Power in Watt",
+        yAxisLabel: 'Active Power in Watt',
         numberOfResolutionLevels: 3,
         disableLegend: true
       }

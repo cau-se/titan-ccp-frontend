@@ -10,13 +10,13 @@
 </template>
 
 <script lang="ts">
-import { Vue, Component, Prop, Watch } from "vue-property-decorator"
-import LoadingSpinner from "./LoadingSpinner.vue"
-import { HTTP } from "../http-common"
-import { Sensor, AggregatedSensor } from "../SensorRegistry"
-import { ChartAPI, generate } from "c3"
-import "c3/c3.css"
-import TimeMode from "../model/time-mode"
+import { Vue, Component, Prop, Watch } from 'vue-property-decorator'
+import LoadingSpinner from './LoadingSpinner.vue'
+import { HTTP } from '../http-common'
+import { Sensor, AggregatedSensor } from '../SensorRegistry'
+import { ChartAPI, generate } from 'c3'
+import 'c3/c3.css'
+import TimeMode from '../model/time-mode'
 
 @Component({
   components: {
@@ -39,18 +39,18 @@ export default class DistributionPlot extends Vue {
 
   mounted() {
     this.chart = generate({
-      bindto: this.$el.querySelector(".c3-container") as HTMLElement,
+      bindto: this.$el.querySelector('.c3-container') as HTMLElement,
       data: {
-        x: "x",
+        x: 'x',
         columns: [],
-        type: "bar"
+        type: 'bar'
       },
       legend: {
         show: false
       },
       axis: {
         x: {
-          type: "category" // this needed to load string x value
+          type: 'category' // this needed to load string x value
         }
       },
       tooltip: {
@@ -60,12 +60,12 @@ export default class DistributionPlot extends Vue {
     this.createPlot()
   }
 
-  @Watch("sensor")
+  @Watch('sensor')
   onSensorChanged(sensor: Sensor) {
     this.createPlot()
   }
 
-  @Watch("timeMode")
+  @Watch('timeMode')
   onTimeModeChanged() {
     this.createPlot()
   }
@@ -73,29 +73,29 @@ export default class DistributionPlot extends Vue {
   private createPlot() {
     let resource =
       this.sensor instanceof AggregatedSensor
-        ? "active-power/aggregated"
-        : "active-power/raw"
+        ? 'active-power/aggregated'
+        : 'active-power/raw'
     // Distribution of last hour
     let after = this.timeMode.getTime().minus({ hours: 1 });
     let to = this.timeMode.getTime()
     HTTP.get(
       resource +
-        "/" +
+        '/' +
         this.sensor.identifier +
-        "/distribution?after=" +
+        '/distribution?after=' +
         after.toMillis() +
-        "&to=" +
+        '&to=' +
         to.toMillis() +
-        "&buckets=" +
+        '&buckets=' +
         this.buckets
     )
       .then(response => {
         // JSON responses are automatically parsed.
-        let labels: string[] = ["x"]
+        let labels: string[] = ['x']
         let values: Array<string | number> = [this.sensor.identifier]
         for (let bucket of response.data) {
           labels.push(
-            "" + bucket.lower.toFixed(1) + " - " + bucket.upper.toFixed(1)
+            '' + bucket.lower.toFixed(1) + ' - ' + bucket.upper.toFixed(1)
           );
           values.push(bucket.elements)
         }
@@ -104,7 +104,7 @@ export default class DistributionPlot extends Vue {
       .catch(e => {
         console.error(e)
         this.isError = true
-        return [["x"], [this.sensor.identifier]]
+        return [['x'], [this.sensor.identifier]]
       })
       .then(data => {
         this.chart.unload()

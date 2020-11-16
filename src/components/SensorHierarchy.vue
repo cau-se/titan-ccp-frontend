@@ -42,18 +42,18 @@
 </template>
 
 <script lang="ts">
-import { Vue, Component, Prop, Watch } from "vue-property-decorator";
+import { Vue, Component, Prop, Watch } from 'vue-property-decorator';
 import {
   Sensor,
   AggregatedSensor,
   MachineSensor,
   SensorRegistry,
   SensorRegistryRequester
-} from "../SensorRegistry"
-import { HTTP } from "../http-common"
+} from '../SensorRegistry'
+import { HTTP } from '../http-common'
 
-import DragableSensorList from "./DragableSensorList.vue"
-import SensorRegistryEntry from "./SensorRegistryEntry.vue"
+import DragableSensorList from './DragableSensorList.vue'
+import SensorRegistryEntry from './SensorRegistryEntry.vue'
 
 @Component({
   components: {
@@ -74,7 +74,7 @@ export default class SensorHierarchy extends Vue {
 
   unselectedSensors = new Array<Sensor>();
 
-  newAggregatedSensorName = "";
+  newAggregatedSensorName = '';
 
   collidedSensorIdentifier = null;
 
@@ -90,18 +90,18 @@ export default class SensorHierarchy extends Vue {
     );
     this.loaded = true
 
-    const response = await HTTP.get("active-power/raw");
+    const response = await HTTP.get('active-power/raw');
     let unselectedSensors = response.data as Array<string>;
     let registeredSensors = this.sensorRegistry.registeredSensors.map(
       s => s.identifier
     )
     this.unselectedSensors = unselectedSensors
       .filter(s => !registeredSensors.includes(s))
-      .map(s => new MachineSensor(s, ""))
+      .map(s => new MachineSensor(s, ''))
   }
 
   get demoMode() {
-    return process.env.DEMO === "true"
+    return process.env.DEMO === 'true'
   }
 
   async save() {
@@ -113,7 +113,7 @@ export default class SensorHierarchy extends Vue {
           this.$route.params.id,
           this.modifiableSensorRegistry
         );
-        this.$emit("update:sensor-registry")
+        this.$emit('update:sensor-registry')
       } catch (error) {
         if (
           error.response.data.collisions &&
@@ -135,7 +135,7 @@ export default class SensorHierarchy extends Vue {
         []
       )
     );
-    this.newAggregatedSensorName = ""
+    this.newAggregatedSensorName = ''
   }
 
   private get newAggregatedSensorIdentifier() {
@@ -146,11 +146,11 @@ export default class SensorHierarchy extends Vue {
     text
       .toString()
       .toLowerCase()
-      .replace(/\s+/g, "-") // Replace spaces with -
-      .replace(/[^\w\-]+/g, "") // Remove all non-word chars
-      .replace(/\-\-+/g, "-") // Replace multiple - with single -
-      .replace(/^-+/, "") // Trim - from start of text
-      .replace(/-+$/, ""); // Trim - from end of text
+      .replace(/\s+/g, '-') // Replace spaces with -
+      .replace(/[^\w\-]+/g, '') // Remove all non-word chars
+      .replace(/\-\-+/g, '-') // Replace multiple - with single -
+      .replace(/^-+/, '') // Trim - from start of text
+      .replace(/-+$/, ''); // Trim - from end of text
 }
 </script>
 

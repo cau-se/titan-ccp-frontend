@@ -22,14 +22,14 @@
 </template>
 
 <script lang="ts">
-import { Vue, Component, Prop, Watch } from "vue-property-decorator"
-import LoadingSpinner from "./LoadingSpinner.vue"
-import { HTTP } from "../http-common"
-import { Sensor, AggregatedSensor } from "../SensorRegistry"
-import { ChartAPI, generate } from "c3"
-import "c3/c3.css"
-import { DateTime, Interval } from "luxon"
-import TimeMode from "../model/time-mode"
+import { Vue, Component, Prop, Watch } from 'vue-property-decorator'
+import LoadingSpinner from './LoadingSpinner.vue'
+import { HTTP } from '../http-common'
+import { Sensor, AggregatedSensor } from '../SensorRegistry'
+import { ChartAPI, generate } from 'c3'
+import 'c3/c3.css'
+import { DateTime, Interval } from 'luxon'
+import TimeMode from '../model/time-mode'
 
 @Component({
   components: {
@@ -57,18 +57,18 @@ export default class StatsPlot extends Vue {
 
   mounted() {
     this.chart = generate({
-      bindto: this.$el.querySelector(".c3-container") as HTMLElement,
+      bindto: this.$el.querySelector('.c3-container') as HTMLElement,
       data: {
-        x: "x",
+        x: 'x',
         columns: [],
-        type: "spline"
+        type: 'spline'
       },
       legend: {
         show: false
       },
       axis: {
         x: {
-          type: "category",
+          type: 'category',
           tick: {
             multiline: false
           }
@@ -92,7 +92,7 @@ export default class StatsPlot extends Vue {
     this.loadAvailableIntervals().then(() => this.createPlot());
   }
 
-  @Watch("sensor")
+  @Watch('sensor')
   onSensorChanged(sensor: Sensor) {
     this.createPlot();
   }
@@ -110,7 +110,7 @@ export default class StatsPlot extends Vue {
     )
   }
 
-  @Watch("selectedInterval")
+  @Watch('selectedInterval')
   onIntervalChanged(interval: Interval, oldInterval: Interval) {
     if (oldInterval != null) {
       this.createPlot(interval)
@@ -130,10 +130,10 @@ export default class StatsPlot extends Vue {
     HTTP.get(url)
       .then((response) => {
         // JSON responses are automatically parsed.
-        let labels: string[] = ["x"];
-        let minValues: Array<string | number> = ["min"]
-        let meanValues: Array<string | number> = ["mean"]
-        let maxValues: Array<string | number> = ["max"]
+        let labels: string[] = ['x'];
+        let minValues: Array<string | number> = ['min']
+        let meanValues: Array<string | number> = ['mean']
+        let maxValues: Array<string | number> = ['max']
         for (let stats of response.data) {
           labels.push(this.statsType.accessor(stats))
           minValues.push(stats.min);
@@ -153,8 +153,8 @@ export default class StatsPlot extends Vue {
       .catch((e) => {
         console.error(e)
         this.isError = true
-        //return [["x"], ["min"], ["mean"], ["max"]]
-        return [["x"], ["mean"]]
+        //return [['x'], ['min'], ['mean'], ['max']]
+        return [['x'], ['mean']]
       })
       .then((data) => {
         this.chart.load({
@@ -176,7 +176,7 @@ class IntervalSelectOption {
 
   constructor(interval: Interval) {
     this.value = interval
-    this.text = interval.toFormat("yyyy/MM/dd")
+    this.text = interval.toFormat('yyyy/MM/dd')
   }
 }
 
@@ -187,42 +187,42 @@ export interface StatsType {
 }
 
 export const HOUR_OF_DAY: StatsType = {
-  title: "Daily Course",
-  url: "hour-of-day",
+  title: 'Daily Course',
+  url: 'hour-of-day',
   accessor: (stats) => stats.hourOfDay,
 };
 
 export const DAY_OF_WEEK: StatsType = {
-  title: "Weekly Course",
-  url: "day-of-week",
+  title: 'Weekly Course',
+  url: 'day-of-week',
   accessor: (stats) => getDayOfWeekText(stats.dayOfWeek),
 };
 
 function getDayOfWeekText(number: number) {
   switch (number) {
     case 1: {
-      return "Monday"
+      return 'Monday'
     }
     case 2: {
-      return "Tuesday"
+      return 'Tuesday'
     }
     case 3: {
-      return "Wednesday"
+      return 'Wednesday'
     }
     case 4: {
-      return "Thursday"
+      return 'Thursday'
     }
     case 5: {
-      return "Friday"
+      return 'Friday'
     }
     case 6: {
-      return "Saturday"
+      return 'Saturday'
     }
     case 7: {
-      return "Sunday"
+      return 'Sunday'
     }
     default: {
-      throw new RangeError("Day of week number must be between 1 and 7")
+      throw new RangeError('Day of week number must be between 1 and 7')
     }
   }
 }

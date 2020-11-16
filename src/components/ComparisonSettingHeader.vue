@@ -34,14 +34,14 @@
 </template>
 
 <script lang="ts">
-import { Vue, Component, Prop, Watch } from "vue-property-decorator"
+import { Vue, Component, Prop, Watch } from 'vue-property-decorator'
 
-import DateRangePicker from "vue2-daterange-picker"
-import "vue2-daterange-picker/dist/vue2-daterange-picker.css"
+import DateRangePicker from 'vue2-daterange-picker'
+import 'vue2-daterange-picker/dist/vue2-daterange-picker.css'
 
-import TimeMode from "../model/time-mode"
-import { DateTime, Interval } from "luxon"
-import { Resolution } from "../model/resolution"
+import TimeMode from '../model/time-mode'
+import { DateTime, Interval } from 'luxon'
+import { Resolution } from '../model/resolution'
 
 @Component({
   components: {
@@ -49,17 +49,17 @@ import { Resolution } from "../model/resolution"
   },
   filters: {
     date(value: any) {
-      if (!value) return ""
+      if (!value) return ''
 
       let options = {
-        year: "numeric",
-        month: "long",
-        day: "numeric",
-        hour: "numeric",
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+        hour: 'numeric',
         hour12: false,
-        minute: "numeric"
+        minute: 'numeric'
       };
-      return Intl.DateTimeFormat("en-EN", options).format(value)
+      return Intl.DateTimeFormat('en-EN', options).format(value)
     }
   }
 })
@@ -80,7 +80,7 @@ export default class comparisonSettingBar extends Vue {
 
   private updateRange() {
     this.$emit(
-      "update-range",
+      'update-range',
       Interval.fromDateTimes(
         DateTime.fromJSDate(this.dateRange.startDate),
         DateTime.fromJSDate(this.dateRange.endDate))

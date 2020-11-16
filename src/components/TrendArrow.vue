@@ -15,12 +15,12 @@
 </template>
 
 <script lang="ts">
-import { Vue, Component, Prop, Watch } from "vue-property-decorator"
-import { AggregatedSensor, Sensor } from "../SensorRegistry"
-import { HTTP } from "../http-common"
-import Repeater from "../Repeater"
-import { DateTime } from "luxon"
-import TimeMode from "../model/time-mode"
+import { Vue, Component, Prop, Watch } from 'vue-property-decorator'
+import { AggregatedSensor, Sensor } from '../SensorRegistry'
+import { HTTP } from '../http-common'
+import Repeater from '../Repeater'
+import { DateTime } from 'luxon'
+import TimeMode from '../model/time-mode'
 
 @Component
 export default class TrendArrow extends Vue {
@@ -42,12 +42,12 @@ export default class TrendArrow extends Vue {
     this.requester.stop()
   }
 
-  @Watch("sensor")
+  @Watch('sensor')
   onSensorChanged() {
     this.requester.restart()
   }
 
-  @Watch("timeMode")
+  @Watch('timeMode')
   onTimeModeChanged() {
     if (this.timeMode.autoLoading) {
       this.requester.start()
@@ -60,13 +60,13 @@ export default class TrendArrow extends Vue {
   private updateChart() {
     let resource =
       this.sensor instanceof AggregatedSensor
-        ? "active-power/aggregated"
-        : "active-power/raw"
+        ? 'active-power/aggregated'
+        : 'active-power/raw'
     return HTTP.get(
       resource +
-        "/" +
+        '/' +
         this.sensor.identifier +
-        "/trend?after=" +
+        '/trend?after=' +
         this.after.toMillis()
     )
       .then(response => {
@@ -108,28 +108,28 @@ export default class TrendArrow extends Vue {
 
   get color() {
     if (this.trendValue > 1.5) {
-      return "text-danger"
+      return 'text-danger'
     } else if (this.trendValue > 1.1) {
-      return "text-danger"
+      return 'text-danger'
     } else if (this.trendValue > 0.9) {
-      return "text-warning"
+      return 'text-warning'
     } else if (this.trendValue > 0.5) {
-      return "text-success"
+      return 'text-success'
     } else {
-      return "text-success"
+      return 'text-success'
     }
   }
 
   get text() {
     switch (this.timespan) {
       case Timespan.LastHour: {
-        return "Last hour"
+        return 'Last hour'
       }
       case Timespan.LastDay: {
-        return "Last 24 hours"
+        return 'Last 24 hours'
       }
       case Timespan.LastWeek: {
-        return "Last 7 days"
+        return 'Last 7 days'
       }
     }
   }
