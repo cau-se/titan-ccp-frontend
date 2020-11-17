@@ -12,6 +12,8 @@
 <script lang="ts">
 import { Vue, Component, Prop, Watch } from 'vue-property-decorator'
 
+import debounce from 'lodash.debounce'
+
 import { Sensor } from '../SensorRegistry'
 import TimeMode from '../model/time-mode'
 import { TimeSeriesPlotManager, DataPoint } from '../TimeSeriesPlotManager'
@@ -37,12 +39,19 @@ export default class SensorHistoryPlot extends Vue {
   private plot!: CanvasTimeSeriesPlot // Will definitely be assigned in mounted
   private plotManager!: TimeSeriesPlotManager;
 
+  private readonly onSizeChanged = debounce(this.createPlot, 100)
+
   get canvasplotContainer () {
     return this.$el.querySelector('.canvasplot-container')! as HTMLElement
   }
 
   mounted () {
     this.createPlot()
+    window.addEventListener("resize", this.onSizeChanged)
+  }
+  
+  destroyed () {
+    window.removeEventListener("resize", this.onSizeChanged)
   }
 
   @Watch('sensor')
@@ -78,11 +87,13 @@ export default class SensorHistoryPlot extends Vue {
       onFinishedLoading: () => { this.isLoading = false }
     })
   }
+
 }
 </script>
 
 <style scoped>
   .canvasplot-container {
     height: 400px;
+    overflow: hidden;
   }
 </style>
