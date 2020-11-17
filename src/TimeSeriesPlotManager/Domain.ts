@@ -14,7 +14,7 @@ export class TimeDomain {
 		} else {
 			this.end = end
 		}
-	}
+  }
 
 	public getLength (): number {
 		return this.end - this.start
