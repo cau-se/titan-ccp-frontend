@@ -6,12 +6,8 @@
 </template>
 
 <script lang="ts">
-import { Vue, Component, Prop, Emit } from "vue-property-decorator"
+import { Vue, Component, Prop, Emit } from 'vue-property-decorator'
 import { Sensor, AggregatedSensor } from '../SensorRegistry'
-
-import BootstrapVue from 'bootstrap-vue'
-import 'bootstrap/dist/css/bootstrap.css'//TODO necessary?
-import 'bootstrap-vue/dist/bootstrap-vue.css' //TODO necessary?
 
 @Component
 export default class SensorParents extends Vue {

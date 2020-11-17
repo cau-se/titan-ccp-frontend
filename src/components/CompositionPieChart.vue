@@ -16,7 +16,7 @@ import { HTTP } from "../http-common"
 import LoadingSpinner from "./LoadingSpinner.vue"
 import { ChartAPI, generate } from 'c3'
 import 'c3/c3.css'
-import TimeMode from "../model/time-mode";
+import TimeMode from "../model/time-mode"
 
 @Component({
   components: {
@@ -35,10 +35,10 @@ export default class CompositionPieChart extends Vue {
 
   mounted() {
     this.chart = generate({
-      bindto: this.$el.querySelector(".c3-container") as HTMLElement,
+      bindto: this.$el.querySelector('.c3-container') as HTMLElement,
       data: {
         columns: [],
-        type : 'pie'
+        type: 'pie'
       },
       tooltip: {
         show: false
@@ -52,15 +52,15 @@ export default class CompositionPieChart extends Vue {
     this.updateChart()
   }
 
-  @Watch("timeMode")
+  @Watch('timeMode')
   onTimeModeChanged() {
-    this.updateChart();
+    this.updateChart()
   }
 
   private updateChart() {
     this.isLoading = true
   
-    let to = this.timeMode.getTime();
+    let to = this.timeMode.getTime()
 
     Promise.all(this.sensor.children.map(child => {
       let resource = child instanceof AggregatedSensor ? 'active-power/aggregated' : 'active-power/raw'

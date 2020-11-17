@@ -93,7 +93,7 @@ class CanvasTimeSeriesPlot extends CanvasDataPlot {
 
   getTooltipStringX(dataPoint: d3Point): string {
     const zeroPad2 = function (n: number): string {
-      return n < 10 ? ("0" + n) : n.toString();
+      return n < 10 ? ('0' + n) : n.toString();
     };
     const date = dataPoint[0];
     return this.localTimeFormat ? this.buildLocalDateFormatString(date, zeroPad2) : this.buildUTCDateFormatString(date, zeroPad2);
@@ -106,7 +106,7 @@ class CanvasTimeSeriesPlot extends CanvasDataPlot {
     const h = zeroPad2(date.getHours());
     const m = zeroPad2(date.getMinutes());
     const s = zeroPad2(date.getSeconds());
-    return Y + "-" + M + "-" + D + " " + h + ":" + m + ":" + s;
+    return Y + '-' + M + '-' + D + ' ' + h + ':' + m + ':' + s;
   }
 
   private buildUTCDateFormatString(date: Date, zeroPad2: Function): string {
@@ -116,7 +116,7 @@ class CanvasTimeSeriesPlot extends CanvasDataPlot {
     const h = zeroPad2(date.getUTCHours());
     const m = zeroPad2(date.getUTCMinutes());
     const s = zeroPad2(date.getUTCSeconds());
-    return Y + "-" + M + "-" + D + " " + h + ":" + m + ":" + s;
+    return Y + '-' + M + '-' + D + ' ' + h + ':' + m + ':' + s;
   }
 
 
@@ -125,7 +125,7 @@ class CanvasTimeSeriesPlot extends CanvasDataPlot {
 
     this.xAxis = d3.svg.axis()
       .scale(this.xScale)
-      .orient("bottom")
+      .orient('bottom')
       .tickFormat(customTimeFormat)
       .ticks(Math.round(this.xTicksPerPixel * this.width));
   }

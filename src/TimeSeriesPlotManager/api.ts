@@ -1,10 +1,10 @@
-import TimeMode from "../model/time-mode";
-import { DataPoint } from "./DataPoint";
-import { HTTP } from "../http-common";
-import { MultiResolutionData } from "./DataSet";
-import { Resolution } from "../model/resolution";
-import { Interval } from "luxon";
-import { Sensor } from "../SensorRegistry";
+import TimeMode from '../model/time-mode';
+import { DataPoint } from './DataPoint';
+import { HTTP } from '../http-common';
+import { MultiResolutionData } from './DataSet';
+import { Resolution } from '../model/resolution';
+import { Interval } from 'luxon';
+import { Sensor } from '../SensorRegistry';
 
 export class DownloadManager {
   private readonly timeMode: TimeMode;

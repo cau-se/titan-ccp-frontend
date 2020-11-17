@@ -36,29 +36,25 @@
 </template>
 
 <script lang="ts">
-import { Vue, Component, Prop, Watch } from "vue-property-decorator"
+import { Vue, Component, Prop, Watch } from 'vue-property-decorator'
 import { Sensor, AggregatedSensor, MachineSensor, SensorRegistry } from '../SensorRegistry'
-
-import BootstrapVue from 'bootstrap-vue'
-import 'bootstrap/dist/css/bootstrap.css'
-import 'bootstrap-vue/dist/bootstrap-vue.css'
 
 import { SensorRegistryRequester } from '../SensorRegistry'
 
-import SensorDetails from "./SensorDetails.vue"
+import SensorDetails from './SensorDetails.vue'
 
-import DistributionPlot from "./DistributionPlot.vue"
-import CompositionPieChart from "./CompositionPieChart.vue"
-import StatsPlot from "./StatsPlot.vue"
-import { HOUR_OF_DAY } from "./StatsPlot.vue"
-import { DAY_OF_WEEK } from "./StatsPlot.vue"
-import SensorHistoryPlot from "./SensorHistoryPlot.vue"
-import TrendArrow from "./TrendArrow.vue"
-import { Timespan } from "./TrendArrow.vue"
+import DistributionPlot from './DistributionPlot.vue'
+import CompositionPieChart from './CompositionPieChart.vue'
+import StatsPlot from './StatsPlot.vue'
+import { HOUR_OF_DAY } from './StatsPlot.vue'
+import { DAY_OF_WEEK } from './StatsPlot.vue'
+import SensorHistoryPlot from './SensorHistoryPlot.vue'
+import TrendArrow from './TrendArrow.vue'
+import { Timespan } from './TrendArrow.vue'
 
-import Examples from "./Examples.vue"
-import { DateTime } from "luxon";
-import TimeMode from "../model/time-mode";
+import Examples from './Examples.vue'
+import { DateTime } from 'luxon';
+import TimeMode from '../model/time-mode';
 
 @Component({
     components: {
@@ -70,7 +66,6 @@ import TimeMode from "../model/time-mode";
     }
 })
 export default class App extends Vue {
-
     @Prop({ required: true }) sensor!: Sensor
 
     @Prop() timeMode!: TimeMode
@@ -81,10 +76,8 @@ export default class App extends Vue {
 
     readonly statsDayOfWeek = DAY_OF_WEEK
     readonly statsHourOfDay = HOUR_OF_DAY
-
 }
 </script>
 
 <style scoped>
-
 </style>

@@ -16,6 +16,7 @@
 
     <div class="container-fluid">
       <div class="row">
+
         <nav class="col-md-2 d-none d-md-block bg-light sidebar">
           <div class="sidebar-sticky">
             <ul class="nav flex-column">
@@ -54,31 +55,33 @@
             ></router-view>
           </loading-spinner>
         </main>
+
       </div>
     </div>
+
   </div>
 </template>
 
 <script lang="ts">
-import { Vue, Component, Prop, Watch } from "vue-property-decorator";
-import VueRouter from "vue-router";
+import { Vue, Component, Prop, Watch } from 'vue-property-decorator'
+import VueRouter from 'vue-router'
 
-import BootstrapVue from "bootstrap-vue";
-import "bootstrap/dist/css/bootstrap.css";
-import "bootstrap-vue/dist/bootstrap-vue.css";
+import BootstrapVue from 'bootstrap-vue'
+import 'bootstrap/dist/css/bootstrap.css'
+import 'bootstrap-vue/dist/bootstrap-vue.css'
 
-import { SensorRegistry, SensorRegistryRequester } from "../SensorRegistry";
+import { SensorRegistry, SensorRegistryRequester } from '../SensorRegistry'
 
-import LoadingSpinner from "./LoadingSpinner.vue";
-import Dashboard from "./Dashboard.vue";
-import SensorDetails from "./SensorDetails.vue";
-import SensorHierarchy from "./SensorHierarchy.vue";
-import SensorHierarchyList from "./SensorHierarchyList.vue";
-import { DateTime } from "luxon";
-import DateRangePicker from "vue2-daterange-picker";
-import TimeModePicker from "./TimeModePicker.vue";
+import LoadingSpinner from './LoadingSpinner.vue'
+import Dashboard from './Dashboard.vue'
+import SensorDetails from './SensorDetails.vue'
+import SensorHierarchy from './SensorHierarchy.vue'
+import SensorHierarchyList from './SensorHierarchyList.vue'
+import { DateTime } from 'luxon'
+import DateRangePicker from 'vue2-daterange-picker'
+import TimeModePicker from './TimeModePicker.vue'
 
-import TimeMode from "./../model/time-mode";
+import TimeMode from './../model/time-mode'
 
 @Component({
   components: {
@@ -87,7 +90,7 @@ import TimeMode from "./../model/time-mode";
     SensorDetails,
     SensorHierarchy,
     SensorHierarchyList,
-    TimeModePicker,
+    TimeModePicker
   }
 })
 export default class App extends Vue {
@@ -103,19 +106,19 @@ export default class App extends Vue {
   };
 
   updateTimeMode(timeMode: TimeMode){
-    this.timeMode = timeMode;
+    this.timeMode = timeMode
   }
 
   created() {
-    this.isLoading = true;
+    this.isLoading = true
     this.loadSensorRegistry()
       .then(() => {
-        this.isLoading = false;
+        this.isLoading = false
       })
       .catch(e => {
-        this.isLoading = false;
-        this.isError = true;
-        console.error(e);
+        this.isLoading = false
+        this.isError = true
+        console.error(e)
       });
   }
 
@@ -123,9 +126,9 @@ export default class App extends Vue {
     return new SensorRegistryRequester()
       .request("root")
       .then((registry: SensorRegistry) => {
-        this.sensorRegistry = registry;
-        return registry;
-      });
+        this.sensorRegistry = registry
+        return registry
+      })
   }
 }
 </script>

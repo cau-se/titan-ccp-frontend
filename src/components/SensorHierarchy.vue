@@ -42,31 +42,22 @@
 </template>
 
 <script lang="ts">
-import { Vue, Component, Prop, Watch } from "vue-property-decorator";
+import { Vue, Component, Prop, Watch } from 'vue-property-decorator';
 import {
   Sensor,
   AggregatedSensor,
   MachineSensor,
   SensorRegistry,
   SensorRegistryRequester
-} from "../SensorRegistry";
-import { HTTP } from "../http-common";
+} from '../SensorRegistry'
+import { HTTP } from '../http-common'
 
-import BootstrapVue from "bootstrap-vue";
-import "bootstrap/dist/css/bootstrap.css";
-import "bootstrap-vue/dist/bootstrap-vue.css";
-
-// @ts-ignore
-import draggable from "vuedraggable";
-
-import DragableSensorList from "./DragableSensorList.vue";
-import SensorRegistryEntry from "./SensorRegistryEntry.vue";
+import DragableSensorList from './DragableSensorList.vue'
+import SensorRegistryEntry from './SensorRegistryEntry.vue'
 
 @Component({
   components: {
-    DragableSensorList,
-    SensorRegistryEntry,
-    draggable
+    DragableSensorList
   }
 })
 export default class SensorHierarchy extends Vue {
@@ -83,7 +74,7 @@ export default class SensorHierarchy extends Vue {
 
   unselectedSensors = new Array<Sensor>();
 
-  newAggregatedSensorName = "";
+  newAggregatedSensorName = '';
 
   collidedSensorIdentifier = null;
 
@@ -97,38 +88,38 @@ export default class SensorHierarchy extends Vue {
     this.modifiableSensorRegistry = await this.sensorRegistryRequester.request(
       this.$route.params.id
     );
-    this.loaded = true;
+    this.loaded = true
 
-    const response = await HTTP.get("active-power/raw");
+    const response = await HTTP.get('active-power/raw');
     let unselectedSensors = response.data as Array<string>;
     let registeredSensors = this.sensorRegistry.registeredSensors.map(
       s => s.identifier
-    );
+    )
     this.unselectedSensors = unselectedSensors
       .filter(s => !registeredSensors.includes(s))
-      .map(s => new MachineSensor(s, ""));
+      .map(s => new MachineSensor(s, ''))
   }
 
   get demoMode() {
-    return process.env.DEMO === "true";
+    return process.env.DEMO === 'true'
   }
 
   async save() {
     if (this.modifiableSensorRegistry) {
-      this.saving = true;
+      this.saving = true
 
       try {
         await this.sensorRegistryRequester.edit(
           this.$route.params.id,
           this.modifiableSensorRegistry
         );
-        this.$emit("update:sensor-registry");
+        this.$emit('update:sensor-registry')
       } catch (error) {
         if (
           error.response.data.collisions &&
           error.response.data.collisions.length
         ) {
-          this.collidedSensorIdentifier = error.response.data.collisions[0];
+          this.collidedSensorIdentifier = error.response.data.collisions[0]
         }
       }
 
@@ -144,22 +135,22 @@ export default class SensorHierarchy extends Vue {
         []
       )
     );
-    this.newAggregatedSensorName = "";
+    this.newAggregatedSensorName = ''
   }
 
   private get newAggregatedSensorIdentifier() {
-    return this.slugify(this.newAggregatedSensorName);
+    return this.slugify(this.newAggregatedSensorName)
   }
 
   private slugify = (text: String) =>
     text
       .toString()
       .toLowerCase()
-      .replace(/\s+/g, "-") // Replace spaces with -
-      .replace(/[^\w\-]+/g, "") // Remove all non-word chars
-      .replace(/\-\-+/g, "-") // Replace multiple - with single -
-      .replace(/^-+/, "") // Trim - from start of text
-      .replace(/-+$/, ""); // Trim - from end of text
+      .replace(/\s+/g, '-') // Replace spaces with -
+      .replace(/[^\w\-]+/g, '') // Remove all non-word chars
+      .replace(/\-\-+/g, '-') // Replace multiple - with single -
+      .replace(/^-+/, '') // Trim - from start of text
+      .replace(/-+$/, ''); // Trim - from end of text
 }
 </script>
 

@@ -35,25 +35,25 @@
 </template>
 
 <script lang="ts">
-import { Vue, Component, Prop, Watch } from "vue-property-decorator";
-import { HTTP } from "../http-common";
+import { Vue, Component, Prop, Watch } from 'vue-property-decorator'
+import { HTTP } from '../http-common'
 import {
   Sensor,
   AggregatedSensor,
   MachineSensor,
   SensorRegistry,
-} from "../SensorRegistry";
-import ColorRepository from "../ColorRepository";
+} from '../SensorRegistry'
+import ColorRepository from '../ColorRepository'
 // @ts-ignore
-import Treeselect from "@riophae/vue-treeselect";
-import "@riophae/vue-treeselect/dist/vue-treeselect.css";
+import Treeselect from '@riophae/vue-treeselect'
+import '@riophae/vue-treeselect/dist/vue-treeselect.css'
 // @ts-ignore
-import { CanvasTimeSeriesPlot } from '../canvasPlot/CanvasTimeSeriesPlot';
-import { DataPoint } from '../TimeSeriesPlotManager';
-import { DateTime, Interval } from "luxon";
-import { Resolution } from "../model/resolution";
+import { CanvasTimeSeriesPlot } from '../canvasPlot/CanvasTimeSeriesPlot'
+import { DataPoint } from '../TimeSeriesPlotManager'
+import { DateTime, Interval } from 'luxon'
+import { Resolution } from '../model/resolution'
 
-declare var d3version3: any;
+declare var d3version3: any
 
 @Component({
   components: {
@@ -74,7 +74,7 @@ export default class ComparisonPlot extends Vue {
   value = null;
 
   get options() {
-    return [this.sensorRegistry.topLevelSensor];
+    return [this.sensorRegistry.topLevelSensor]
   }
 
   @Prop({ required: true })
@@ -88,7 +88,7 @@ export default class ComparisonPlot extends Vue {
   private plot!: CanvasTimeSeriesPlot; // Will definitely be assigned in mounted
 
   get canvasplotContainer() {
-    return this.$el.querySelector(".canvasplot-container")!;
+    return this.$el.querySelector('.canvasplot-container')!
   }
 
   covertSensorToSelectable(sensor: Sensor) {
@@ -97,12 +97,12 @@ export default class ComparisonPlot extends Vue {
         id: sensor.identifier,
         label: sensor.title,
         children: sensor.children
-      };
+      }
     } else {
       return {
         id: sensor.identifier,
         label: sensor.title
-      };
+      }
     }
   }
 
@@ -114,37 +114,37 @@ export default class ComparisonPlot extends Vue {
         this.canvasplotContainer.clientHeight
       ],
       {
-        yAxisLabel: "Active Power in Watt",
+        yAxisLabel: 'Active Power in Watt',
         //plotMargins: { top: 20, right: 20, bottom: 30, left: this.yAxisSpacing },
         updateViewCallback: this.updatedView.bind(this)
       }
     );
-    this.plot.setZoomYAxis(false);
+    this.plot.setZoomYAxis(false)
   }
 
   remove() {
-    this.$emit("remove");
+    this.$emit('remove')
   }
 
   removeDataSet(dataSet: DataSet) {
-    this.dataSets.splice(this.dataSets.indexOf(dataSet), 1);
-    this.colors.free(dataSet.sensor.identifier);
-    this.plot.removeDataSet(dataSet.sensor.identifier);
+    this.dataSets.splice(this.dataSets.indexOf(dataSet), 1)
+    this.colors.free(dataSet.sensor.identifier)
+    this.plot.removeDataSet(dataSet.sensor.identifier)
   }
 
   async addDataSet() {
     if (this.newDataSet) {
-      let dataSet = new DataSet(this.newDataSet);
-      this.dataSets.push(dataSet);
-      this.newDataSet = null;
-      this.addDataSetActive = false;
+      let dataSet = new DataSet(this.newDataSet)
+      this.dataSets.push(dataSet)
+      this.newDataSet = null
+      this.addDataSetActive = false
 
-      let dataPoints = await this.fetchNewData(dataSet.sensor);
+      let dataPoints = await this.fetchNewData(dataSet.sensor)
       this.plot.addDataSet(
         dataSet.sensor.identifier,
         dataSet.sensor.title,
         dataPoints.map(dataPoint => dataPoint.toArray()),
-        this.colors.get(dataSet.sensor.identifier), //color
+        this.colors.get(dataSet.sensor.identifier), // color
         true, // updateDomains
         false
       );
@@ -153,38 +153,38 @@ export default class ComparisonPlot extends Vue {
 
   // TODO Reduce duplicate code
   async refreshDataSet(dataSet: DataSet) {
-    let dataPoints = await this.fetchNewData(dataSet.sensor);
-    this.plot.removeDataSet(dataSet.sensor.identifier);
+    let dataPoints = await this.fetchNewData(dataSet.sensor)
+    this.plot.removeDataSet(dataSet.sensor.identifier)
     this.plot.addDataSet(
       dataSet.sensor.identifier,
       dataSet.sensor.title,
       dataPoints.map((dataPoint) => dataPoint.toArray()),
-      this.colors.get(dataSet.sensor.identifier), //color
+      this.colors.get(dataSet.sensor.identifier), // color
       true, // updateDomains
       false
-    );
+    )
   }
 
   updatedView(except: any, xDomain: any, yDomain: any) {
-    this.$emit("update-domain-x", xDomain);
+    this.$emit('update-domain-x', xDomain)
   }
 
-  @Watch("domainX")
+  @Watch('domainX')
   syncView() {
-    let currentXDomain = this.plot.getXDomain();
+    let currentXDomain = this.plot.getXDomain()
     if (
       currentXDomain[0].getTime() != this.domainX[0].getTime() ||
       currentXDomain[1].getTime() != this.domainX[1].getTime()
     ) {
-      this.plot.updateDomains(this.domainX, this.plot.getYDomain(), false);
+      this.plot.updateDomains(this.domainX, this.plot.getYDomain(), false)
     }
   }
 
-  @Watch("resolution")
-  @Watch("range")
+  @Watch('resolution')
+  @Watch('range')
   onSettingsChanged() {
     for (let dataSet of this.dataSets) {
-      this.refreshDataSet(dataSet);
+      this.refreshDataSet(dataSet)
     }
   }
 
@@ -192,18 +192,18 @@ export default class ComparisonPlot extends Vue {
     return HTTP.get(this.resolution.getQueryUrl(sensor, this.range))
       .then((response) => {
         // JSON responses are automatically parsed.
-        console.log("response", response);
+        console.log('response', response)
         return response.data.map(
           (x: any) =>
             new DataPoint(
               this.resolution.timestampAccessor(x, sensor),
               this.resolution.valueAccessor(x, sensor)
             )
-        );
+        )
       })
       .catch((e) => {
-        console.error(e);
-        return [];
+        console.error(e)
+        return []
       });
   }
 

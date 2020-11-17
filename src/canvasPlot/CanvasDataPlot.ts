@@ -69,14 +69,14 @@ class CanvasDataPlot {
     this.displayIndexStart = [];
     this.displayIndexEnd = [];
     this.dataColors = [];
-    this.xAxisLabelText = config.xAxisLabel || "";
-    this.yAxisLabelText = config.yAxisLabel || "";
+    this.xAxisLabelText = config.xAxisLabel || '';
+    this.yAxisLabelText = config.yAxisLabel || '';
     this.updateViewCallback = config.updateViewCallback || null;
     this.parent = parentElement;
 
     this.disableLegend = config.disableLegend || false;
     this.invertYAxis = config.invertYAxis || false;
-    this.gridColor = config.gridColor || "#DFDFDF";
+    this.gridColor = config.gridColor || '#DFDFDF';
     this.markerLineWidth = config.markerLineWidth || 1;
     this.markerRadius = config.markerRadius || 3.0;
     this.xTicksPerPixel = config.xTicksPerPixel || 1.0 / 92.0;
@@ -98,22 +98,22 @@ class CanvasDataPlot {
     this.width = this.totalWidth - this.margin.left - this.margin.right;
     this.height = this.totalHeight - this.margin.top - this.margin.bottom;
 
-    this.div = this.parent.append("div");
-    this.div.attr("class", "cvpChart")
-      .style("width", this.totalWidth + "px")
-      .style("height", this.totalHeight + "px");
-    this.d3Canvas = this.div.append("canvas")
-      .attr("class", "cvpCanvas")
-      .attr("width", this.width)
-      .attr("height", this.height)
-      .style("padding", this.margin.top + "px " + this.margin.right + "px " + this.margin.bottom + "px " + this.margin.left + "px");
-    this.canvas = this.d3Canvas.node().getContext("2d");
-    this.svg = this.div.append("svg")
-      .attr("class", "cvpSVG")
-      .attr("width", this.totalWidth)
-      .attr("height", this.totalHeight);
-    this.svgTranslateGroup = this.svg.append("g")
-      .attr("transform", "translate(" + this.margin.left + "," + this.margin.top + ")");
+    this.div = this.parent.append('div');
+    this.div.attr('class', 'cvpChart')
+      .style('width', this.totalWidth + 'px')
+      .style('height', this.totalHeight + 'px');
+    this.d3Canvas = this.div.append('canvas')
+      .attr('class', 'cvpCanvas')
+      .attr('width', this.width)
+      .attr('height', this.height)
+      .style('padding', this.margin.top + 'px ' + this.margin.right + 'px ' + this.margin.bottom + 'px ' + this.margin.left + 'px');
+    this.canvas = this.d3Canvas.node().getContext('2d');
+    this.svg = this.div.append('svg')
+      .attr('class', 'cvpSVG')
+      .attr('width', this.totalWidth)
+      .attr('height', this.totalHeight);
+    this.svgTranslateGroup = this.svg.append('g')
+      .attr('transform', 'translate(' + this.margin.left + ',' + this.margin.top + ')');
 
     this.xScale = null;
     this.yScale = null;
@@ -122,31 +122,31 @@ class CanvasDataPlot {
     this.setupXScaleAndAxis();
     this.setupYScaleAndAxis();
 
-    this.yAxisGroup = this.svgTranslateGroup.append("g")
-      .attr("class", "y cvpAxis")
+    this.yAxisGroup = this.svgTranslateGroup.append('g')
+      .attr('class', 'y cvpAxis')
       .call(this.yAxis);
-    this.xAxisGroup = this.svgTranslateGroup.append("g")
-      .attr("class", "x cvpAxis")
-      .attr("transform", "translate(0," + this.height + ")")
+    this.xAxisGroup = this.svgTranslateGroup.append('g')
+      .attr('class', 'x cvpAxis')
+      .attr('transform', 'translate(0,' + this.height + ')')
       .call(this.xAxis);
 
     this.xAxisLabel = null;
     this.yAxisLabel = null;
     if (this.xAxisLabelText.length > 0) {
-      this.xAxisLabel = this.svgTranslateGroup.append("text")
-        .attr("class", "cvpLabel")
-        .attr("x", Math.round(0.5 * this.width))
-        .attr("y", this.height + 40)
-        .attr("text-anchor", "middle")
+      this.xAxisLabel = this.svgTranslateGroup.append('text')
+        .attr('class', 'cvpLabel')
+        .attr('x', Math.round(0.5 * this.width))
+        .attr('y', this.height + 40)
+        .attr('text-anchor', 'middle')
         .text(this.xAxisLabelText);
     }
     if (this.yAxisLabelText.length > 0) {
-      this.yAxisLabel = this.svg.append("text")
-        .attr("class", "cvpLabel")
-        .attr("x", Math.round(-0.5 * this.height - this.margin.top))
-        .attr("y", 15)
-        .attr("transform", "rotate(-90)")
-        .attr("text-anchor", "middle")
+      this.yAxisLabel = this.svg.append('text')
+        .attr('class', 'cvpLabel')
+        .attr('x', Math.round(-0.5 * this.height - this.margin.top))
+        .attr('y', 15)
+        .attr('transform', 'rotate(-90)')
+        .attr('text-anchor', 'middle')
         .text(this.yAxisLabelText);
     }
     this.tooltip = null;
@@ -159,8 +159,8 @@ class CanvasDataPlot {
 
     this.onZoom = config.onZoom;
     this.zoomListener = d3.behavior.zoom()
-      .on("zoom", ((): void => {
-        //console.log("Zoom: " + d3.event.scale + ", x=" + d3.event.translate[0] + ", y="+d3.event.translate[1]);
+      .on('zoom', ((): void => {
+        //console.log('Zoom: ' + d3.event.scale + ', x=' + d3.event.translate[0] + ', y='+d3.event.translate[1]);
         if (this.updateViewCallback) {
           this.updateViewCallback(this, this.xScale.domain(), this.yScale.domain());
         }
@@ -176,7 +176,7 @@ class CanvasDataPlot {
     this.zoomListener(this.div);
 
     if (this.showTooltips) {
-      this.div.on("mousemove", (this.updateTooltip).bind(this));
+      this.div.on('mousemove', (this.updateTooltip).bind(this));
     }
 
     this.xAxisZoom = true;
@@ -270,12 +270,12 @@ class CanvasDataPlot {
     this.totalHeight = Math.max(this.minCanvasHeight, dimensions[1]);
     this.width = this.totalWidth - this.margin.left - this.margin.right;
     this.height = this.totalHeight - this.margin.top - this.margin.bottom;
-    this.div.style("width", this.totalWidth + "px")
-      .style("height", this.totalHeight + "px");
-    this.d3Canvas.attr("width", this.width)
-      .attr("height", this.height);
-    this.svg.attr("width", this.totalWidth)
-      .attr("height", this.totalHeight);
+    this.div.style('width', this.totalWidth + 'px')
+      .style('height', this.totalHeight + 'px');
+    this.d3Canvas.attr('width', this.width)
+      .attr('height', this.height);
+    this.svg.attr('width', this.totalWidth)
+      .attr('height', this.totalHeight);
 
     this.xScale.range([0, this.width]);
     this.yScale.range([this.height, 0]);
@@ -284,19 +284,19 @@ class CanvasDataPlot {
     this.yAxis
       .ticks(Math.round(this.yTicksPerPixel * this.height));
     this.xAxisGroup
-      .attr("transform", "translate(0," + this.height + ")");
+      .attr('transform', 'translate(0,' + this.height + ')');
     if (this.xAxisLabel) {
       this.xAxisLabel
-        .attr("x", Math.round(0.5 * this.width))
-        .attr("y", this.height + 40);
+        .attr('x', Math.round(0.5 * this.width))
+        .attr('y', this.height + 40);
     }
     if (this.yAxisLabel) {
       this.yAxisLabel
-        .attr("x", Math.round(-0.5 * this.height - this.margin.top));
+        .attr('x', Math.round(-0.5 * this.height - this.margin.top));
     }
     if (this.legend) {
       this.legend
-        .attr("transform", "translate(" + (this.width - this.legendWidth - this.legendMargin) + ", " + this.legendMargin + ")");
+        .attr('transform', 'translate(' + (this.width - this.legendWidth - this.legendMargin) + ', ' + this.legendMargin + ')');
     }
 
     this.updateDisplayIndices();
@@ -391,7 +391,7 @@ class CanvasDataPlot {
 
     this.xAxis = d3.svg.axis()
       .scale(this.xScale)
-      .orient("bottom")
+      .orient('bottom')
       .ticks(Math.round(this.xTicksPerPixel * this.width));
   }
 
@@ -403,12 +403,12 @@ class CanvasDataPlot {
 
     this.yAxis = d3.svg.axis()
       .scale(this.yScale)
-      .orient("left")
+      .orient('left')
       .ticks(Math.round(this.yTicksPerPixel * this.height));
   }
 
   private getDataID(index: number): string {
-    return (this.dataIDs.length > index ? this.dataIDs[index] : "");
+    return (this.dataIDs.length > index ? this.dataIDs[index] : '');
   }
 
   protected updateTooltip(): void {
@@ -445,11 +445,11 @@ class CanvasDataPlot {
   }
 
   protected getTooltipStringX(dataPoint: d3Point): string {
-    return "x = " + dataPoint[0];
+    return 'x = ' + dataPoint[0];
   }
 
   protected getTooltipStringY(dataPoint: d3Point): string {
-    return "y = " + dataPoint[1];
+    return 'y = ' + dataPoint[1];
   }
 
   protected showTooltip(position: [number, number], color: string, xText: string, yText: string): void {
@@ -458,25 +458,25 @@ class CanvasDataPlot {
       this.tooltip = null;
     }
 
-    this.tooltip = this.svgTranslateGroup.append("g")
-      .attr("class", "cvpTooltip")
-      .attr("transform", "translate(" + position[0] + ", " + (position[1] - this.markerRadius - 2) + ")");
-    const tooltipBG = this.tooltip.append("path")
-      .attr("class", "cvpTooltipBG")
-      .attr("d", "M0 0 L-10 -10 L-100 -10 L-100 -45 L100 -45 L100 -10 L10 -10 Z")
-      .attr("stroke", color)
-      .attr("vector-effect", "non-scaling-stroke");
-    const xTextElem = this.tooltip.append("text")
-      .attr("x", 0)
-      .attr("y", -32)
-      .attr("text-anchor", "middle")
+    this.tooltip = this.svgTranslateGroup.append('g')
+      .attr('class', 'cvpTooltip')
+      .attr('transform', 'translate(' + position[0] + ', ' + (position[1] - this.markerRadius - 2) + ')');
+    const tooltipBG = this.tooltip.append('path')
+      .attr('class', 'cvpTooltipBG')
+      .attr('d', 'M0 0 L-10 -10 L-100 -10 L-100 -45 L100 -45 L100 -10 L10 -10 Z')
+      .attr('stroke', color)
+      .attr('vector-effect', 'non-scaling-stroke');
+    const xTextElem = this.tooltip.append('text')
+      .attr('x', 0)
+      .attr('y', -32)
+      .attr('text-anchor', 'middle')
       .text(xText);
-    const yTextElem = this.tooltip.append("text")
-      .attr("x", 0)
-      .attr("y", -15)
-      .attr("text-anchor", "middle")
+    const yTextElem = this.tooltip.append('text')
+      .attr('x', 0)
+      .attr('y', -15)
+      .attr('text-anchor', 'middle')
       .text(yText);
-    tooltipBG.attr("transform", "scale(" + (1.1 * Math.max(xTextElem.node().getComputedTextLength(), yTextElem.node().getComputedTextLength()) / 200) + ",1)");
+    tooltipBG.attr('transform', 'scale(' + (1.1 * Math.max(xTextElem.node().getComputedTextLength(), yTextElem.node().getComputedTextLength()) / 200) + ',1)');
   }
 
   protected removeTooltip(): void {
@@ -500,35 +500,35 @@ class CanvasDataPlot {
       return;
     }
 
-    this.legend = this.svgTranslateGroup.append("g")
-      .attr("class", "cvpLegend")
-      .attr("transform", "translate(" + (this.width + this.margin.right + 1) + ", " + this.legendMargin + ")");
-    this.legendBG = this.legend.append("rect")
-      .attr("class", "cvpLegendBG")
-      .attr("x", 0)
-      .attr("y", 0)
-      .attr("width", 250)
-      .attr("height", this.legendYPadding + this.dataLabels.length * (this.legendYPadding + this.legendLineHeight) - 1);
+    this.legend = this.svgTranslateGroup.append('g')
+      .attr('class', 'cvpLegend')
+      .attr('transform', 'translate(' + (this.width + this.margin.right + 1) + ', ' + this.legendMargin + ')');
+    this.legendBG = this.legend.append('rect')
+      .attr('class', 'cvpLegendBG')
+      .attr('x', 0)
+      .attr('y', 0)
+      .attr('width', 250)
+      .attr('height', this.legendYPadding + this.dataLabels.length * (this.legendYPadding + this.legendLineHeight) - 1);
 
     let maxTextLen = 0;
     this.dataLabels.forEach(((_d: any, i: number) => {
-      this.legend.append("rect")
-        .attr("x", this.legendXPadding)
-        .attr("y", this.legendYPadding + i * (this.legendYPadding + this.legendLineHeight))
-        .attr("width", this.legendLineHeight)
-        .attr("height", this.legendLineHeight)
-        .attr("fill", this.dataColors[i])
-        .attr("stroke", "none");
-      const textElem = this.legend.append("text")
-        .attr("x", 2 * this.legendXPadding + this.legendLineHeight - 1)
-        .attr("y", this.legendYPadding + this.legendLineHeight + i * (this.legendYPadding + this.legendLineHeight) - 1)
+      this.legend.append('rect')
+        .attr('x', this.legendXPadding)
+        .attr('y', this.legendYPadding + i * (this.legendYPadding + this.legendLineHeight))
+        .attr('width', this.legendLineHeight)
+        .attr('height', this.legendLineHeight)
+        .attr('fill', this.dataColors[i])
+        .attr('stroke', 'none');
+      const textElem = this.legend.append('text')
+        .attr('x', 2 * this.legendXPadding + this.legendLineHeight - 1)
+        .attr('y', this.legendYPadding + this.legendLineHeight + i * (this.legendYPadding + this.legendLineHeight) - 1)
         .text(this.dataLabels[i].length > 0 ? this.dataLabels[i] : this.dataIDs[i]);
       maxTextLen = Math.max(maxTextLen, textElem.node().getComputedTextLength());
     }).bind(this));
     this.legendWidth = 3 * this.legendXPadding + this.legendLineHeight + maxTextLen - 1;
-    this.legendBG.attr("width", this.legendWidth);
+    this.legendBG.attr('width', this.legendWidth);
     this.legend
-      .attr("transform", "translate(" + (this.width - this.legendWidth - this.legendMargin) + ", " + this.legendMargin + ")");
+      .attr('transform', 'translate(' + (this.width - this.legendWidth - this.legendMargin) + ', ' + this.legendMargin + ')');
   }
 
   private findLargestSmaller(d: d3Point[], ia: number, ib: number, v: number): number {

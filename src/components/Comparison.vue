@@ -37,27 +37,23 @@
 </template>
 
 <script lang="ts">
-import { Vue, Component, Prop, Watch } from "vue-property-decorator";
+import { Vue, Component, Prop, Watch } from 'vue-property-decorator'
 import {
   Sensor,
   AggregatedSensor,
   MachineSensor,
   SensorRegistry,
-} from "../SensorRegistry";
+} from '../SensorRegistry'
 
-import BootstrapVue from "bootstrap-vue";
-import "bootstrap/dist/css/bootstrap.css";
-import "bootstrap-vue/dist/bootstrap-vue.css";
+import ComparisonPlot from './ComparisonPlot.vue'
+import ComparisonSettingHeader from './ComparisonSettingHeader.vue'
+import ColorRepository from '../ColorRepository'
+import { faClosedCaptioning } from '@fortawesome/free-solid-svg-icons'
 
-import ComparisonPlot from "./ComparisonPlot.vue";
-import ComparisonSettingHeader from "./ComparisonSettingHeader.vue";
-import ColorRepository from "../ColorRepository";
-import { faClosedCaptioning } from "@fortawesome/free-solid-svg-icons";
-
-import { HTTP } from "../http-common";
-import TimeMode from "../model/time-mode";
-import {Resolution, RawResolution, WindowedResolution} from "../model/resolution";
-import { DateTime, Interval } from "luxon";
+import { HTTP } from '../http-common'
+import TimeMode from '../model/time-mode'
+import {Resolution, RawResolution, WindowedResolution} from '../model/resolution'
+import { DateTime, Interval } from 'luxon'
 
 @Component({
   components: {
@@ -81,10 +77,10 @@ export default class Comparision extends Vue {
   );
 
   private availableResolutions: Resolution[] = [
-    this.DEFAULT_RESOLUTION,
-    //new WindowedResolution("minutely"),
-    //new WindowedResolution("hourly")
-    //new WindowedResolution("daily"),
+    this.DEFAULT_RESOLUTION
+    //new WindowedResolution('minutely'),
+    //new WindowedResolution('hourly')
+    //new WindowedResolution('daily'),
     ];
 
   private plots = new Array<number>();
@@ -98,21 +94,21 @@ export default class Comparision extends Vue {
   mounted() {
     this.loadAvailableResolutions()
       .then(resolutions => resolutions.forEach(
-        res => this.availableResolutions.push(res)));
+        res => this.availableResolutions.push(res)))
   }
 
   addPlot() {
-    this.plots.push(this.nextPlotId);
-    this.nextPlotId++;
+    this.plots.push(this.nextPlotId)
+    this.nextPlotId++
   }
 
   removePlot(plot: number) {
-    this.plots.splice(this.plots.indexOf(plot), 1);
+    this.plots.splice(this.plots.indexOf(plot), 1)
   }
 
   updateDomainX(domainX?: Array<Date>) {
     if (domainX) {
-      this.domainX = domainX;
+      this.domainX = domainX
       //console.log(this.domainX)
     }
   }
@@ -120,22 +116,22 @@ export default class Comparision extends Vue {
   private async loadAvailableResolutions(): Promise<Resolution[]> {
     return HTTP.get('active-power/windowed').then(
       response => response.data.map((i: string) => new WindowedResolution(i))
-    );
+    )
   }
 
   private updateResolution(resolution: Resolution) {
-    this.resolution = resolution;
+    this.resolution = resolution
   }
 
   private updateRange(range: Interval) {
-    this.range = range;
+    this.range = range
   }
 }
 
 class Plot {
   readonly dataSets = new Array<DataSet>();
 
-  newDataSet = "";
+  newDataSet = '';
 
   constructor(readonly id: number) {}
 }

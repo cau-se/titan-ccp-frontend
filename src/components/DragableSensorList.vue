@@ -10,34 +10,26 @@
     <li v-for="sensor in sensors" :key="sensor.identifier" class="list-group-item-container">
       <sensor-registry-entry :sensor="sensor" @remove="remove(sensor)" class="list-group-item" />
       <div v-if="isAggregatedSensor(sensor)">
-        <DragableSensorList :sensors="sensor.children" />
+        <dragable-sensor-list :sensors="sensor.children" />
       </div>
     </li>
   </draggable>
 </template>
 
 <script lang="ts">
-import { Vue, Component, Prop, Watch } from "vue-property-decorator";
-import {
-  Sensor,
-  AggregatedSensor,
-  MachineSensor,
-  SensorRegistry
-} from "../SensorRegistry";
+import { Vue, Component, Prop, Watch } from 'vue-property-decorator'
 
-import BootstrapVue from "bootstrap-vue";
-import "bootstrap/dist/css/bootstrap.css";
-import "bootstrap-vue/dist/bootstrap-vue.css";
+import { Sensor, AggregatedSensor } from '../SensorRegistry'
 
 // @ts-ignore
-import draggable from "vuedraggable";
+import draggable from 'vuedraggable'
 
-import SensorRegistryEntry from "./SensorRegistryEntry.vue";
+import SensorRegistryEntry from './SensorRegistryEntry.vue'
 
 @Component({
   components: {
     draggable,
-    DragableSensorList,
+    //DragableSensorList,
     SensorRegistryEntry
   }
 })
@@ -48,9 +40,9 @@ export default class DragableSensorList extends Vue {
     sensor instanceof AggregatedSensor;
 
   private remove(sensor: Sensor) {
-    let index = this.sensors.indexOf(sensor, 0);
+    let index = this.sensors.indexOf(sensor, 0)
     if (index > -1) {
-      this.sensors.splice(index, 1);
+      this.sensors.splice(index, 1)
     }
   }
 }

@@ -17,12 +17,8 @@
 </template>
 
 <script lang="ts">
-import { Vue, Component, Prop, Watch } from "vue-property-decorator"
-import { Sensor, AggregatedSensor, MachineSensor, SensorRegistry } from '../SensorRegistry'
-
-import BootstrapVue from 'bootstrap-vue'
-import 'bootstrap/dist/css/bootstrap.css'
-import 'bootstrap-vue/dist/bootstrap-vue.css'
+import { Vue, Component, Prop, Watch } from 'vue-property-decorator'
+import { Sensor } from '../SensorRegistry'
 
 @Component
 export default class SensorRegistryEntry extends Vue {
