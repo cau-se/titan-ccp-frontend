@@ -139,7 +139,7 @@ export default class App extends Vue {
  */
 
 .sidebar {
-  position: fixed;
+  /* position: fixed; */
   top: 0;
   bottom: 0;
   left: 0;
@@ -149,7 +149,7 @@ export default class App extends Vue {
 }
 
 .sidebar-sticky {
-  position: -webkit-sticky;
+  /*position: -webkit-sticky;*/
   position: sticky;
   top: 48px; /* Height of navbar */
   height: calc(100vh - 48px);
