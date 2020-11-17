@@ -24,7 +24,6 @@ import TimeMode from '../model/time-mode'
   }
 })
 export default class ContributionPieChart extends Vue {
-
   @Prop({ required: true }) sensor!: MachineSensor
 
   @Prop({ required: true }) timeMode!: TimeMode;
@@ -34,7 +33,7 @@ export default class ContributionPieChart extends Vue {
 
   private chart!: ChartAPI
 
-  mounted() {
+  mounted () {
     this.chart = generate({
       bindto: this.$el.querySelector('.c3-container') as HTMLElement,
       data: {
@@ -53,16 +52,16 @@ export default class ContributionPieChart extends Vue {
   }
 
   @Watch('sensor')
-  onSensorChanged() {
+  onSensorChanged () {
     this.updateChart()
   }
 
   @Watch('timeMode')
-  onTimeModeChanged() {
+  onTimeModeChanged () {
     this.updateChart()
   }
 
-  private updateChart() {
+  private updateChart () {
     this.isLoading = true
 
     let to = this.timeMode.getTime()
@@ -82,7 +81,7 @@ export default class ContributionPieChart extends Vue {
     .then(values => {
       this.isLoading = false
       this.chart.load({
-        columns: [[this.sensor.title, values[0]], ['Others', values[1]-values[0]]],
+        columns: [[this.sensor.title, values[0]], ['Others', values[1] - values[0]]],
         unload: true
       })
     })

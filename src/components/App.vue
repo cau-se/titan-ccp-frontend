@@ -73,12 +73,7 @@ import 'bootstrap-vue/dist/bootstrap-vue.css'
 import { SensorRegistry, SensorRegistryRequester } from '../SensorRegistry'
 
 import LoadingSpinner from './LoadingSpinner.vue'
-import Dashboard from './Dashboard.vue'
-import SensorDetails from './SensorDetails.vue'
-import SensorHierarchy from './SensorHierarchy.vue'
-import SensorHierarchyList from './SensorHierarchyList.vue'
 import { DateTime } from 'luxon'
-import DateRangePicker from 'vue2-daterange-picker'
 import TimeModePicker from './TimeModePicker.vue'
 
 import TimeMode from './../model/time-mode'
@@ -86,30 +81,23 @@ import TimeMode from './../model/time-mode'
 @Component({
   components: {
     LoadingSpinner,
-    Dashboard,
-    SensorDetails,
-    SensorHierarchy,
-    SensorHierarchyList,
     TimeModePicker
   }
 })
 export default class App extends Vue {
   private sensorRegistry: SensorRegistry | null = null;
-
   private isLoading = false;
-
   private isError = false;
-
   private timeMode: TimeMode = {
     autoLoading: true,
     getTime: () => DateTime.local() // now
   };
 
-  updateTimeMode(timeMode: TimeMode){
+  updateTimeMode (timeMode: TimeMode) {
     this.timeMode = timeMode
   }
 
-  created() {
+  created () {
     this.isLoading = true
     this.loadSensorRegistry()
       .then(() => {
@@ -119,12 +107,12 @@ export default class App extends Vue {
         this.isLoading = false
         this.isError = true
         console.error(e)
-      });
+      })
   }
 
-  loadSensorRegistry() {
+  loadSensorRegistry () {
     return new SensorRegistryRequester()
-      .request("root")
+      .request('root')
       .then((registry: SensorRegistry) => {
         this.sensorRegistry = registry
         return registry

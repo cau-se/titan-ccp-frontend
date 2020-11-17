@@ -48,7 +48,7 @@ import { Resolution } from '../model/resolution'
     DateRangePicker
   },
   filters: {
-    date(value: any) {
+    date (value: any) {
       if (!value) return ''
 
       let options = {
@@ -58,12 +58,12 @@ import { Resolution } from '../model/resolution'
         hour: 'numeric',
         hour12: false,
         minute: 'numeric'
-      };
+      }
       return Intl.DateTimeFormat('en-EN', options).format(value)
     }
   }
 })
-export default class comparisonSettingBar extends Vue {
+export default class ComparisonSettingBar extends Vue {
   @Prop({ required: true }) timeMode!: TimeMode;
 
   @Prop({ required: true }) resolution!: Resolution;
@@ -78,7 +78,7 @@ export default class comparisonSettingBar extends Vue {
     endDate: this.range.end.toJSDate()
   };
 
-  private updateRange() {
+  private updateRange () {
     this.$emit(
       'update-range',
       Interval.fromDateTimes(
@@ -87,14 +87,14 @@ export default class comparisonSettingBar extends Vue {
     );
   }
 
-  private get defaultRanges() {
+  private get defaultRanges () {
     let now = this.timeMode.getTime()
     let today = now.set({
       hour: 0,
       minute: 0,
       second: 0
-    });
-    let yesterday = today.minus({days: 1})
+    })
+    let yesterday = today.minus({days: 1 })
     let thisMonthStart = now.set({
       day: 1,
       hour: 0,
@@ -111,11 +111,11 @@ export default class comparisonSettingBar extends Vue {
     })
 
     return {
-        'Today': [today.toJSDate(), today.plus({days: 1}).minus({seconds: 1}).toJSDate()],
-        'Yesterday': [yesterday.toJSDate(), yesterday.plus({days: 1}).minus({seconds: 1}).toJSDate()],
-        'This month': [thisMonthStart.toJSDate(), thisMonthStart.plus({month: 1}).minus({seconds: 1}).toJSDate()],
-        'This year': [thisYearStart.toJSDate(), thisYearStart.plus({year: 1}).minus({seconds: 1}).toJSDate()],
-        'Last month': [lastMonthStart.toJSDate(), lastMonthStart.plus({month: 1}).minus({seconds: 1}).toJSDate()],
+        'Today': [today.toJSDate(), today.plus({ days: 1 }).minus({ seconds: 1 }).toJSDate()],
+        'Yesterday': [yesterday.toJSDate(), yesterday.plus({days: 1}).minus({ seconds: 1 }).toJSDate()],
+        'This month': [thisMonthStart.toJSDate(), thisMonthStart.plus({ month: 1 }).minus({ seconds: 1 }).toJSDate()],
+        'This year': [thisYearStart.toJSDate(), thisYearStart.plus({ year: 1 }).minus({ seconds: 1 }).toJSDate()],
+        'Last month': [lastMonthStart.toJSDate(), lastMonthStart.plus({ month: 1 }).minus({ seconds: 1 }).toJSDate()]
     }
   }
 }

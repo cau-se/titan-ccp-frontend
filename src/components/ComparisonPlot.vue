@@ -73,7 +73,7 @@ export default class ComparisonPlot extends Vue {
 
   value = null;
 
-  get options() {
+  get options () {
     return [this.sensorRegistry.topLevelSensor]
   }
 
@@ -87,11 +87,11 @@ export default class ComparisonPlot extends Vue {
 
   private plot!: CanvasTimeSeriesPlot; // Will definitely be assigned in mounted
 
-  get canvasplotContainer() {
+  get canvasplotContainer () {
     return this.$el.querySelector('.canvasplot-container')!
   }
 
-  covertSensorToSelectable(sensor: Sensor) {
+  covertSensorToSelectable (sensor: Sensor) {
     if (sensor instanceof AggregatedSensor) {
       return {
         id: sensor.identifier,
@@ -106,7 +106,7 @@ export default class ComparisonPlot extends Vue {
     }
   }
 
-  mounted() {
+  mounted () {
     this.plot = new CanvasTimeSeriesPlot(
       d3version3.select(this.canvasplotContainer),
       [
@@ -115,24 +115,24 @@ export default class ComparisonPlot extends Vue {
       ],
       {
         yAxisLabel: 'Active Power in Watt',
-        //plotMargins: { top: 20, right: 20, bottom: 30, left: this.yAxisSpacing },
+        // plotMargins: { top: 20, right: 20, bottom: 30, left: this.yAxisSpacing },
         updateViewCallback: this.updatedView.bind(this)
       }
-    );
+    )
     this.plot.setZoomYAxis(false)
   }
 
-  remove() {
+  remove () {
     this.$emit('remove')
   }
 
-  removeDataSet(dataSet: DataSet) {
+  removeDataSet (dataSet: DataSet) {
     this.dataSets.splice(this.dataSets.indexOf(dataSet), 1)
     this.colors.free(dataSet.sensor.identifier)
     this.plot.removeDataSet(dataSet.sensor.identifier)
   }
 
-  async addDataSet() {
+  async addDataSet () {
     if (this.newDataSet) {
       let dataSet = new DataSet(this.newDataSet)
       this.dataSets.push(dataSet)
@@ -147,12 +147,12 @@ export default class ComparisonPlot extends Vue {
         this.colors.get(dataSet.sensor.identifier), // color
         true, // updateDomains
         false
-      );
+      )
     }
   }
 
   // TODO Reduce duplicate code
-  async refreshDataSet(dataSet: DataSet) {
+  async refreshDataSet (dataSet: DataSet) {
     let dataPoints = await this.fetchNewData(dataSet.sensor)
     this.plot.removeDataSet(dataSet.sensor.identifier)
     this.plot.addDataSet(
@@ -165,16 +165,16 @@ export default class ComparisonPlot extends Vue {
     )
   }
 
-  updatedView(except: any, xDomain: any, yDomain: any) {
+  updatedView (except: any, xDomain: any, yDomain: any) {
     this.$emit('update-domain-x', xDomain)
   }
 
   @Watch('domainX')
-  syncView() {
+  syncView () {
     let currentXDomain = this.plot.getXDomain()
     if (
-      currentXDomain[0].getTime() != this.domainX[0].getTime() ||
-      currentXDomain[1].getTime() != this.domainX[1].getTime()
+      currentXDomain[0].getTime() !== this.domainX[0].getTime() ||
+      currentXDomain[1].getTime() !== this.domainX[1].getTime()
     ) {
       this.plot.updateDomains(this.domainX, this.plot.getYDomain(), false)
     }
@@ -182,13 +182,13 @@ export default class ComparisonPlot extends Vue {
 
   @Watch('resolution')
   @Watch('range')
-  onSettingsChanged() {
+  onSettingsChanged () {
     for (let dataSet of this.dataSets) {
       this.refreshDataSet(dataSet)
     }
   }
 
-  private fetchNewData(sensor: Sensor): Promise<DataPoint[]> {
+  private fetchNewData (sensor: Sensor): Promise<DataPoint[]> {
     return HTTP.get(this.resolution.getQueryUrl(sensor, this.range))
       .then((response) => {
         // JSON responses are automatically parsed.
@@ -204,9 +204,8 @@ export default class ComparisonPlot extends Vue {
       .catch((e) => {
         console.error(e)
         return []
-      });
+      })
   }
-
 }
 
 class DataSet {

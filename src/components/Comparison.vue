@@ -62,14 +62,13 @@ import { DateTime, Interval } from 'luxon'
   }
 })
 export default class Comparision extends Vue {
-
   private readonly DEFAULT_RESOLUTION = new RawResolution();
 
   @Prop({ required: true }) sensorRegistry!: SensorRegistry;
   
   @Prop({ required: true }) timeMode!: TimeMode;
 
-  private resolution = this.DEFAULT_RESOLUTION;
+  private resolution: Resolution = this.DEFAULT_RESOLUTION;
 
   private range: Interval = Interval.fromDateTimes(
     this.timeMode.getTime().minus({ days: 7 }),
@@ -78,9 +77,9 @@ export default class Comparision extends Vue {
 
   private availableResolutions: Resolution[] = [
     this.DEFAULT_RESOLUTION
-    //new WindowedResolution('minutely'),
-    //new WindowedResolution('hourly')
-    //new WindowedResolution('daily'),
+    // new WindowedResolution('minutely'),
+    // new WindowedResolution('hourly')
+    // new WindowedResolution('daily'),
     ];
 
   private plots = new Array<number>();
@@ -91,39 +90,39 @@ export default class Comparision extends Vue {
 
   domainX = new Array<Date>();
 
-  mounted() {
+  mounted () {
     this.loadAvailableResolutions()
       .then(resolutions => resolutions.forEach(
         res => this.availableResolutions.push(res)))
   }
 
-  addPlot() {
+  addPlot () {
     this.plots.push(this.nextPlotId)
     this.nextPlotId++
   }
 
-  removePlot(plot: number) {
+  removePlot (plot: number) {
     this.plots.splice(this.plots.indexOf(plot), 1)
   }
 
-  updateDomainX(domainX?: Array<Date>) {
+  updateDomainX (domainX?: Array<Date>) {
     if (domainX) {
       this.domainX = domainX
-      //console.log(this.domainX)
+      // console.log(this.domainX)
     }
   }
 
-  private async loadAvailableResolutions(): Promise<Resolution[]> {
+  private async loadAvailableResolutions (): Promise<Resolution[]> {
     return HTTP.get('active-power/windowed').then(
       response => response.data.map((i: string) => new WindowedResolution(i))
     )
   }
 
-  private updateResolution(resolution: Resolution) {
+  private updateResolution (resolution: Resolution) {
     this.resolution = resolution
   }
 
-  private updateRange(range: Interval) {
+  private updateRange (range: Interval) {
     this.range = range
   }
 }

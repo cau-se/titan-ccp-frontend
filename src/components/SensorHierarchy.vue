@@ -53,7 +53,6 @@ import {
 import { HTTP } from '../http-common'
 
 import DragableSensorList from './DragableSensorList.vue'
-import SensorRegistryEntry from './SensorRegistryEntry.vue'
 
 @Component({
   components: {
@@ -61,7 +60,7 @@ import SensorRegistryEntry from './SensorRegistryEntry.vue'
   }
 })
 export default class SensorHierarchy extends Vue {
-  loaded: boolean = false;
+  loaded = false;
 
   @Prop({ required: true })
   sensorRegistry!: SensorRegistry;
@@ -78,20 +77,20 @@ export default class SensorHierarchy extends Vue {
 
   collidedSensorIdentifier = null;
 
-  async created() {
+  async created () {
     if (this.$route.params.id == null) {
       this.$router.push({
         path: `/sensor-management/${this.sensorRegistry.topLevelSensor.identifier}`
-      });
+      })
     }
 
     this.modifiableSensorRegistry = await this.sensorRegistryRequester.request(
       this.$route.params.id
-    );
+    )
     this.loaded = true
 
-    const response = await HTTP.get('active-power/raw');
-    let unselectedSensors = response.data as Array<string>;
+    const response = await HTTP.get('active-power/raw')
+    let unselectedSensors = response.data as Array<string>
     let registeredSensors = this.sensorRegistry.registeredSensors.map(
       s => s.identifier
     )
@@ -100,11 +99,11 @@ export default class SensorHierarchy extends Vue {
       .map(s => new MachineSensor(s, ''))
   }
 
-  get demoMode() {
+  get demoMode () {
     return process.env.DEMO === 'true'
   }
 
-  async save() {
+  async save () {
     if (this.modifiableSensorRegistry) {
       this.saving = true
 
@@ -112,7 +111,7 @@ export default class SensorHierarchy extends Vue {
         await this.sensorRegistryRequester.edit(
           this.$route.params.id,
           this.modifiableSensorRegistry
-        );
+        )
         this.$emit('update:sensor-registry')
       } catch (error) {
         if (
@@ -123,32 +122,32 @@ export default class SensorHierarchy extends Vue {
         }
       }
 
-      this.saving = false;
+      this.saving = false
     }
   }
 
-  private addSensor() {
+  private addSensor () {
     this.unselectedSensors.push(
       new AggregatedSensor(
         this.newAggregatedSensorIdentifier,
         this.newAggregatedSensorName,
         []
       )
-    );
+    )
     this.newAggregatedSensorName = ''
   }
 
-  private get newAggregatedSensorIdentifier() {
+  private get newAggregatedSensorIdentifier () {
     return this.slugify(this.newAggregatedSensorName)
   }
 
-  private slugify = (text: String) =>
+  private slugify = (text: string) =>
     text
       .toString()
       .toLowerCase()
       .replace(/\s+/g, '-') // Replace spaces with -
-      .replace(/[^\w\-]+/g, '') // Remove all non-word chars
-      .replace(/\-\-+/g, '-') // Replace multiple - with single -
+      .replace(/[^\w-]+/g, '') // Remove all non-word chars
+      .replace(/--+/g, '-') // Replace multiple - with single -
       .replace(/^-+/, '') // Trim - from start of text
       .replace(/-+$/, ''); // Trim - from end of text
 }

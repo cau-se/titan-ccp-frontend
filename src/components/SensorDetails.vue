@@ -79,7 +79,6 @@ import TimeMode from '../model/time-mode'
   }
 })
 export default class SensorDetails extends Vue {
-
   @Prop({ required: true }) sensor!: Sensor
 
   @Prop({ required: true }) timeMode!: TimeMode
@@ -93,11 +92,11 @@ export default class SensorDetails extends Vue {
   readonly statsDayOfWeek = DAY_OF_WEEK
   readonly statsHourOfDay = HOUR_OF_DAY
 
-  get isAggregated() {
+  get isAggregated () {
     return this.internalSensor instanceof AggregatedSensor
   }
 
-  setSensor(sensor: Sensor) {
+  setSensor (sensor: Sensor) {
     this.internalSensor = sensor
   }
 }

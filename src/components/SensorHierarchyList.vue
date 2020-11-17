@@ -57,15 +57,15 @@ export default class SensorHierarchyList extends Vue {
 
   sensorRegistryRequester: SensorRegistryRequester = new SensorRegistryRequester();
 
-  newSensorRegistryName: string = '';
+  newSensorRegistryName = '';
 
-  hierarchyExists: boolean = false;
-  error: boolean = false;
+  hierarchyExists = false;
+  error = false;
 
-  async createNewSensorRegistry() {
+  async createNewSensorRegistry () {
     this.error = false
     this.hierarchyExists = false
-    const name = this.newSensorRegistryName.trim();
+    const name = this.newSensorRegistryName.trim()
     if (name.length) {
       try {
         await this.sensorRegistryRequester.create(this.slugify(name), name)
@@ -75,7 +75,7 @@ export default class SensorHierarchyList extends Vue {
           a.identifier < b.identifier ? -1 : 1
         )
       } catch (e) {
-        if (e.response.status == 409) {
+        if (e.response.status === 409) {
           this.hierarchyExists = true
         } else {
           this.error = true
@@ -84,25 +84,25 @@ export default class SensorHierarchyList extends Vue {
     }
   }
 
-  async created() {
+  async created () {
     this.sensorRegistries = await this.sensorRegistryRequester.requestAll()
   }
 
-  async deleteSensorRegistry(registry: JsonSensor) {
+  async deleteSensorRegistry (registry: JsonSensor) {
     await this.sensorRegistryRequester.delete(registry.identifier)
 
     const i = this.sensorRegistries.indexOf(registry)
     this.sensorRegistries.splice(i, 1)
   }
 
-  //TODO utility method
-  private slugify = (text: String) =>
+  // TODO utility method
+  private slugify = (text: string) =>
     text
       .toString()
       .toLowerCase()
       .replace(/\s+/g, '-') // Replace spaces with -
-      .replace(/[^\w\-]+/g, '') // Remove all non-word chars
-      .replace(/\-\-+/g, '-') // Replace multiple - with single -
+      .replace(/[^\w-]+/g, '') // Remove all non-word chars
+      .replace(/--+/g, '-') // Replace multiple - with single -
       .replace(/^-+/, '') // Trim - from start of text
       .replace(/-+$/, ''); // Trim - from end of text
 }

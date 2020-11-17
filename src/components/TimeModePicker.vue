@@ -46,21 +46,22 @@ export default class TimeModePicker extends Vue {
 
   private readonly flatPickrConfig = {
     allowInput: true,
+    // eslint-disable-next-line @typescript-eslint/camelcase
     time_24hr: true,
     enableTime: true
   };
 
-  setOldDate() {
+  setOldDate () {
     this.oldDate = this.date
   }
 
-  checkDateChanged() {
+  checkDateChanged () {
     if (this.oldDate !== this.date) {
       this.setStartDate(false)
     }
   }
 
-  setStartDate(now: boolean) {
+  setStartDate (now: boolean) {
     if (!now) {
       this.timeModeLocal = {
         autoLoading: false,
