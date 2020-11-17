@@ -11,14 +11,14 @@ export class DownloadManager {
   private readonly data: MultiResolutionData;
   private readonly sensor: Sensor;
 
-  constructor(
+  constructor (
     data: MultiResolutionData,
     timeMode: TimeMode,
     sensor: Sensor
   ) {
-    this.data = data;
-    this.timeMode = timeMode;
-    this.sensor = sensor;
+    this.data = data
+    this.timeMode = timeMode
+    this.sensor = sensor
   }
 
   /**
@@ -30,33 +30,33 @@ export class DownloadManager {
    *
    * @returns Promise resolving to an array of DataPoints.
    */
-  public async fetchNewData(
+  public async fetchNewData (
     resolution: Resolution,
     from: number,
     to?: number
   ): Promise<DataPoint[]> {
-    const toMillis = to ? to : this.timeMode.getTime().toMillis();
+    const toMillis = to || this.timeMode.getTime().toMillis()
     
     // 1. determine, which data is already cached
     const intervalsToFetch = this.data.getUncachedIntervals(
       resolution,
       from,
       toMillis
-    );
+    )
 
     // 2. Download data in proposed intervals
     const fetchPromises = intervalsToFetch.map((interval) =>
-    this.fetchData(resolution,interval[0], interval[1] )
-    );
-    const responses = await Promise.all(fetchPromises);
+      this.fetchData(resolution, interval[0], interval[1])
+    )
+    const responses = await Promise.all(fetchPromises)
 
     // 3. Assemble fetched data to one array
-    const fetchedData: DataPoint[] = [];
+    const fetchedData: DataPoint[] = []
     responses.forEach(dataInInterval => {
-      dataInInterval.forEach(dataPoint => fetchedData.push(dataPoint));
+      dataInInterval.forEach(dataPoint => fetchedData.push(dataPoint))
     })
 
-    return fetchedData;
+    return fetchedData
   }
 
   /**
@@ -68,23 +68,22 @@ export class DownloadManager {
    *
    * @returns Promise resolving to an array of DataPoints.
    */
-  private fetchData(
+  private fetchData (
     resolution: Resolution,
     from: number,
     to: number
   ): Promise<DataPoint[]> {
-
     const interval = Interval.fromDateTimes(new Date(from), new Date(to))
     const url = resolution.getQueryUrl(this.sensor, interval)
 
     return HTTP.get(url).then((response) => {
       // Map the response to an array of datapoints and return it
       return response.data.map((x: { endTimestamp: number; mean: number }) => {
-        return  new DataPoint(
+        return new DataPoint(
           resolution.timestampAccessor(x, this.sensor),
           resolution.valueAccessor(x, this.sensor)
         )
-      });
-    });
+      })
+    })
   }
 }
