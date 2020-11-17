@@ -1,4 +1,4 @@
-import { DataPoint } from "./DataPoint";
+import { DataPoint } from './DataPoint';
 
 /** Returns a new array containing the new DataPoints injected into the existing ones.
  * Pure function.

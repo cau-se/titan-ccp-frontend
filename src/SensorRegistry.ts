@@ -1,5 +1,5 @@
-import { HTTP } from "./http-common";
-import { AxiosPromise } from "axios";
+import { HTTP } from './http-common';
+import { AxiosPromise } from 'axios';
 
 export type Sensor = AggregatedSensor | MachineSensor;
 
@@ -51,7 +51,7 @@ export class SensorRegistry {
   }
 
   public toJson(pretty?: boolean): string {
-    return JSON.stringify(this.topLevelSensor, (key, val) => key !== "parent" ? val : undefined, pretty ? '\t' : undefined)
+    return JSON.stringify(this.topLevelSensor, (key, val) => key !== 'parent' ? val : undefined, pretty ? '\t' : undefined)
   }
 
   public toPrettyJson(): string {
@@ -61,11 +61,11 @@ export class SensorRegistry {
   private static parseSensor(sensor: JsonSensor): Sensor {
     if (sensor.children) {
       const children = sensor.children.map(child => this.parseSensor(child))
-      const parsedSensor = new AggregatedSensor(sensor.identifier, sensor.name ? sensor.name : "", children)
+      const parsedSensor = new AggregatedSensor(sensor.identifier, sensor.name ? sensor.name : '', children)
       children.forEach(child => { child.parent = parsedSensor })
       return parsedSensor
     } else {
-      return new MachineSensor(sensor.identifier, sensor.name ? sensor.name : "")
+      return new MachineSensor(sensor.identifier, sensor.name ? sensor.name : '')
     }
   }
 

@@ -1,17 +1,17 @@
-import { MultiResolutionData } from "./DataSet";
-import { DataPoint } from "./DataPoint";
-import TimeMode from "../model/time-mode";
-import { TimeDomain } from "./Domain";
-import { DownloadManager } from "./api";
+import { MultiResolutionData } from './DataSet';
+import { DataPoint } from './DataPoint';
+import TimeMode from '../model/time-mode';
+import { TimeDomain } from './Domain';
+import { DownloadManager } from './api';
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
-const debounce = require("lodash.debounce");
+const debounce = require('lodash.debounce');
 
 // import CanvasTimeSeriesPlot as interface only, shall not get instantiated here for loose coupling
-import { CanvasTimeSeriesPlot as TimeSeriesPlot } from "../canvasPlot/CanvasTimeSeriesPlot";
-import { Sensor } from "../SensorRegistry";
-import { RawResolution,Resolution,WindowedResolution } from "../model/resolution";
-import { HTTP } from "../http-common";
+import { CanvasTimeSeriesPlot as TimeSeriesPlot } from '../canvasPlot/CanvasTimeSeriesPlot';
+import { Sensor } from '../SensorRegistry';
+import { RawResolution,Resolution,WindowedResolution } from '../model/resolution';
+import { HTTP } from '../http-common';
 
 interface PlotManagerConstructor {
   plot: TimeSeriesPlot;
@@ -61,10 +61,10 @@ export class TimeSeriesPlotManager {
     this.sensor = config.sensor;
     this.timeMode = config.timeMode;
     this.latest = this.timeMode.getTime().toMillis() - 3600 * 10000;
-    this.datasetId = "measurement";
+    this.datasetId = 'measurement';
     this.yDomainEnlargement = config.yDomainEnlargement || 0.1;
     this.plotStartsWithZero = config.plotStartsWithZero || true;
-    this.color = config.color || "orange";
+    this.color = config.color || 'orange';
     this.latestByResolution.set(this.DEFAULT_RESOLUTION, this.latest);
     this.oldYStart = 0;
     this.oldYEnd = 0;
@@ -209,7 +209,7 @@ export class TimeSeriesPlotManager {
     this.plot.removeDataSet(this.datasetId);
     this.plot.addDataSet(
       this.datasetId,
-      "",
+      '',
       dataPoints,
       this.color,
       false,

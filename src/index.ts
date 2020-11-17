@@ -1,24 +1,24 @@
-import Vue from "vue";
-import VueRouter from "vue-router"
+import Vue from 'vue';
+import VueRouter from 'vue-router'
 import BootstrapVue from 'bootstrap-vue'
-import App from "./components/App.vue"
+import App from './components/App.vue'
 
-import Dashboard from "./components/Dashboard.vue"
-import SensorDetails from "./components/SensorDetails.vue"
-import Comparison from "./components/Comparison.vue"
-import SensorHierarchy from "./components/SensorHierarchy.vue"
-//import SensorHierarchyList from "./components/SensorHierarchyList.vue"
-import Examples from "./components/Examples.vue"
+import Dashboard from './components/Dashboard.vue'
+import SensorDetails from './components/SensorDetails.vue'
+import Comparison from './components/Comparison.vue'
+import SensorHierarchy from './components/SensorHierarchy.vue'
+//import SensorHierarchyList from './components/SensorHierarchyList.vue'
+import Examples from './components/Examples.vue'
 
 import { library } from '@fortawesome/fontawesome-svg-core'
 import { faTachometerAlt, faChartBar, faBalanceScale, faSlidersH, faPlay, faMinus, faArrowRight, faPen, faTrash, faSpinner, faChartLine, faCog, faTimes, faPause, faCheck, faHistory } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 
-if (process.env.DEMO === "true") {
-  console.log("Start in demo mode.")
+if (process.env.DEMO === 'true') {
+  console.log('Start in demo mode.')
 }
-if (process.env.SHOW_COMPLETE_HISTORY === "true") {
-  console.log("Show complete history.")
+if (process.env.SHOW_COMPLETE_HISTORY === 'true') {
+  console.log('Show complete history.')
 }
 
 Vue.use(BootstrapVue);
