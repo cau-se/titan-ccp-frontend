@@ -37,23 +37,23 @@
 </template>
 
 <script lang="ts">
-import { Vue, Component, Prop, Watch } from "vue-property-decorator"
+import { Vue, Component, Prop, Watch } from 'vue-property-decorator'
 import {
   Sensor,
   AggregatedSensor,
   MachineSensor,
   SensorRegistry,
-} from "../SensorRegistry"
+} from '../SensorRegistry'
 
-import ComparisonPlot from "./ComparisonPlot.vue"
-import ComparisonSettingHeader from "./ComparisonSettingHeader.vue"
-import ColorRepository from "../ColorRepository"
-import { faClosedCaptioning } from "@fortawesome/free-solid-svg-icons"
+import ComparisonPlot from './ComparisonPlot.vue'
+import ComparisonSettingHeader from './ComparisonSettingHeader.vue'
+import ColorRepository from '../ColorRepository'
+import { faClosedCaptioning } from '@fortawesome/free-solid-svg-icons'
 
-import { HTTP } from "../http-common"
-import TimeMode from "../model/time-mode"
-import {Resolution, RawResolution, WindowedResolution} from "../model/resolution"
-import { DateTime, Interval } from "luxon"
+import { HTTP } from '../http-common'
+import TimeMode from '../model/time-mode'
+import {Resolution, RawResolution, WindowedResolution} from '../model/resolution'
+import { DateTime, Interval } from 'luxon'
 
 @Component({
   components: {
@@ -78,9 +78,9 @@ export default class Comparision extends Vue {
 
   private availableResolutions: Resolution[] = [
     this.DEFAULT_RESOLUTION
-    //new WindowedResolution("minutely"),
-    //new WindowedResolution("hourly")
-    //new WindowedResolution("daily"),
+    //new WindowedResolution('minutely'),
+    //new WindowedResolution('hourly')
+    //new WindowedResolution('daily'),
     ];
 
   private plots = new Array<number>();
@@ -131,7 +131,7 @@ export default class Comparision extends Vue {
 class Plot {
   readonly dataSets = new Array<DataSet>();
 
-  newDataSet = "";
+  newDataSet = '';
 
   constructor(readonly id: number) {}
 }
