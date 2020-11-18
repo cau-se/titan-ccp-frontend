@@ -24,9 +24,9 @@ import LoadingSpinner from './LoadingSpinner.vue'
 declare const d3version3: any // eslint-disable-line @typescript-eslint/no-explicit-any
 
 @Component({
-    components: {
-        LoadingSpinner
-    }
+  components: {
+    LoadingSpinner
+  }
 })
 export default class SensorHistoryPlot extends Vue {
   @Prop({ required: true }) sensor!: Sensor
@@ -49,7 +49,7 @@ export default class SensorHistoryPlot extends Vue {
     this.createPlot()
     window.addEventListener("resize", this.onSizeChanged)
   }
-  
+
   destroyed () {
     window.removeEventListener("resize", this.onSizeChanged)
   }
@@ -69,7 +69,7 @@ export default class SensorHistoryPlot extends Vue {
 
     const dimensions = [this.canvasplotContainer.clientWidth, this.canvasplotContainer.clientHeight]
     this.plot = new CanvasTimeSeriesPlot(
-      d3version3.select(this.canvasplotContainer), 
+      d3version3.select(this.canvasplotContainer),
       dimensions,
       {
         plotStartsWithZero: true,
@@ -87,7 +87,6 @@ export default class SensorHistoryPlot extends Vue {
       onFinishedLoading: () => { this.isLoading = false }
     })
   }
-
 }
 </script>
 

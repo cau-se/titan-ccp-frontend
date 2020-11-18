@@ -36,24 +36,27 @@
 
 <script lang="ts">
 import { Vue, Component, Prop, Watch } from 'vue-property-decorator'
-import { HTTP } from '../http-common'
-import {
-  Sensor,
-  AggregatedSensor,
-  MachineSensor,
-  SensorRegistry,
-} from '../SensorRegistry'
-import ColorRepository from '../ColorRepository'
+
 // @ts-ignore
 import Treeselect from '@riophae/vue-treeselect'
 import '@riophae/vue-treeselect/dist/vue-treeselect.css'
+
+import { Interval } from 'luxon'
+import ColorRepository from '../ColorRepository'
+import { HTTP } from '../http-common'
+import { Sensor, AggregatedSensor, SensorRegistry } from '../SensorRegistry'
+
+import { Resolution } from '../model/resolution'
+
 // @ts-ignore
 import { CanvasTimeSeriesPlot } from '../canvasPlot/CanvasTimeSeriesPlot'
 import { DataPoint } from '../TimeSeriesPlotManager'
-import { DateTime, Interval } from 'luxon'
-import { Resolution } from '../model/resolution'
 
 declare var d3version3: any
+
+class DataSet {
+  constructor (readonly sensor: Sensor) {}
+}
 
 @Component({
   components: {
@@ -206,10 +209,6 @@ export default class ComparisonPlot extends Vue {
         return []
       })
   }
-}
-
-class DataSet {
-  constructor(readonly sensor: Sensor) {}
 }
 </script>
 

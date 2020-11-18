@@ -19,8 +19,13 @@ import { Vue, Component, Prop, Watch } from 'vue-property-decorator'
 import { AggregatedSensor, Sensor } from '../SensorRegistry'
 import { HTTP } from '../http-common'
 import Repeater from '../Repeater'
-import { DateTime } from 'luxon'
 import TimeMode from '../model/time-mode'
+
+export enum Timespan {
+  LastHour,
+  LastDay,
+  LastWeek
+}
 
 @Component
 export default class TrendArrow extends Vue {
@@ -135,9 +140,4 @@ export default class TrendArrow extends Vue {
   }
 }
 
-export enum Timespan {
-  LastHour,
-  LastDay,
-  LastWeek
-}
 </script>
