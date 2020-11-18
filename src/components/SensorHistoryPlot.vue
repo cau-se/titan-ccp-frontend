@@ -21,7 +21,7 @@ import { CanvasTimeSeriesPlot } from '../canvasPlot/CanvasTimeSeriesPlot'
 
 import LoadingSpinner from './LoadingSpinner.vue'
 
-declare const d3version3: any //eslint-disable-line @typescript-eslint/no-explicit-any
+declare const d3version3: any // eslint-disable-line @typescript-eslint/no-explicit-any
 
 @Component({
     components: {
@@ -41,11 +41,11 @@ export default class SensorHistoryPlot extends Vue {
 
   private readonly onSizeChanged = debounce(this.createPlot, 100)
 
-  get canvasplotContainer() {
+  get canvasplotContainer () {
     return this.$el.querySelector('.canvasplot-container')! as HTMLElement
   }
 
-  mounted() {
+  mounted () {
     this.createPlot()
     window.addEventListener("resize", this.onSizeChanged)
   }
@@ -55,16 +55,16 @@ export default class SensorHistoryPlot extends Vue {
   }
 
   @Watch('sensor')
-  onSensorChanged(sensor: Sensor) {
+  onSensorChanged () {
     this.createPlot()
   }
 
   @Watch('timeMode')
-  onTimeModeChanged() {
+  onTimeModeChanged () {
     this.createPlot()
   }
 
-  private createPlot() {
+  private createPlot () {
     this.plot && this.plot.destroy()
 
     const dimensions = [this.canvasplotContainer.clientWidth, this.canvasplotContainer.clientHeight]
@@ -77,14 +77,14 @@ export default class SensorHistoryPlot extends Vue {
         numberOfResolutionLevels: 3,
         disableLegend: true
       }
-    );
+    )
     this.plot.setZoomYAxis(false)
     this.isLoading = true
     this.plotManager = new TimeSeriesPlotManager({
       plot: this.plot,
       sensor: this.sensor,
       timeMode: this.timeMode,
-      onFinishedLoading: () => this.isLoading = false
+      onFinishedLoading: () => { this.isLoading = false }
     })
   }
 

@@ -34,21 +34,21 @@ export default class TrendArrow extends Vue {
 
   requester = new Repeater(this.updateChart, this.updateChart, 10_000)
 
-  created() {
+  created () {
     this.requester.start()
   }
 
-  destroyed() {
+  destroyed () {
     this.requester.stop()
   }
 
   @Watch('sensor')
-  onSensorChanged() {
+  onSensorChanged () {
     this.requester.restart()
   }
 
   @Watch('timeMode')
-  onTimeModeChanged() {
+  onTimeModeChanged () {
     if (this.timeMode.autoLoading) {
       this.requester.start()
     } else {
@@ -57,7 +57,7 @@ export default class TrendArrow extends Vue {
     }
   }
 
-  private updateChart() {
+  private updateChart () {
     let resource =
       this.sensor instanceof AggregatedSensor
         ? 'active-power/aggregated'
@@ -77,7 +77,7 @@ export default class TrendArrow extends Vue {
       })
   }
 
-  private get after() {
+  private get after () {
     let now = this.timeMode.getTime()
     switch (this.timespan) {
       case Timespan.LastHour: {
@@ -92,7 +92,7 @@ export default class TrendArrow extends Vue {
     }
   }
 
-  get rotation() {
+  get rotation () {
     if (this.trendValue > 1.5) {
       return 270
     } else if (this.trendValue > 1.1) {
@@ -106,7 +106,7 @@ export default class TrendArrow extends Vue {
     }
   }
 
-  get color() {
+  get color () {
     if (this.trendValue > 1.5) {
       return 'text-danger'
     } else if (this.trendValue > 1.1) {
@@ -120,7 +120,7 @@ export default class TrendArrow extends Vue {
     }
   }
 
-  get text() {
+  get text () {
     switch (this.timespan) {
       case Timespan.LastHour: {
         return 'Last hour'

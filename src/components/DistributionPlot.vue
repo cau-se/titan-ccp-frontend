@@ -37,7 +37,7 @@ export default class DistributionPlot extends Vue {
   private isLoading = true;
   private isError = false;
 
-  mounted() {
+  mounted () {
     this.chart = generate({
       bindto: this.$el.querySelector('.c3-container') as HTMLElement,
       data: {
@@ -61,22 +61,22 @@ export default class DistributionPlot extends Vue {
   }
 
   @Watch('sensor')
-  onSensorChanged(sensor: Sensor) {
+  onSensorChanged () {
     this.createPlot()
   }
 
   @Watch('timeMode')
-  onTimeModeChanged() {
+  onTimeModeChanged () {
     this.createPlot()
   }
 
-  private createPlot() {
+  private createPlot () {
     let resource =
       this.sensor instanceof AggregatedSensor
         ? 'active-power/aggregated'
         : 'active-power/raw'
     // Distribution of last hour
-    let after = this.timeMode.getTime().minus({ hours: 1 });
+    let after = this.timeMode.getTime().minus({ hours: 1 })
     let to = this.timeMode.getTime()
     HTTP.get(
       resource +
@@ -96,7 +96,7 @@ export default class DistributionPlot extends Vue {
         for (let bucket of response.data) {
           labels.push(
             '' + bucket.lower.toFixed(1) + ' - ' + bucket.upper.toFixed(1)
-          );
+          )
           values.push(bucket.elements)
         }
         return [labels, values]

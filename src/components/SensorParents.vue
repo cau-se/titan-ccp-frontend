@@ -11,7 +11,6 @@ import { Sensor, AggregatedSensor } from '../SensorRegistry'
 
 @Component
 export default class SensorParents extends Vue {
-
   @Prop({ required: true }) sensor!: Sensor
 
   get parents () {
@@ -23,9 +22,7 @@ export default class SensorParents extends Vue {
   }
 
   @Emit()
-  select(sensor: AggregatedSensor) {
-  }
-
+  select () {}
 }
 </script>
 

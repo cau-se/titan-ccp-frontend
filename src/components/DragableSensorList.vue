@@ -39,7 +39,7 @@ export default class DragableSensorList extends Vue {
   private isAggregatedSensor = (sensor: Sensor) =>
     sensor instanceof AggregatedSensor;
 
-  private remove(sensor: Sensor) {
+  private remove (sensor: Sensor) {
     let index = this.sensors.indexOf(sensor, 0)
     if (index > -1) {
       this.sensors.splice(index, 1)

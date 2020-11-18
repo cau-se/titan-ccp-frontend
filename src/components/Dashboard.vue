@@ -65,7 +65,7 @@ import TimeMode from '../model/time-mode';
         TrendArrow
     }
 })
-export default class App extends Vue {
+export default class Dashboard extends Vue {
     @Prop({ required: true }) sensor!: Sensor
 
     @Prop() timeMode!: TimeMode

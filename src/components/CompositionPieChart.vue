@@ -33,7 +33,7 @@ export default class CompositionPieChart extends Vue {
 
   private chart!: ChartAPI
 
-  mounted() {
+  mounted () {
     this.chart = generate({
       bindto: this.$el.querySelector('.c3-container') as HTMLElement,
       data: {
@@ -48,16 +48,16 @@ export default class CompositionPieChart extends Vue {
   }
 
   @Watch('sensor')
-  onSensorChanged() {
+  onSensorChanged () {
     this.updateChart()
   }
 
   @Watch('timeMode')
-  onTimeModeChanged() {
+  onTimeModeChanged () {
     this.updateChart()
   }
 
-  private updateChart() {
+  private updateChart () {
     this.isLoading = true
   
     let to = this.timeMode.getTime()
@@ -75,7 +75,8 @@ export default class CompositionPieChart extends Vue {
           } else {
             value = response.data[0].valueInW
           }
-          return <[string, number]> [child.title, value]
+          return [child.title, value] as [string, number]
+          // return <[string, number]> [child.title, value]
         })
     })).catch(e => {
       console.error(e)

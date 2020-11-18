@@ -51,11 +51,11 @@ export default class StatsPlot extends Vue {
   private isLoading = true;
   private isError = false;
 
-  get intervalSelectOptions(): Array<IntervalSelectOption> {
+  get intervalSelectOptions (): Array<IntervalSelectOption> {
     return this.availableIntervals.map((i) => new IntervalSelectOption(i))
   }
 
-  mounted() {
+  mounted () {
     this.chart = generate({
       bindto: this.$el.querySelector('.c3-container') as HTMLElement,
       data: {
@@ -89,15 +89,15 @@ export default class StatsPlot extends Vue {
         show: false
       }
     })
-    this.loadAvailableIntervals().then(() => this.createPlot());
+    this.loadAvailableIntervals().then(() => this.createPlot())
   }
 
   @Watch('sensor')
-  onSensorChanged(sensor: Sensor) {
-    this.createPlot();
+  onSensorChanged () {
+    this.createPlot()
   }
 
-  private loadAvailableIntervals() {
+  private loadAvailableIntervals () {
     return HTTP.get(`/stats/interval/${this.statsType.url}`).then(
       (response) => {
         this.availableIntervals = response.data.map((i: any) =>
@@ -111,13 +111,13 @@ export default class StatsPlot extends Vue {
   }
 
   @Watch('selectedInterval')
-  onIntervalChanged(interval: Interval, oldInterval: Interval) {
+  onIntervalChanged (interval: Interval, oldInterval: Interval) {
     if (oldInterval != null) {
       this.createPlot(interval)
     }
   }
 
-  private createPlot(interval?: Interval) {
+  private createPlot (interval?: Interval) {
     let defaultInterval = this.availableIntervals.find(interval => interval.end >= this.timeMode.getTime())! ||  this.availableIntervals[this.availableIntervals.length - 1];
     let interval2 = interval || defaultInterval
 
@@ -130,15 +130,15 @@ export default class StatsPlot extends Vue {
     HTTP.get(url)
       .then((response) => {
         // JSON responses are automatically parsed.
-        let labels: string[] = ['x'];
+        let labels: string[] = ['x']
         let minValues: Array<string | number> = ['min']
         let meanValues: Array<string | number> = ['mean']
         let maxValues: Array<string | number> = ['max']
         for (let stats of response.data) {
           labels.push(this.statsType.accessor(stats))
-          minValues.push(stats.min);
-          meanValues.push(stats.mean);
-          maxValues.push(stats.max);
+          minValues.push(stats.min)
+          meanValues.push(stats.mean)
+          maxValues.push(stats.max)
         }
         // Update selected interval
         if (response.data.length > 0 && this.selectedInterval == null) {
@@ -147,13 +147,13 @@ export default class StatsPlot extends Vue {
             DateTime.fromMillis(response.data[0].periodEnd)
           )
         }
-        //return [labels, minValues, meanValues, maxValues]
-        return [labels, meanValues];
+        // return [labels, minValues, meanValues, maxValues]
+        return [labels, meanValues]
       })
       .catch((e) => {
         console.error(e)
         this.isError = true
-        //return [['x'], ['min'], ['mean'], ['max']]
+        // return [['x'], ['min'], ['mean'], ['max']]
         return [['x'], ['mean']]
       })
       .then((data) => {
@@ -165,7 +165,7 @@ export default class StatsPlot extends Vue {
       })
   }
 
-  private dateTimeToBackendISO(dateTime: DateTime): string {
+  private dateTimeToBackendISO (dateTime: DateTime): string {
     return dateTime.toUTC().toISO({ suppressMilliseconds: true })
   }
 }
