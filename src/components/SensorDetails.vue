@@ -30,7 +30,7 @@
     </b-row>
     <b-row class="mb-4">
       <b-col cols="6">
-        <distribution-plot :sensor="internalSensor" :timeMode="timeMode" :key="internalSensor.identifier" />
+        <histogram :sensor="internalSensor" :timeMode="timeMode" :key="internalSensor.identifier" />
       </b-col>
       <b-col v-if="isAggregated" cols="6">
         <composition-donut-chart :sensor="internalSensor" :timeMode="timeMode" />
@@ -55,7 +55,7 @@ import { Vue, Component, Prop, Watch } from 'vue-property-decorator'
 import { Sensor, AggregatedSensor, MachineSensor, SensorRegistry } from '../SensorRegistry'
 
 import SensorParents from './SensorParents.vue'
-import DistributionPlot from './DistributionPlot.vue'
+import Histogram from './Histogram.vue'
 import StatsPlot from './StatsPlot.vue'
 import { HOUR_OF_DAY } from './StatsPlot.vue'
 import { DAY_OF_WEEK } from './StatsPlot.vue'
@@ -73,7 +73,7 @@ import TimeMode from '../model/time-mode'
     SensorHistoryPlot,
     CompositionDonutChart,
     ContributionPieChart,
-    DistributionPlot,
+    Histogram,
     StatsPlot,
     TrendArrow
   }

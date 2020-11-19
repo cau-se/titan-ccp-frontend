@@ -145,4 +145,7 @@ export default class CompositionDonutChart extends Vue {
   .donut-container {
     height: 300px;
   }
+  .unvisible-legend-container {
+    height: 0px;
+  }
 </style>

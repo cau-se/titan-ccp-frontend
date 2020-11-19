@@ -18,7 +18,7 @@
     </b-row>
     <b-row class="mb-4">
         <b-col cols="6">
-          <distribution-plot :timeMode="timeMode" :sensor="sensor" />
+          <histogram :timeMode="timeMode" :sensor="sensor" />
         </b-col>
         <b-col cols="6">
           <composition-donut-chart :sensor="sensor" :timeMode="timeMode" />
@@ -43,7 +43,7 @@ import { SensorRegistryRequester } from '../SensorRegistry'
 
 import SensorDetails from './SensorDetails.vue'
 
-import DistributionPlot from './DistributionPlot.vue'
+import Histogram from './Histogram.vue'
 import CompositionDonutChart from './CompositionDonutChart.vue'
 import StatsPlot from './StatsPlot.vue'
 import { HOUR_OF_DAY } from './StatsPlot.vue'
@@ -60,7 +60,7 @@ import TimeMode from '../model/time-mode';
     components: {
         SensorHistoryPlot,
         CompositionDonutChart,
-        DistributionPlot,
+        Histogram,
         StatsPlot,
         TrendArrow
     }
