@@ -63,20 +63,18 @@
 </template>
 
 <script lang="ts">
-import { Vue, Component, Prop, Watch } from 'vue-property-decorator'
+import { Component, Vue } from 'vue-property-decorator'
 import VueRouter from 'vue-router'
+import { DateTime } from 'luxon'
+import { SensorRegistry, SensorRegistryRequester } from '../SensorRegistry'
+import TimeMode from './../model/time-mode'
 
 import BootstrapVue from 'bootstrap-vue'
 import 'bootstrap/dist/css/bootstrap.css'
 import 'bootstrap-vue/dist/bootstrap-vue.css'
 
-import { SensorRegistry, SensorRegistryRequester } from '../SensorRegistry'
-
 import LoadingSpinner from './LoadingSpinner.vue'
-import { DateTime } from 'luxon'
 import TimeModePicker from './TimeModePicker.vue'
-
-import TimeMode from './../model/time-mode'
 
 @Component({
   components: {

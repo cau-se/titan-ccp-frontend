@@ -51,20 +51,22 @@
 </template>
 
 <script lang="ts">
-import { Vue, Component, Prop, Watch } from 'vue-property-decorator'
-import { Sensor, AggregatedSensor, MachineSensor, SensorRegistry } from '../SensorRegistry'
+import { Vue, Component, Prop } from 'vue-property-decorator'
 
-import SensorParents from './SensorParents.vue'
+import { Sensor, AggregatedSensor, MachineSensor, SensorRegistry } from '../SensorRegistry'
+import TimeMode from '../model/time-mode'
+
+import CompositionPieChart from './CompositionPieChart.vue'
+import ContributionPieChart from './ContributionPieChart.vue'
 import DistributionPlot from './DistributionPlot.vue'
+import SensorHistoryPlot from './SensorHistoryPlot.vue'
+import SensorParents from './SensorParents.vue'
 import StatsPlot from './StatsPlot.vue'
 import { HOUR_OF_DAY } from './StatsPlot.vue'
 import { DAY_OF_WEEK } from './StatsPlot.vue'
-import ContributionPieChart from './ContributionPieChart.vue'
-import CompositionPieChart from './CompositionPieChart.vue'
-import SensorHistoryPlot from './SensorHistoryPlot.vue'
 import TrendArrow from './TrendArrow.vue'
 import { Timespan } from './TrendArrow.vue'
-import TimeMode from '../model/time-mode'
+
 
 
 @Component({

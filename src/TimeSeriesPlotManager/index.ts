@@ -1,2 +1,2 @@
-export * from './TimeSeriesPlotManager';
-export * from './DataPoint';
+export * from './TimeSeriesPlotManager'
+export * from './DataPoint'
