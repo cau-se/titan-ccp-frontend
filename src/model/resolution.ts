@@ -1,8 +1,7 @@
-import { Interval } from 'luxon';
-import { AggregatedSensor, Sensor } from '../SensorRegistry';
+import { Interval } from 'luxon'
+import { AggregatedSensor, Sensor } from '../SensorRegistry'
 
 export interface Resolution {
-
   getQueryUrl(sensor: Sensor, range: Interval): string;
 
   name: string;
@@ -13,30 +12,30 @@ export interface Resolution {
 }
 
 export class RawResolution implements Resolution {
-
-  // eslint-disable-next-line @typescript-eslint/no-empty-function
-  constructor() {}
-
   name = 'highest'
 
-  valueAccessor = (json: { sumInW: any; valueInW: any }, sensor: any) => sensor instanceof AggregatedSensor ? json.sumInW : json.valueInW;
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
+  constructor () {}
 
-  timestampAccessor = (json: { timestamp: string | number | Date }, _: any) => new Date(json.timestamp);
+  
 
-  getQueryUrl(sensor: Sensor, range: Interval) {
-    return `${sensor instanceof AggregatedSensor ? 'active-power/aggregated' : 'active-power/raw'}/${sensor.identifier}?from=${range.start.toMillis()}&to=${range.end.toMillis()}`;
+  valueAccessor = (json: { sumInW: any; valueInW: any }, sensor: any) => sensor instanceof AggregatedSensor ? json.sumInW : json.valueInW
+
+  timestampAccessor = (json: { timestamp: string | number | Date }, _: any) => new Date(json.timestamp)
+
+  getQueryUrl (sensor: Sensor, range: Interval) {
+    return `${sensor instanceof AggregatedSensor ? 'active-power/aggregated' : 'active-power/raw'}/${sensor.identifier}?from=${range.start.toMillis()}&to=${range.end.toMillis()}`
   }
 }
 
 export class WindowedResolution implements Resolution {
+  constructor (readonly name: string) {}
 
-  constructor(readonly name: string) {}
+  valueAccessor = (json: { mean: any}, _: any) => json.mean
 
-  valueAccessor = (json: { mean: any}, _: any) => json.mean;
+  timestampAccessor = (json: { startTimestamp: string | number | Date }, _: any) => new Date(json.startTimestamp)
 
-  timestampAccessor = (json: { startTimestamp: string | number | Date }, _: any) => new Date(json.startTimestamp);
-
-  getQueryUrl(sensor: Sensor, range: Interval) {
-    return `active-power/windowed/${this.name}/${sensor.identifier}?from=${range.start.toMillis()}&to=${range.end.toMillis()}`;
+  getQueryUrl (sensor: Sensor, range: Interval) {
+    return `active-power/windowed/${this.name}/${sensor.identifier}?from=${range.start.toMillis()}&to=${range.end.toMillis()}`
   }
 }

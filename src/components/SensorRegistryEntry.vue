@@ -1,6 +1,6 @@
 <template>
   <div class="d-flex align-items-center">
-    <b-input v-if="edit" 
+    <b-input v-if="edit"
       v-model="sensor.name"
       type="text" class="mr-3 w-auto"
       v-focus placeholder="Sensor name"
@@ -17,7 +17,7 @@
 </template>
 
 <script lang="ts">
-import { Vue, Component, Prop, Watch } from 'vue-property-decorator'
+import { Vue, Component, Prop } from 'vue-property-decorator'
 import { Sensor } from '../SensorRegistry'
 
 @Component

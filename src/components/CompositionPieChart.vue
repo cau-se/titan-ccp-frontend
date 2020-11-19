@@ -10,13 +10,15 @@
 </template>
 
 <script lang="ts">
-import { Vue, Component, Prop, Watch } from "vue-property-decorator"
-import { SensorRegistryRequester, AggregatedSensor, Sensor, SensorRegistry } from '../SensorRegistry'
-import { HTTP } from "../http-common"
-import LoadingSpinner from "./LoadingSpinner.vue"
+import { Vue, Component, Prop, Watch } from 'vue-property-decorator'
+
 import { ChartAPI, generate } from 'c3'
 import 'c3/c3.css'
-import TimeMode from "../model/time-mode"
+import { HTTP } from '../http-common'
+import { AggregatedSensor } from '../SensorRegistry'
+import TimeMode from '../model/time-mode'
+
+import LoadingSpinner from './LoadingSpinner.vue'
 
 @Component({
   components: {
@@ -59,7 +61,7 @@ export default class CompositionPieChart extends Vue {
 
   private updateChart () {
     this.isLoading = true
-  
+
     let to = this.timeMode.getTime()
 
     Promise.all(this.sensor.children.map(child => {

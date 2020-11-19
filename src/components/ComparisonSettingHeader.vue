@@ -34,13 +34,12 @@
 </template>
 
 <script lang="ts">
-import { Vue, Component, Prop, Watch } from 'vue-property-decorator'
+import { Vue, Component, Prop } from 'vue-property-decorator'
 
 import DateRangePicker from 'vue2-daterange-picker'
 import 'vue2-daterange-picker/dist/vue2-daterange-picker.css'
-
-import TimeMode from '../model/time-mode'
 import { DateTime, Interval } from 'luxon'
+import TimeMode from '../model/time-mode'
 import { Resolution } from '../model/resolution'
 
 @Component({
@@ -84,7 +83,7 @@ export default class ComparisonSettingBar extends Vue {
       Interval.fromDateTimes(
         DateTime.fromJSDate(this.dateRange.startDate),
         DateTime.fromJSDate(this.dateRange.endDate))
-    );
+    )
   }
 
   private get defaultRanges () {
@@ -111,11 +110,11 @@ export default class ComparisonSettingBar extends Vue {
     })
 
     return {
-        'Today': [today.toJSDate(), today.plus({ days: 1 }).minus({ seconds: 1 }).toJSDate()],
-        'Yesterday': [yesterday.toJSDate(), yesterday.plus({days: 1}).minus({ seconds: 1 }).toJSDate()],
-        'This month': [thisMonthStart.toJSDate(), thisMonthStart.plus({ month: 1 }).minus({ seconds: 1 }).toJSDate()],
-        'This year': [thisYearStart.toJSDate(), thisYearStart.plus({ year: 1 }).minus({ seconds: 1 }).toJSDate()],
-        'Last month': [lastMonthStart.toJSDate(), lastMonthStart.plus({ month: 1 }).minus({ seconds: 1 }).toJSDate()]
+      'Today': [today.toJSDate(), today.plus({ days: 1 }).minus({ seconds: 1 }).toJSDate()],
+      'Yesterday': [yesterday.toJSDate(), yesterday.plus({ days: 1 }).minus({ seconds: 1 }).toJSDate()],
+      'This month': [thisMonthStart.toJSDate(), thisMonthStart.plus({ month: 1 }).minus({ seconds: 1 }).toJSDate()],
+      'This year': [thisYearStart.toJSDate(), thisYearStart.plus({ year: 1 }).minus({ seconds: 1 }).toJSDate()],
+      'Last month': [lastMonthStart.toJSDate(), lastMonthStart.plus({ month: 1 }).minus({ seconds: 1 }).toJSDate()]
     }
   }
 }

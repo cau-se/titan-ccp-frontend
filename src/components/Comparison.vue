@@ -37,23 +37,30 @@
 </template>
 
 <script lang="ts">
-import { Vue, Component, Prop, Watch } from 'vue-property-decorator'
-import {
-  Sensor,
-  AggregatedSensor,
-  MachineSensor,
-  SensorRegistry,
-} from '../SensorRegistry'
+import { Vue, Component, Prop } from 'vue-property-decorator'
 
-import ComparisonPlot from './ComparisonPlot.vue'
-import ComparisonSettingHeader from './ComparisonSettingHeader.vue'
-import ColorRepository from '../ColorRepository'
 import { faClosedCaptioning } from '@fortawesome/free-solid-svg-icons'
-
+import { Interval } from 'luxon'
+import ColorRepository from '../ColorRepository'
 import { HTTP } from '../http-common'
 import TimeMode from '../model/time-mode'
 import {Resolution, RawResolution, WindowedResolution} from '../model/resolution'
-import { DateTime, Interval } from 'luxon'
+import { Sensor, AggregatedSensor, MachineSensor, SensorRegistry } from '../SensorRegistry'
+
+import ComparisonPlot from './ComparisonPlot.vue'
+import ComparisonSettingHeader from './ComparisonSettingHeader.vue'
+
+class Plot {
+  readonly dataSets = new Array<DataSet>();
+
+  newDataSet = '';
+
+  constructor (readonly id: number) {}
+}
+
+class DataSet {
+  constructor(readonly sensor: string) {}
+}
 
 @Component({
   components: {
@@ -65,7 +72,7 @@ export default class Comparision extends Vue {
   private readonly DEFAULT_RESOLUTION = new RawResolution();
 
   @Prop({ required: true }) sensorRegistry!: SensorRegistry;
-  
+
   @Prop({ required: true }) timeMode!: TimeMode;
 
   private resolution: Resolution = this.DEFAULT_RESOLUTION;
@@ -80,7 +87,7 @@ export default class Comparision extends Vue {
     // new WindowedResolution('minutely'),
     // new WindowedResolution('hourly')
     // new WindowedResolution('daily'),
-    ];
+  ];
 
   private plots = new Array<number>();
 
@@ -127,17 +134,6 @@ export default class Comparision extends Vue {
   }
 }
 
-class Plot {
-  readonly dataSets = new Array<DataSet>();
-
-  newDataSet = '';
-
-  constructor(readonly id: number) {}
-}
-
-class DataSet {
-  constructor(readonly sensor: string) {}
-}
 </script>
 
 <style scoped>

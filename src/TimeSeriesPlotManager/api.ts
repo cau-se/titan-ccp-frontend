@@ -1,10 +1,12 @@
-import TimeMode from '../model/time-mode';
-import { DataPoint } from './DataPoint';
-import { HTTP } from '../http-common';
-import { MultiResolutionData } from './DataSet';
-import { Resolution } from '../model/resolution';
-import { Interval } from 'luxon';
-import { Sensor } from '../SensorRegistry';
+import { Interval } from 'luxon'
+
+import { HTTP } from '../http-common'
+import TimeMode from '../model/time-mode'
+import { Resolution } from '../model/resolution'
+import { Sensor } from '../SensorRegistry'
+
+import { DataPoint } from './DataPoint'
+import { MultiResolutionData } from './DataSet'
 
 export class DownloadManager {
   private readonly timeMode: TimeMode;
@@ -36,7 +38,7 @@ export class DownloadManager {
     to?: number
   ): Promise<DataPoint[]> {
     const toMillis = to || this.timeMode.getTime().toMillis()
-    
+
     // 1. determine, which data is already cached
     const intervalsToFetch = this.data.getUncachedIntervals(
       resolution,
