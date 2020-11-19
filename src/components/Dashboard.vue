@@ -21,7 +21,7 @@
           <distribution-plot :timeMode="timeMode" :sensor="sensor" />
         </b-col>
         <b-col cols="6">
-          <composition-pie-chart :sensor="sensor" :timeMode="timeMode" />
+          <composition-donut-chart :sensor="sensor" :timeMode="timeMode" />
         </b-col>
     </b-row>
     <b-row class="mb-4">
@@ -44,7 +44,7 @@ import { SensorRegistryRequester } from '../SensorRegistry'
 import SensorDetails from './SensorDetails.vue'
 
 import DistributionPlot from './DistributionPlot.vue'
-import CompositionPieChart from './CompositionPieChart.vue'
+import CompositionDonutChart from './CompositionDonutChart.vue'
 import StatsPlot from './StatsPlot.vue'
 import { HOUR_OF_DAY } from './StatsPlot.vue'
 import { DAY_OF_WEEK } from './StatsPlot.vue'
@@ -59,7 +59,7 @@ import TimeMode from '../model/time-mode';
 @Component({
     components: {
         SensorHistoryPlot,
-        CompositionPieChart,
+        CompositionDonutChart,
         DistributionPlot,
         StatsPlot,
         TrendArrow

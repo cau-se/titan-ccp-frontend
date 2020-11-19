@@ -33,7 +33,7 @@
         <distribution-plot :sensor="internalSensor" :timeMode="timeMode" :key="internalSensor.identifier" />
       </b-col>
       <b-col v-if="isAggregated" cols="6">
-        <composition-pie-chart :sensor="internalSensor" :timeMode="timeMode" />
+        <composition-donut-chart :sensor="internalSensor" :timeMode="timeMode" />
       </b-col>
       <b-col v-else cols="6">
         <contribution-pie-chart :sensor="internalSensor" :timeMode="timeMode" />
@@ -60,7 +60,7 @@ import StatsPlot from './StatsPlot.vue'
 import { HOUR_OF_DAY } from './StatsPlot.vue'
 import { DAY_OF_WEEK } from './StatsPlot.vue'
 import ContributionPieChart from './ContributionPieChart.vue'
-import CompositionPieChart from './CompositionPieChart.vue'
+import CompositionDonutChart from './CompositionDonutChart.vue'
 import SensorHistoryPlot from './SensorHistoryPlot.vue'
 import TrendArrow from './TrendArrow.vue'
 import { Timespan } from './TrendArrow.vue'
@@ -71,7 +71,7 @@ import TimeMode from '../model/time-mode'
   components: {
     SensorParents,
     SensorHistoryPlot,
-    CompositionPieChart,
+    CompositionDonutChart,
     ContributionPieChart,
     DistributionPlot,
     StatsPlot,
