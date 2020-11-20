@@ -1,11 +1,11 @@
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const debounce = require('lodash.debounce')
+
 import { MultiResolutionData } from './DataSet'
 import { DataPoint } from './DataPoint'
 import TimeMode from '../model/time-mode'
 import { TimeDomain } from './Domain'
 import { DownloadManager } from './api'
-
-// eslint-disable-next-line @typescript-eslint/no-var-requires
-const debounce = require('lodash.debounce')
 
 // import CanvasTimeSeriesPlot as interface only, shall not get instantiated here for loose coupling
 import { CanvasTimeSeriesPlot as TimeSeriesPlot } from '../canvasPlot/CanvasTimeSeriesPlot'
@@ -74,14 +74,14 @@ export class TimeSeriesPlotManager {
       this.data,
       this.timeMode,
       this.sensor
-      )
+    )
 
     this.loadAvailableResolutions()
       .then(resolutions => this.addAvailableResolutions(resolutions))
       .then(() => {
-          window.setInterval(this.updateRealTimeData, 5000)
-          this.fetchFirstData(config.onFinishedLoading)
-    })
+        window.setInterval(this.updateRealTimeData, 5000)
+        this.fetchFirstData(config.onFinishedLoading)
+      })
   }
 
   // fetch first data
@@ -180,12 +180,12 @@ export class TimeSeriesPlotManager {
 
     // search lowest resolution as possible
     this.availableResolutions.forEach((resolution) => {
-        const minimalLength = this.resolutionToTimeRange.get(resolution.name) || 0
-        if (length > minimalLength && minimalLength > highestMinimalLength) {
-          highestMinimalLength = minimalLength
-          determinedResolution = resolution
-        }
-      })
+      const minimalLength = this.resolutionToTimeRange.get(resolution.name) || 0
+      if (length > minimalLength && minimalLength > highestMinimalLength) {
+        highestMinimalLength = minimalLength
+        determinedResolution = resolution
+      }
+    })
     return determinedResolution
   }
 

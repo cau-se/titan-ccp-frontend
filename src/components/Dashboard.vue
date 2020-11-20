@@ -36,46 +36,47 @@
 </template>
 
 <script lang="ts">
-import { Vue, Component, Prop, Watch } from 'vue-property-decorator'
+import { Component, Prop, Vue } from 'vue-property-decorator'
+
+import { DateTime } from 'luxon';
+
 import { Sensor, AggregatedSensor, MachineSensor, SensorRegistry } from '../SensorRegistry'
-
 import { SensorRegistryRequester } from '../SensorRegistry'
+import TimeMode from '../model/time-mode';
 
+import Examples from './Examples.vue'
 import SensorDetails from './SensorDetails.vue'
 
-import Histogram from './Histogram.vue'
 import CompositionDonutChart from './CompositionDonutChart.vue'
+import DistributionPlot from './DistributionPlot.vue'
+import SensorHistoryPlot from './SensorHistoryPlot.vue'
+import Histogram from './Histogram.vue'
 import StatsPlot from './StatsPlot.vue'
 import { HOUR_OF_DAY } from './StatsPlot.vue'
 import { DAY_OF_WEEK } from './StatsPlot.vue'
-import SensorHistoryPlot from './SensorHistoryPlot.vue'
 import TrendArrow from './TrendArrow.vue'
 import { Timespan } from './TrendArrow.vue'
 
-import Examples from './Examples.vue'
-import { DateTime } from 'luxon';
-import TimeMode from '../model/time-mode';
-
 @Component({
-    components: {
-        SensorHistoryPlot,
-        CompositionDonutChart,
-        Histogram,
-        StatsPlot,
-        TrendArrow
-    }
+  components: {
+    SensorHistoryPlot,
+    CompositionDonutChart,
+    Histogram,
+    StatsPlot,
+    TrendArrow
+  }
 })
 export default class Dashboard extends Vue {
-    @Prop({ required: true }) sensor!: Sensor
+  @Prop({ required: true }) sensor!: Sensor
 
-    @Prop() timeMode!: TimeMode
+  @Prop() timeMode!: TimeMode
 
-    readonly trendLastHour = Timespan.LastHour
-    readonly trendLastDay = Timespan.LastDay
-    readonly trendLastWeek = Timespan.LastWeek
+  readonly trendLastHour = Timespan.LastHour
+  readonly trendLastDay = Timespan.LastDay
+  readonly trendLastWeek = Timespan.LastWeek
 
-    readonly statsDayOfWeek = DAY_OF_WEEK
-    readonly statsHourOfDay = HOUR_OF_DAY
+  readonly statsDayOfWeek = DAY_OF_WEEK
+  readonly statsHourOfDay = HOUR_OF_DAY
 }
 </script>
 

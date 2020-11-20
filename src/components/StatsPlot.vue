@@ -23,13 +23,71 @@
 
 <script lang="ts">
 import { Vue, Component, Prop, Watch } from 'vue-property-decorator'
-import LoadingSpinner from './LoadingSpinner.vue'
-import { HTTP } from '../http-common'
-import { Sensor, AggregatedSensor } from '../SensorRegistry'
+
 import { ChartAPI, generate } from 'c3'
 import 'c3/c3.css'
 import { DateTime, Interval } from 'luxon'
+import { HTTP } from '../http-common'
+import { Sensor } from '../SensorRegistry'
 import TimeMode from '../model/time-mode'
+import LoadingSpinner from './LoadingSpinner.vue'
+
+function getDayOfWeekText (number: number) {
+  switch (number) {
+    case 1: {
+      return 'Monday'
+    }
+    case 2: {
+      return 'Tuesday'
+    }
+    case 3: {
+      return 'Wednesday'
+    }
+    case 4: {
+      return 'Thursday'
+    }
+    case 5: {
+      return 'Friday'
+    }
+    case 6: {
+      return 'Saturday'
+    }
+    case 7: {
+      return 'Sunday'
+    }
+    default: {
+      throw new RangeError('Day of week number must be between 1 and 7')
+    }
+  }
+}
+
+class IntervalSelectOption {
+  public readonly value: Interval;
+  public readonly text: string;
+
+  constructor (interval: Interval) {
+    this.value = interval
+    this.text = interval.toFormat('yyyy/MM/dd')
+  }
+}
+
+export interface StatsType {
+  title: string;
+  url: string;
+  accessor: (stats: any) => string;
+}
+
+export const HOUR_OF_DAY: StatsType = {
+  title: 'Daily Course',
+  url: 'hour-of-day',
+  accessor: (stats) => stats.hourOfDay
+}
+
+export const DAY_OF_WEEK: StatsType = {
+  title: 'Weekly Course',
+  url: 'day-of-week',
+  accessor: (stats) => getDayOfWeekText(stats.dayOfWeek)
+}
 
 @Component({
   components: {
@@ -42,7 +100,7 @@ export default class StatsPlot extends Vue {
   @Prop({ required: true }) statsType!: StatsType;
 
   @Prop({ required: true }) timeMode!: TimeMode;
-  
+
   private availableIntervals: Interval[] = [];
   private selectedInterval: Interval | null = null;
 
@@ -167,63 +225,6 @@ export default class StatsPlot extends Vue {
 
   private dateTimeToBackendISO (dateTime: DateTime): string {
     return dateTime.toUTC().toISO({ suppressMilliseconds: true })
-  }
-}
-
-class IntervalSelectOption {
-  public readonly value: Interval;
-  public readonly text: string;
-
-  constructor(interval: Interval) {
-    this.value = interval
-    this.text = interval.toFormat('yyyy/MM/dd')
-  }
-}
-
-export interface StatsType {
-  title: string;
-  url: string;
-  accessor: (stats: any) => string;
-}
-
-export const HOUR_OF_DAY: StatsType = {
-  title: 'Daily Course',
-  url: 'hour-of-day',
-  accessor: (stats) => stats.hourOfDay,
-};
-
-export const DAY_OF_WEEK: StatsType = {
-  title: 'Weekly Course',
-  url: 'day-of-week',
-  accessor: (stats) => getDayOfWeekText(stats.dayOfWeek),
-};
-
-function getDayOfWeekText(number: number) {
-  switch (number) {
-    case 1: {
-      return 'Monday'
-    }
-    case 2: {
-      return 'Tuesday'
-    }
-    case 3: {
-      return 'Wednesday'
-    }
-    case 4: {
-      return 'Thursday'
-    }
-    case 5: {
-      return 'Friday'
-    }
-    case 6: {
-      return 'Saturday'
-    }
-    case 7: {
-      return 'Sunday'
-    }
-    default: {
-      throw new RangeError('Day of week number must be between 1 and 7')
-    }
   }
 }
 </script>

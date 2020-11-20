@@ -42,7 +42,9 @@
 </template>
 
 <script lang="ts">
-import { Vue, Component, Prop, Watch } from 'vue-property-decorator';
+import { Vue, Component, Prop } from 'vue-property-decorator'
+
+import { HTTP } from '../http-common'
 import {
   Sensor,
   AggregatedSensor,
@@ -50,7 +52,6 @@ import {
   SensorRegistry,
   SensorRegistryRequester
 } from '../SensorRegistry'
-import { HTTP } from '../http-common'
 
 import DragableSensorList from './DragableSensorList.vue'
 

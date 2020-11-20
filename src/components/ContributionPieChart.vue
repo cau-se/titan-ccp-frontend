@@ -11,12 +11,14 @@
 
 <script lang="ts">
 import { Vue, Component, Prop, Watch } from 'vue-property-decorator'
-import { SensorRegistryRequester, AggregatedSensor, MachineSensor, Sensor, SensorRegistry } from '../SensorRegistry'
-import { HTTP } from '../http-common'
-import LoadingSpinner from './LoadingSpinner.vue'
+
 import { ChartAPI, generate } from 'c3'
 import 'c3/c3.css'
+import { HTTP } from '../http-common'
+import { MachineSensor } from '../SensorRegistry'
 import TimeMode from '../model/time-mode'
+
+import LoadingSpinner from './LoadingSpinner.vue'
 
 @Component({
   components: {
