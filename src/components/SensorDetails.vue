@@ -30,7 +30,7 @@
     </b-row>
     <b-row class="mb-4">
       <b-col cols="6">
-        <distribution-plot :sensor="internalSensor" :timeMode="timeMode" :key="internalSensor.identifier" />
+        <histogram :sensor="internalSensor" :timeMode="timeMode" :key="internalSensor.identifier" />
       </b-col>
       <b-col v-if="isAggregated" cols="6">
         <composition-pie-chart :sensor="internalSensor" :timeMode="timeMode" />
@@ -58,7 +58,7 @@ import TimeMode from '../model/time-mode'
 
 import CompositionPieChart from './CompositionPieChart.vue'
 import ContributionPieChart from './ContributionPieChart.vue'
-import DistributionPlot from './DistributionPlot.vue'
+import Histogram from './Histogram.vue'
 import SensorHistoryPlot from './SensorHistoryPlot.vue'
 import SensorParents from './SensorParents.vue'
 import StatsPlot from './StatsPlot.vue'
@@ -75,7 +75,7 @@ import { Timespan } from './TrendArrow.vue'
     SensorHistoryPlot,
     CompositionPieChart,
     ContributionPieChart,
-    DistributionPlot,
+    Histogram,
     StatsPlot,
     TrendArrow
   }
