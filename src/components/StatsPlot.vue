@@ -2,10 +2,10 @@
   <div class="card">
     <div class="card-body">
       <b-row>
-        <b-col cols="6">
+        <b-col cols="9">
           <h5 class="card-title">{{ statsType.title }}</h5>
         </b-col>
-        <b-col cols="6">
+        <b-col cols="3">
           <b-form-select
             v-if="selectedInterval"
             v-model="selectedInterval"
@@ -15,7 +15,7 @@
         </b-col>
       </b-row>
       <loading-spinner :is-loading="isLoading" :is-error="isError">
-        <div class="c3-container"></div>
+        <div class="plot-container"></div>
       </loading-spinner>
     </div>
   </div>
@@ -26,10 +26,18 @@ import { Vue, Component, Prop, Watch } from 'vue-property-decorator'
 import LoadingSpinner from './LoadingSpinner.vue'
 import { HTTP } from '../http-common'
 import { Sensor, AggregatedSensor } from '../SensorRegistry'
-import { ChartAPI, generate } from 'c3'
-import 'c3/c3.css'
+// import { ChartAPI, generate } from 'c3'
+// import 'c3/c3.css'
+import * as d3 from "d3"
+import * as _ from "lodash"
+
 import { DateTime, Interval } from 'luxon'
 import TimeMode from '../model/time-mode'
+
+import "britecharts/dist/css/britecharts.css";
+const lineMargin = { top: 60, bottom: 30, left: 80, right: 50 };
+const line = require("britecharts/src/charts/line");
+const tooltip = require("britecharts/src/charts/tooltip");
 
 @Component({
   components: {
@@ -46,50 +54,61 @@ export default class StatsPlot extends Vue {
   private availableIntervals: Interval[] = [];
   private selectedInterval: Interval | null = null;
 
-  private chart!: ChartAPI;
-
   private isLoading = true;
   private isError = false;
+
+  private plot!: any;
+  private tooltip!: any;
+  private container!: d3.Selection<any, any, null, undefined>;
+  private containerWidth!: number;
+  private containerHeight!: number;
 
   get intervalSelectOptions (): Array<IntervalSelectOption> {
     return this.availableIntervals.map((i) => new IntervalSelectOption(i))
   }
 
   mounted () {
-    this.chart = generate({
-      bindto: this.$el.querySelector('.c3-container') as HTMLElement,
-      data: {
-        x: 'x',
-        columns: [],
-        type: 'spline'
-      },
-      legend: {
-        show: false
-      },
-      axis: {
-        x: {
-          type: 'category',
-          tick: {
-            multiline: false
-          }
-        },
-        y: {
-          min: 0
-        }
-      },
-      grid: {
-        x: {
-          show: true
-        },
-        y: {
-          show: true
-        }
-      },
-      tooltip: {
-        show: false
-      }
-    })
+    this.plot = new line();
+    this.container = d3.select(this.$el.querySelector(".plot-container"));
+    this.containerWidth = this.container.node()!.getBoundingClientRect().width;
+    this.containerHeight = this.container
+      .node()!
+      .getBoundingClientRect().height;
+    this.tooltip = new tooltip();
+
+    this.tooltip
+      .title(this.statsType.tooltipTitle)
+      .numberFormat(".2f")
+      .dateFormat(this.tooltip.axisTimeCombinations.CUSTOM)
+      .dateCustomFormat(this.statsType.dateFormat);
+
+    this.plot
+      .width(this.containerWidth)
+      .height(this.containerHeight)
+      .tooltipThreshold(600)
+      .grid("full")
+      .xAxisFormat("custom")
+      .xAxisCustomFormat(this.statsType.xAxisFormat)
+      .isAnimated(true)
+      .margin(lineMargin)
+      .on("customMouseOver", this.tooltip.show)
+      .on("customMouseMove", this.tooltip.update)
+      .on("customMouseOut", this.tooltip.hide);
+
     this.loadAvailableIntervals().then(() => this.createPlot())
+    this.makeChartResponsive(this.container, this.plot);
+  }
+
+  private makeChartResponsive(container: any, plot: any) {
+    const redrawChart = () => {
+      const newContainerWidth = container.node()
+        ? container.node()!.getBoundingClientRect().width
+        : false;
+      plot.width(newContainerWidth);
+      container.call(plot);
+    };
+    const throttledRedraw = _.throttle(redrawChart, 600);
+    window.addEventListener("resize", throttledRedraw);
   }
 
   @Watch('sensor')
@@ -157,16 +176,64 @@ export default class StatsPlot extends Vue {
         return [['x'], ['mean']]
       })
       .then((data) => {
-        this.chart.load({
-          columns: data,
-          unload: true
-        })
-        this.isLoading = false
+        console.log('leeeeeeeeength: ', data[0].length - 0 )
+        this.plot.xTicks(data[0].length - 0);
+        console.log('data: ', data[0])
+        // this.plot.xAxisLabel(data[0])
+        const datal = this.cleanFormat(data)
+        console.log('cleanData: ' , datal)
+        this.container.datum(datal).call(this.plot);
+        let tooltipContainer = d3.select(
+          this.$el.querySelector(
+            ".plot-container .metadata-group .vertical-marker-container"
+          )
+        );
+        tooltipContainer.datum([]).call(this.tooltip);
+        this.isLoading = false;
       })
   }
 
   private dateTimeToBackendISO (dateTime: DateTime): string {
     return dateTime.toUTC().toISO({ suppressMilliseconds: true })
+  }
+
+  private cleanFormat(rawData: any): any {
+    rawData[1].shift();
+    rawData[0].shift();
+
+    let data = rawData[1];
+    let xAxisTickName: any = rawData[0];
+    let cleanFormat = { data: [] as any };
+    let ticksName: Array<Date> = [];
+
+    console.log('xAxisTickName: ', xAxisTickName)
+
+    if (this.statsType.url == "day-of-week") {
+      for (let i = 0; i < data.length; i++)
+        ticksName.push(
+          new Date(
+            DateTime.local()
+              .set({ weekday: getDayOfWeekNumber(xAxisTickName[i]) })
+              .toString()
+          )
+        );
+    } else {
+      for (let i = 0; i < data.length; i++)
+        ticksName.push(new Date(new Date().setHours(xAxisTickName[i])));
+    }
+
+    console.log('ticksName: ', ticksName)
+    for(let i = 0; i< data.length;i++) {
+
+      cleanFormat.data.push({
+        topicName: "mean",
+        name: 0,
+        date: ticksName[i].toISOString(),
+        value: data[i]
+      });
+    }
+    console.log(cleanFormat)
+    return cleanFormat;
   }
 }
 
@@ -183,18 +250,27 @@ class IntervalSelectOption {
 export interface StatsType {
   title: string;
   url: string;
+  xAxisFormat: string;
+  dateFormat: string;
+  tooltipTitle: string;
   accessor: (stats: any) => string;
 }
 
 export const HOUR_OF_DAY: StatsType = {
-  title: 'Daily Course',
+  title: 'Power Consumption per Hour of Day',
   url: 'hour-of-day',
+  xAxisFormat: "%H",
+  dateFormat: "%H",
+  tooltipTitle: "Hour of day",
   accessor: (stats) => stats.hourOfDay,
 };
 
 export const DAY_OF_WEEK: StatsType = {
-  title: 'Weekly Course',
+  title: 'Power Consumption per Day of Week',
   url: 'day-of-week',
+  xAxisFormat: "%A",
+  dateFormat: "%A",
+  tooltipTitle: "Day of week",
   accessor: (stats) => getDayOfWeekText(stats.dayOfWeek),
 };
 
@@ -222,23 +298,43 @@ function getDayOfWeekText(number: number) {
       return 'Sunday'
     }
     default: {
-      throw new RangeError('Day of week number must be between 1 and 7')
+      throw new RangeError('Day of week number must be between 1 and 7');
     }
   }
 }
+function getDayOfWeekNumber(name: string) {
+  switch (name) {
+    case 'Sunday': {
+      return 7
+    }
+    case 'Monday': {
+      return 1
+    }
+    case 'Tuesday': {
+      return 2
+    }
+    case 'Wednesday': {
+      return 3
+    }
+    case 'Thursday': {
+      return 4
+    }
+    case 'Friday': {
+      return 5
+    }
+    case 'Saturday': {
+      return 6
+    }
+    default: {
+      throw new RangeError('Day of week number must be between 1 and 7');
+    }
+  }
+}
+
 </script>
 
 <style scoped>
-.c3-container {
+.plot-container {
   height: 300px;
-}
-</style>
-<style>
-.c3-grid line {
-  stroke: #dfdfdf;
-}
-.c3-xgrid,
-.c3-ygrid {
-  stroke-dasharray: 0;
 }
 </style>
