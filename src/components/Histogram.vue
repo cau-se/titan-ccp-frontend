@@ -26,7 +26,6 @@ import LoadingSpinner from './LoadingSpinner.vue'
   }
 })
 export default class Histogram extends Vue {
-
   @Prop({ required: true }) sensor!: Sensor;
 
   @Prop({ default: 8 }) buckets!: number;
@@ -72,13 +71,13 @@ export default class Histogram extends Vue {
   }
 
   private createPlot () {
-    let resource =
+    const resource =
       this.sensor instanceof AggregatedSensor
         ? 'active-power/aggregated'
         : 'active-power/raw'
     // Distribution of last hour
-    let after = this.timeMode.getTime().minus({ hours: 1 })
-    let to = this.timeMode.getTime()
+    const after = this.timeMode.getTime().minus({ hours: 1 })
+    const to = this.timeMode.getTime()
     HTTP.get(
       resource +
         '/' +
@@ -92,9 +91,9 @@ export default class Histogram extends Vue {
     )
       .then(response => {
         // JSON responses are automatically parsed.
-        let labels: string[] = ['x']
-        let values: Array<string | number> = [this.sensor.identifier]
-        for (let bucket of response.data) {
+        const labels: string[] = ['x']
+        const values: Array<string | number> = [this.sensor.identifier]
+        for (const bucket of response.data) {
           labels.push(
             '' + bucket.lower.toFixed(1) + ' - ' + bucket.upper.toFixed(1)
           )

@@ -50,7 +50,7 @@ import { Resolution } from '../model/resolution'
     date (value: any) {
       if (!value) return ''
 
-      let options = {
+      const options = {
         year: 'numeric',
         month: 'long',
         day: 'numeric',
@@ -87,21 +87,21 @@ export default class ComparisonSettingBar extends Vue {
   }
 
   private get defaultRanges () {
-    let now = this.timeMode.getTime()
-    let today = now.set({
+    const now = this.timeMode.getTime()
+    const today = now.set({
       hour: 0,
       minute: 0,
       second: 0
     })
-    let yesterday = today.minus({days: 1 })
-    let thisMonthStart = now.set({
+    const yesterday = today.minus({days: 1 })
+    const thisMonthStart = now.set({
       day: 1,
       hour: 0,
       minute: 0,
       second: 0
     })
-    let lastMonthStart = thisMonthStart.minus({month: 1})
-    let thisYearStart = now.set({
+    const lastMonthStart = thisMonthStart.minus({ month: 1 })
+    const thisYearStart = now.set({
       month: 1,
       day: 1,
       hour: 0,
