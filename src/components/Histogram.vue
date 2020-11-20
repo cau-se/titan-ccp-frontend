@@ -25,8 +25,7 @@ import LoadingSpinner from './LoadingSpinner.vue'
     LoadingSpinner
   }
 })
-export default class DistributionPlot extends Vue {
-  // TODO Rename to histogram
+export default class Histogram extends Vue {
 
   @Prop({ required: true }) sensor!: Sensor;
 

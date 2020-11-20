@@ -18,7 +18,7 @@
     </b-row>
     <b-row class="mb-4">
         <b-col cols="6">
-          <distribution-plot :timeMode="timeMode" :sensor="sensor" />
+          <histogram :timeMode="timeMode" :sensor="sensor" />
         </b-col>
         <b-col cols="6">
           <composition-pie-chart :sensor="sensor" :timeMode="timeMode" />
@@ -48,7 +48,7 @@ import Examples from './Examples.vue'
 import SensorDetails from './SensorDetails.vue'
 
 import CompositionPieChart from './CompositionPieChart.vue'
-import DistributionPlot from './DistributionPlot.vue'
+import Histogram from './Histogram.vue'
 import SensorHistoryPlot from './SensorHistoryPlot.vue'
 import StatsPlot from './StatsPlot.vue'
 import { HOUR_OF_DAY } from './StatsPlot.vue'
@@ -60,7 +60,7 @@ import { Timespan } from './TrendArrow.vue'
   components: {
     SensorHistoryPlot,
     CompositionPieChart,
-    DistributionPlot,
+    Histogram,
     StatsPlot,
     TrendArrow
   }
