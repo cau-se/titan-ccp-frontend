@@ -47,11 +47,11 @@ export default class SensorHistoryPlot extends Vue {
 
   mounted () {
     this.createPlot()
-    window.addEventListener("resize", this.onSizeChanged)
+    window.addEventListener('resize', this.onSizeChanged)
   }
 
   destroyed () {
-    window.removeEventListener("resize", this.onSizeChanged)
+    window.removeEventListener('resize', this.onSizeChanged)
   }
 
   @Watch('sensor')

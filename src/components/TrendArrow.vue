@@ -63,7 +63,7 @@ export default class TrendArrow extends Vue {
   }
 
   private updateChart () {
-    let resource =
+    const resource =
       this.sensor instanceof AggregatedSensor
         ? 'active-power/aggregated'
         : 'active-power/raw'
@@ -83,7 +83,7 @@ export default class TrendArrow extends Vue {
   }
 
   private get after () {
-    let now = this.timeMode.getTime()
+    const now = this.timeMode.getTime()
     switch (this.timespan) {
       case Timespan.LastHour: {
         return now.minus({ hours: 1 })

@@ -11,13 +11,13 @@
 </template>
 
 <script lang="ts">
-import { Vue, Component, Prop, Watch } from "vue-property-decorator"
+import { Vue, Component, Prop, Watch } from 'vue-property-decorator'
 import { SensorRegistryRequester, AggregatedSensor, Sensor, SensorRegistry } from '../SensorRegistry'
-import { HTTP } from "../http-common"
-import LoadingSpinner from "./LoadingSpinner.vue"
+import { HTTP } from '../http-common'
+import LoadingSpinner from './LoadingSpinner.vue'
 import * as d3 from 'd3'
 import * as _ from 'lodash'
-import TimeMode from "../model/time-mode"
+import TimeMode from '../model/time-mode'
 const britecharts = require('britecharts')
 
 @Component({
@@ -40,7 +40,7 @@ export default class CompositionDonutChart extends Vue {
 
   mounted () {
     this.donutChart = new britecharts.donut()
-    this.container = d3.select(".donut-container")
+    this.container = d3.select('.donut-container')
     this.donutData = []
     this.containerWidth = this.container.node()!.getBoundingClientRect().width
     this.legendChart = this.getLegendChart(this.donutData, britecharts.colors.colorSchemas.britecharts)
@@ -67,7 +67,7 @@ export default class CompositionDonutChart extends Vue {
       this.container.call(this.donutChart)
     }
     const throttledRedraw = _.throttle(redrawChart, 200)
-    window.addEventListener("resize", throttledRedraw)
+    window.addEventListener('resize', throttledRedraw)
   }
 
   @Watch('sensor')
@@ -121,7 +121,7 @@ export default class CompositionDonutChart extends Vue {
     })
   }
 
-  private getLegendChart(dataset:Array<{quantity: number, percentage: number, name: string, id: number}>, optionalColorSchema: any) {
+  private getLegendChart (dataset:Array<{quantity: number, percentage: number, name: string, id: number}>, optionalColorSchema: any) {
     let legendChart =  new britecharts.legend()
     let legendContainer = d3.select('.unvisible-legend-container')
     let containerWidth = legendContainer.node() ? (legendContainer.node() as any).getBoundingClientRect().width : false

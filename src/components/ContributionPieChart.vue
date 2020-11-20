@@ -43,7 +43,7 @@ export default class ContributionPieChart extends Vue {
         type: 'pie',
         order: null,
         colors: {
-            Others: '#BBBBBB'
+          Others: '#BBBBBB'
         }
       },
       tooltip: {
@@ -66,27 +66,27 @@ export default class ContributionPieChart extends Vue {
   private updateChart () {
     this.isLoading = true
 
-    let to = this.timeMode.getTime()
+    const to = this.timeMode.getTime()
 
     Promise.all([
       HTTP.get('active-power/raw/' + this.sensor.identifier + '/latest?to=' + to.toMillis())
-      .then(response => {
-        // JSON responses are automatically parsed.
-        return response.data.length <= 0 ? 0 : response.data[0].valueInW
-      }),
+        .then(response => {
+          // JSON responses are automatically parsed.
+          return response.data.length <= 0 ? 0 : response.data[0].valueInW
+        }),
       HTTP.get('active-power/aggregated/' + this.sensor.parent!.identifier + '/latest?to=' + to.toMillis())
-      .then(response => {
-        // JSON responses are automatically parsed.
-        return response.data.length <= 0 ? 0 : response.data[0].sumInW
-      })
+        .then(response => {
+          // JSON responses are automatically parsed.
+          return response.data.length <= 0 ? 0 : response.data[0].sumInW
+        })
     ])
-    .then(values => {
-      this.isLoading = false
-      this.chart.load({
-        columns: [[this.sensor.title, values[0]], ['Others', values[1] - values[0]]],
-        unload: true
+      .then(values => {
+        this.isLoading = false
+        this.chart.load({
+          columns: [[this.sensor.title, values[0]], ['Others', values[1] - values[0]]],
+          unload: true
+        })
       })
-    })
   }
 }
 </script>

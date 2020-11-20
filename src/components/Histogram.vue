@@ -11,14 +11,14 @@
 
 <script lang="ts">
 declare var require: any
-import { Vue, Component, Prop, Watch } from "vue-property-decorator"
-import LoadingSpinner from "./LoadingSpinner.vue"
-import { HTTP } from "../http-common" 
+import { Vue, Component, Prop, Watch } from 'vue-property-decorator'
+import LoadingSpinner from './LoadingSpinner.vue'
+import { HTTP } from '../http-common'
 import { Sensor, AggregatedSensor } from '../SensorRegistry'
 import * as d3 from 'd3'
 import * as _ from 'lodash' 
 import 'britecharts/dist/css/charts/bar.min.css'
-import TimeMode from "../model/time-mode"
+import TimeMode from '../model/time-mode'
 const britecharts = require('britecharts')
 
 @Component({
@@ -69,7 +69,7 @@ export default class Histogram extends Vue {
       this.container.call(this.barChart)
     } 
     const throttledRedraw = _.throttle(redrawChart, 200)
-    window.addEventListener("resize", throttledRedraw)
+    window.addEventListener('resize', throttledRedraw)
   }
 
   @Watch('sensor')
@@ -100,12 +100,12 @@ export default class Histogram extends Vue {
       )
       .then(response => {
         // JSON responses are automatically parsed.
-        let name: string = "",
-            value: number = 0
+        let name: string = ''
+        let value: number = 0
         for (let bucket of response.data) {
-            name = "" + bucket.lower.toFixed(1) + " - " + bucket.upper.toFixed(1)
+            name = '' + bucket.lower.toFixed(1) + ' - ' + bucket.upper.toFixed(1)
             if(!isNaN(bucket.elements))
-                this.barData.push({name:name, value: bucket.elements})
+                this.barData.push({ name:name, value: bucket.elements })
         }
         return this.barData
       })
