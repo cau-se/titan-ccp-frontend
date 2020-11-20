@@ -12,13 +12,16 @@
 
 <script lang="ts">
 import { Vue, Component, Prop, Watch } from 'vue-property-decorator'
-import { SensorRegistryRequester, AggregatedSensor, Sensor, SensorRegistry } from '../SensorRegistry'
-import { HTTP } from '../http-common'
-import LoadingSpinner from './LoadingSpinner.vue'
+
 import * as d3 from 'd3'
 import * as _ from 'lodash'
-import TimeMode from '../model/time-mode'
 const britecharts = require('britecharts')
+
+import { HTTP } from '../http-common'
+import { AggregatedSensor } from '../SensorRegistry'
+import TimeMode from '../model/time-mode'
+
+import LoadingSpinner from './LoadingSpinner.vue'
 
 @Component({
   components: {
@@ -83,10 +86,10 @@ export default class CompositionDonutChart extends Vue {
   private updateChart () {
     this.isLoading = true
 
-    let to = this.timeMode.getTime()
+    const to = this.timeMode.getTime()
 
     Promise.all(this.sensor.children.map(child => {
-      let resource = child instanceof AggregatedSensor ? 'active-power/aggregated' : 'active-power/raw'
+      const resource = child instanceof AggregatedSensor ? 'active-power/aggregated' : 'active-power/raw'
       return HTTP.get(resource + '/' + child.identifier + '/latest?to=' + to.toMillis())
         .then(response => {
           // JSON responses are automatically parsed.

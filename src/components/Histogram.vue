@@ -12,14 +12,17 @@
 <script lang="ts">
 declare var require: any
 import { Vue, Component, Prop, Watch } from 'vue-property-decorator'
-import LoadingSpinner from './LoadingSpinner.vue'
-import { HTTP } from '../http-common'
-import { Sensor, AggregatedSensor } from '../SensorRegistry'
+
 import * as d3 from 'd3'
 import * as _ from 'lodash' 
-import 'britecharts/dist/css/charts/bar.min.css'
-import TimeMode from '../model/time-mode'
 const britecharts = require('britecharts')
+import 'britecharts/dist/css/charts/bar.min.css'
+
+import { HTTP } from '../http-common'
+import { Sensor, AggregatedSensor } from '../SensorRegistry'
+import TimeMode from '../model/time-mode'
+
+import LoadingSpinner from './LoadingSpinner.vue'
 
 @Component({
   components: {
@@ -27,19 +30,18 @@ const britecharts = require('britecharts')
   }
 })
 export default class Histogram extends Vue {
-
   @Prop({ required: true }) sensor!: Sensor
   @Prop({required: true }) timeMode!: TimeMode
   @Prop({ default: 8}) buckets!: number
 
-  private isLoading = true
-  private isError = false
-  private barChart!: any
-  private tooltip!: any
-  private container!: d3.Selection<HTMLElement, any, HTMLElement, any>
-  private containerWidth!: number
-  private containerHeight!: number
-  private barData!: Array<{name:string, value:number}>
+  private isLoading = true;
+  private isError = false;
+  private barChart!: any;
+  private tooltip!: any;
+  private container!: d3.Selection<HTMLElement, any, HTMLElement, any>;
+  private containerWidth!: number;
+  private containerHeight!: number;
+  private barData!: Array<{name:string, value:number}>;
 
   mounted () {
     this.barChart = new britecharts.bar()
@@ -73,7 +75,7 @@ export default class Histogram extends Vue {
   }
 
   @Watch('sensor')
-  onSensorChanged (sensor: Sensor) {
+  onSensorChanged () {
     this.updateHistogram()
   }
 
@@ -81,12 +83,12 @@ export default class Histogram extends Vue {
     // let resource = this.sensor instanceof AggregatedSensor ? 'aggregated-power-consumption' : 'power-consumption',
     //     after = new Date().getTime() - (1 * 3600 * 1000)
     // HTTP.get(resource + '/' + this.sensor.identifier + '/distribution?after=' + after+ '&buckets=' + this.buckets)
-    let resource = this.sensor instanceof AggregatedSensor
+    const resource = this.sensor instanceof AggregatedSensor
       ? 'active-power/aggregated'
       : 'active-power/raw'
     // Distribution of last hour
-    let after = this.timeMode.getTime().minus({ hours: 1 })
-    let to = this.timeMode.getTime()
+    const after = this.timeMode.getTime().minus({ hours: 1 })
+    const to = this.timeMode.getTime()
     HTTP.get(
       resource +
         '/' +
@@ -100,10 +102,8 @@ export default class Histogram extends Vue {
       )
       .then(response => {
         // JSON responses are automatically parsed.
-        let name: string = ''
-        let value: number = 0
-        for (let bucket of response.data) {
-            name = '' + bucket.lower.toFixed(1) + ' - ' + bucket.upper.toFixed(1)
+        for (const bucket of response.data) {
+            const name = '' + bucket.lower.toFixed(1) + ' - ' + bucket.upper.toFixed(1)
             if(!isNaN(bucket.elements))
                 this.barData.push({ name:name, value: bucket.elements })
         }
@@ -112,7 +112,7 @@ export default class Histogram extends Vue {
       .catch(e => {
         console.error(e)
         this.isError = true
-        return [{name: this.sensor.identifier, value: 0}]
+        return [{ name: this.sensor.identifier, value: 0 }]
       })
       .then(data => {
         this.container.datum(data).call(this.barChart)
@@ -126,6 +126,6 @@ export default class Histogram extends Vue {
 
 <style scoped>
   .histogram {
-    height: 300px
+    height: 300px;
   }
 </style>
