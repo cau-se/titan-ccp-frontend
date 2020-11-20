@@ -15,7 +15,7 @@ export default class SensorParents extends Vue {
   @Prop({ required: true }) sensor!: Sensor
 
   get parents () {
-    let parents = [this.sensor]
+    const parents = [this.sensor]
     while (parents[parents.length - 1].parent) {
       parents.push(parents[parents.length - 1].parent as AggregatedSensor) // cast shouldn't be necessary
     }

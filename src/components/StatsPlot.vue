@@ -176,10 +176,10 @@ export default class StatsPlot extends Vue {
   }
 
   private createPlot (interval?: Interval) {
-    let defaultInterval = this.availableIntervals.find(interval => interval.end >= this.timeMode.getTime())! ||  this.availableIntervals[this.availableIntervals.length - 1];
-    let interval2 = interval || defaultInterval
+    const defaultInterval = this.availableIntervals.find(interval => interval.end >= this.timeMode.getTime())! || this.availableIntervals[this.availableIntervals.length - 1]
+    const interval2 = interval || defaultInterval
 
-    let url = `stats/sensor/${this.sensor.identifier}/${
+    const url = `stats/sensor/${this.sensor.identifier}/${
       this.statsType.url
     }?intervalStart=${this.dateTimeToBackendISO(
       interval2.start
@@ -188,11 +188,11 @@ export default class StatsPlot extends Vue {
     HTTP.get(url)
       .then((response) => {
         // JSON responses are automatically parsed.
-        let labels: string[] = ['x']
-        let minValues: Array<string | number> = ['min']
-        let meanValues: Array<string | number> = ['mean']
-        let maxValues: Array<string | number> = ['max']
-        for (let stats of response.data) {
+        const labels: string[] = ['x']
+        const minValues: Array<string | number> = ['min']
+        const meanValues: Array<string | number> = ['mean']
+        const maxValues: Array<string | number> = ['max']
+        for (const stats of response.data) {
           labels.push(this.statsType.accessor(stats))
           minValues.push(stats.min)
           meanValues.push(stats.mean)

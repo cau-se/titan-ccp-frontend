@@ -121,7 +121,7 @@ export default class Comparision extends Vue {
 
   private async loadAvailableResolutions (): Promise<Resolution[]> {
     return HTTP.get('active-power/windowed').then(
-      response => response.data.map((i: string) => new WindowedResolution(i))
+      (response: any) => response.data.map((i: string) => new WindowedResolution(i))
     )
   }
 
