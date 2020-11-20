@@ -19,7 +19,7 @@
     "@fortawesome/vue-fontawesome": "^0.1.10",
     "@riophae/vue-treeselect": "^0.0.38",
     "@types/lodash.sumby": "^4.6.6",
-    "@types/node": "^10.17.45",
+    "@types/node": "^10.17.46",
     "axios": "^0.18.0",
     "bootstrap-vue": "^2.19.0",
     "britecharts": "^2.17.2",
