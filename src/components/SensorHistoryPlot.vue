@@ -14,10 +14,10 @@ import { Vue, Component, Prop, Watch } from 'vue-property-decorator'
 
 import debounce from 'lodash.debounce'
 
-import { Sensor } from '../SensorRegistry'
-import TimeMode from '../model/time-mode'
-import { TimeSeriesPlotManager, DataPoint } from '../TimeSeriesPlotManager'
-import { CanvasTimeSeriesPlot } from '../canvasPlot/CanvasTimeSeriesPlot'
+import { Sensor } from '@/model/SensorRegistry'
+import TimeMode from '@/model/time-mode'
+import { TimeSeriesPlotManager } from '@/model/TimeSeriesPlotManager'
+import { CanvasTimeSeriesPlot } from '@/model/canvasPlot/CanvasTimeSeriesPlot'
 
 import LoadingSpinner from './LoadingSpinner.vue'
 
@@ -42,6 +42,7 @@ export default class SensorHistoryPlot extends Vue {
   private readonly onSizeChanged = debounce(this.createPlot, 100)
 
   get canvasplotContainer () {
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     return this.$el.querySelector('.canvasplot-container')! as HTMLElement
   }
 

@@ -8,7 +8,7 @@
 <script lang="ts">
 import { Vue, Component, Prop, Emit } from 'vue-property-decorator'
 
-import { Sensor, AggregatedSensor } from '../SensorRegistry'
+import { Sensor, AggregatedSensor } from '@/model/SensorRegistry'
 
 @Component
 export default class SensorParents extends Vue {
@@ -23,6 +23,7 @@ export default class SensorParents extends Vue {
   }
 
   @Emit()
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
   select () {}
 }
 </script>

@@ -39,14 +39,15 @@ import { Vue, Component, Prop } from 'vue-property-decorator'
 import DateRangePicker from 'vue2-daterange-picker'
 import 'vue2-daterange-picker/dist/vue2-daterange-picker.css'
 import { DateTime, Interval } from 'luxon'
-import TimeMode from '../model/time-mode'
-import { Resolution } from '../model/resolution'
+import TimeMode from '@/model/time-mode'
+import { Resolution } from '@/model/resolution'
 
 @Component({
   components: {
     DateRangePicker
   },
   filters: {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     date (value: any) {
       if (!value) return ''
 
@@ -93,7 +94,7 @@ export default class ComparisonSettingBar extends Vue {
       minute: 0,
       second: 0
     })
-    const yesterday = today.minus({days: 1 })
+    const yesterday = today.minus({ days: 1 })
     const thisMonthStart = now.set({
       day: 1,
       hour: 0,
@@ -110,7 +111,9 @@ export default class ComparisonSettingBar extends Vue {
     })
 
     return {
+      // eslint-disable-next-line quote-props
       'Today': [today.toJSDate(), today.plus({ days: 1 }).minus({ seconds: 1 }).toJSDate()],
+      // eslint-disable-next-line quote-props
       'Yesterday': [yesterday.toJSDate(), yesterday.plus({ days: 1 }).minus({ seconds: 1 }).toJSDate()],
       'This month': [thisMonthStart.toJSDate(), thisMonthStart.plus({ month: 1 }).minus({ seconds: 1 }).toJSDate()],
       'This year': [thisYearStart.toJSDate(), thisYearStart.plus({ year: 1 }).minus({ seconds: 1 }).toJSDate()],

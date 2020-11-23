@@ -14,9 +14,9 @@ import { Vue, Component, Prop, Watch } from 'vue-property-decorator'
 
 import { ChartAPI, generate } from 'c3'
 import 'c3/c3.css'
-import { HTTP } from '../http-common'
-import { MachineSensor } from '../SensorRegistry'
-import TimeMode from '../model/time-mode'
+import { HTTP } from '@/model/http-common'
+import { MachineSensor } from '@/model/SensorRegistry'
+import TimeMode from '@/model/time-mode'
 
 import LoadingSpinner from './LoadingSpinner.vue'
 
@@ -74,6 +74,7 @@ export default class ContributionPieChart extends Vue {
           // JSON responses are automatically parsed.
           return response.data.length <= 0 ? 0 : response.data[0].valueInW
         }),
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       HTTP.get('active-power/aggregated/' + this.sensor.parent!.identifier + '/latest?to=' + to.toMillis())
         .then(response => {
           // JSON responses are automatically parsed.
