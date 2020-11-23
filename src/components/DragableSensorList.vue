@@ -1,10 +1,8 @@
 <template>
   <draggable
     :list="sensors"
-    :options="{group:'sensors'}"
-    @start="drag=true"
-    @end="drag=false"
-    :element="'ul'"
+    group="sensors"
+    tag="ul"
     class="list-group dragArea"
   >
     <li v-for="sensor in sensors" :key="sensor.identifier" class="list-group-item-container">
@@ -18,20 +16,19 @@
 
 <script lang="ts">
 import { Vue, Component, Prop } from 'vue-property-decorator'
-
-import { Sensor, AggregatedSensor } from '../SensorRegistry'
-
 // @ts-ignore
 import draggable from 'vuedraggable'
+
+import { Sensor, AggregatedSensor } from '../SensorRegistry'
 
 import SensorRegistryEntry from './SensorRegistryEntry.vue'
 
 @Component({
   components: {
     draggable,
-    // DragableSensorList,
     SensorRegistryEntry
-  }
+  },
+  name: 'DragableSensorList'
 })
 export default class DragableSensorList extends Vue {
   @Prop({ required: true }) sensors!: Sensor[];
