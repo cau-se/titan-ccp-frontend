@@ -2,10 +2,15 @@
   <b-container v-if="loaded">
     <b-row class="mb-4">
       <b-col>
-        <dragable-sensor-list :sensors="[modifiableSensorRegistry.topLevelSensor]" />
+        <b-card no-body header="Sensor Hierarchy">
+          <dragable-sensor-list :sensors="[modifiableSensorRegistry.topLevelSensor]" flush />
+        </b-card>
       </b-col>
       <b-col>
-        <dragable-sensor-list :sensors="unselectedSensors" />
+        <b-card no-body header="Unused Sensors">
+          <dragable-sensor-list :sensors="unselectedSensors" flush />
+        </b-card>
+
         <b-list-group class="mt-3">
           <b-list-group-item class="d-flex align-items-center">
             <b-input
@@ -21,6 +26,7 @@
             </b-button>
           </b-list-group-item>
         </b-list-group>
+
         <div class="error-container">
           <b-alert
             :show="collidedSensorIdentifier"
