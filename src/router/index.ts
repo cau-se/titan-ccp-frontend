@@ -16,7 +16,7 @@ const routes: Array<RouteConfig> = [
     component: Dashboard
   },
   {
-    path: '/sensor-details',
+    path: '/sensor-details/:sensor_path*',
     name: 'SensorDetails',
     component: SensorDetails
   },

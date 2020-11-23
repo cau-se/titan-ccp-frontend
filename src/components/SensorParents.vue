@@ -1,12 +1,12 @@
 <template>
   <b-breadcrumb class="sensor-parents">
-    <b-breadcrumb-item v-for="sensor in parents" :key="sensor.identifier" @click="select(sensor)" href="#" :text="sensor.title" />
+    <b-breadcrumb-item v-for="sensor in sensor.allParents" :key="sensor.identifier" :to="buildPath(sensor)" :text="sensor.title" />
     <b-breadcrumb-item active :text="sensor.title" />
   </b-breadcrumb>
 </template>
 
 <script lang="ts">
-import { Vue, Component, Prop, Emit } from 'vue-property-decorator'
+import { Vue, Component, Prop } from 'vue-property-decorator'
 
 import { Sensor, AggregatedSensor } from '@/model/SensorRegistry'
 
@@ -22,9 +22,9 @@ export default class SensorParents extends Vue {
     return parents.reverse().slice(0, -1)
   }
 
-  @Emit()
-  // eslint-disable-next-line @typescript-eslint/no-empty-function
-  select () {}
+  buildPath (sensor: Sensor): string {
+    return '/sensor-details/' + [...sensor.allParents, sensor].map(s => s.identifier).join('/')
+  }
 }
 </script>
 

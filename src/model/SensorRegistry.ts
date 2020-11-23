@@ -13,8 +13,19 @@ export class AggregatedSensor {
 
   public parent?: AggregatedSensor // TODO make nicer
 
-  get title (): string {
+  get title (): string { // TODO make nicer
     return this.name !== '' ? this.name : this.identifier
+  }
+
+  get allParents (): AggregatedSensor[] { // TODO make nicer
+    const parents: AggregatedSensor[] = []
+    // eslint-disable-next-line @typescript-eslint/no-this-alias
+    let lastSensor: Sensor = this
+    while (lastSensor.parent) {
+      parents.push(lastSensor.parent)
+      lastSensor = lastSensor.parent
+    }
+    return parents.reverse()
   }
 
   get recursiveChildren (): Array<Sensor> {
@@ -35,8 +46,19 @@ export class MachineSensor {
 
   parent?: AggregatedSensor // TODO make nicer
 
-  get title (): string {
+  get title (): string { // TODO make nicer
     return this.name !== '' ? this.name : this.identifier
+  }
+
+  get allParents (): AggregatedSensor[] { // TODO make nicer
+    const parents: AggregatedSensor[] = []
+    // eslint-disable-next-line @typescript-eslint/no-this-alias
+    let lastSensor: Sensor = this
+    while (lastSensor.parent) {
+      parents.push(lastSensor.parent)
+      lastSensor = lastSensor.parent
+    }
+    return parents.reverse()
   }
 }
 
