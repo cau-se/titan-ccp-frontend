@@ -16,9 +16,9 @@
 
 <script lang="ts">
 import { Vue, Component, Prop, Watch } from 'vue-property-decorator'
-import { AggregatedSensor, Sensor } from '../SensorRegistry'
-import { HTTP } from '../http-common'
-import Repeater from '../Repeater'
+import { AggregatedSensor, Sensor } from '@/model/SensorRegistry'
+import { HTTP } from '@/model/http-common'
+import Repeater from '@/model/Repeater'
 import TimeMode from '../model/time-mode'
 
 export enum Timespan {

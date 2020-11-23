@@ -18,7 +18,7 @@
 
 <script lang="ts">
 import { Vue, Component, Prop } from 'vue-property-decorator'
-import { Sensor } from '../SensorRegistry'
+import { Sensor } from '@/model/SensorRegistry'
 
 @Component
 export default class SensorRegistryEntry extends Vue {

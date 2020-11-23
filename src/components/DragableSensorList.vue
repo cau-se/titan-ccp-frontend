@@ -16,12 +16,11 @@
 
 <script lang="ts">
 import { Vue, Component, Prop } from 'vue-property-decorator'
-// @ts-ignore
 import draggable from 'vuedraggable'
 
-import { Sensor, AggregatedSensor } from '../SensorRegistry'
+import { Sensor, AggregatedSensor } from '@/model/SensorRegistry'
 
-import SensorRegistryEntry from './SensorRegistryEntry.vue'
+import SensorRegistryEntry from '@/components/SensorRegistryEntry.vue'
 
 @Component({
   components: {

@@ -19,7 +19,7 @@ npm install
 In order to start a development server running on `http://localhost:8070` execute:
 
 ```shell
-npm run dev
+npm run serve
 ```
 
 A good tool for working on this software is [Visual Studio Code](https://code.visualstudio.com/).

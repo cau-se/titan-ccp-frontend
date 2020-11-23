@@ -14,9 +14,9 @@ import { Vue, Component, Prop, Watch } from 'vue-property-decorator'
 
 import { ChartAPI, generate } from 'c3'
 import 'c3/c3.css'
-import { HTTP } from '../http-common'
-import { Sensor, AggregatedSensor } from '../SensorRegistry'
-import TimeMode from '../model/time-mode'
+import { HTTP } from '@/model/http-common'
+import { Sensor, AggregatedSensor } from '@/model/SensorRegistry'
+import TimeMode from '@/model/time-mode'
 
 import LoadingSpinner from './LoadingSpinner.vue'
 
