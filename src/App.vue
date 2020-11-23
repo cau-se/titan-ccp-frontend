@@ -22,7 +22,7 @@
           <div class="sidebar-sticky">
             <ul class="nav flex-column">
               <li class="nav-item">
-                <router-link to="/" class="nav-link">
+                <router-link to="/" exact class="nav-link">
                   <font-awesome-icon icon="tachometer-alt" fixed-width class="feather" />Dashboard
                 </router-link>
               </li>
@@ -162,7 +162,7 @@ export default class App extends Vue {
 */
 
 .sidebar .nav-link:hover .feather,
-.sidebar .nav-link.router-link-exact-active .feather {
+.sidebar .nav-link.router-link-active .feather {
   color: inherit;
 }
 
