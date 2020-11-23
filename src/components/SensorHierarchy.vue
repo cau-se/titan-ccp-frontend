@@ -80,8 +80,10 @@ export default class SensorHierarchy extends Vue {
 
   async created () {
     if (this.$route.params.id == null) {
-      this.$router.push({
+      this.$router.replace({
         path: `/sensor-management/${this.sensorRegistry.topLevelSensor.identifier}`
+        // name: 'SensorManagement',
+        // params: { this.sensorRegistry.topLevelSensor.identifier }
       })
     }
 
