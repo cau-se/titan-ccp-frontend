@@ -13,15 +13,18 @@
 <script lang="ts">
 import { Vue, Component, Prop, Watch } from 'vue-property-decorator'
 
-import * as d3 from 'd3'
-import * as _ from 'lodash'
-const britecharts = require('britecharts')
+import { select as d3select } from 'd3-selection'
+import colors from 'britecharts/dist/umd/colors.min'
+import donut from 'britecharts/dist/umd/donut.min'
+import legend from 'britecharts/dist/umd/legend.min'
+import 'britecharts/dist/css/charts/bar.min.css'
+import debounce from 'lodash.debounce'
 
-import { HTTP } from '../http-common'
-import { AggregatedSensor } from '../SensorRegistry'
-import TimeMode from '../model/time-mode'
+import { HTTP } from '@/model/http-common'
+import { AggregatedSensor } from '@/model/SensorRegistry'
+import TimeMode from '@/model/time-mode'
 
-import LoadingSpinner from './LoadingSpinner.vue'
+import LoadingSpinner from '@/components/LoadingSpinner.vue'
 
 @Component({
   components: {
@@ -35,41 +38,48 @@ export default class CompositionDonutChart extends Vue {
 
   private isLoading = false
   private isError = false
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private donutChart!: any
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private legendChart!: any
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private container!: d3.Selection<HTMLElement, any, HTMLElement, any>
   private containerWidth!: number
-  private donutData!: Array<{quantity: number, percentage: number, name: string, id: number}>
+  private donutData!: Array<{quantity: number; percentage: number; name: string; id: number}>
 
   mounted () {
-    this.donutChart = new britecharts.donut()
-    this.container = d3.select('.donut-container')
+    // eslint-disable-next-line new-cap
+    this.donutChart = new donut()
+    this.container = d3select('.donut-container')
     this.donutData = []
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     this.containerWidth = this.container.node()!.getBoundingClientRect().width
-    this.legendChart = this.getLegendChart(this.donutData, britecharts.colors.colorSchemas.britecharts)
+    this.legendChart = this.getLegendChart(this.donutData, colors.colorSchemas.britecharts)
 
     this.donutChart
-        .width(this.containerWidth)
-        .externalRadius(this.containerWidth/3.3)
-        .internalRadius(this.containerWidth/5.5)
-        .isAnimated(true)
-        .hasFixedHighlightedSlice(true)
-        .highlightSliceById(1)
-        .on('customMouseOver', (data: any) => {
-            this.legendChart.highlight(data.data.id)
-        })
-        .on('customMouseOut', () => {
-            this.legendChart.highlight()
-        })
+      .width(this.containerWidth)
+      .externalRadius(this.containerWidth / 3.3)
+      .internalRadius(this.containerWidth / 5.5)
+      .isAnimated(true)
+      .hasFixedHighlightedSlice(true)
+      .highlightSliceById(1)
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      .on('customMouseOver', (data: any) => {
+        this.legendChart.highlight(data.data.id)
+      })
+      .on('customMouseOut', () => {
+        this.legendChart.highlight()
+      })
     this.updateChart()
 
     // make the chart responsive
     const redrawChart = () => {
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       const newContainerWidth = this.container.node() ? this.container.node()!.getBoundingClientRect().width : false
       this.donutChart.width(newContainerWidth)
       this.container.call(this.donutChart)
     }
-    const throttledRedraw = _.throttle(redrawChart, 200)
+    const throttledRedraw = debounce(redrawChart, 200)
     window.addEventListener('resize', throttledRedraw)
   }
 
@@ -108,37 +118,41 @@ export default class CompositionDonutChart extends Vue {
       this.isError = true
       return []
     }).then(columns => {
-     let sum = 0
+      let sum = 0
       let id = 1
       for (let i = 0; i < columns.length; i++) {
-          sum += columns[i][1]
+        sum += columns[i][1]
       }
       for (let i = 0; i < columns.length; i++) {
-        let percentage = (columns[i][1]/sum) * 100
+        let percentage = (columns[i][1] / sum) * 100
         percentage = parseFloat(percentage.toFixed(1))
-        this.donutData.push({quantity: columns[i][1], percentage:percentage , name: columns[i][0], id: id })
-        id ++
+        this.donutData.push({ quantity: columns[i][1], percentage: percentage, name: columns[i][0], id: id })
+        id++
       }
       this.isLoading = false
       this.container.datum(this.donutData).call(this.donutChart)
     })
   }
 
-  private getLegendChart (dataset:Array<{quantity: number, percentage: number, name: string, id: number}>, optionalColorSchema: any) {
-    let legendChart =  new britecharts.legend()
-    let legendContainer = d3.select('.unvisible-legend-container')
-    let containerWidth = legendContainer.node() ? (legendContainer.node() as any).getBoundingClientRect().width : false
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  private getLegendChart (dataset: Array<{quantity: number; percentage: number; name: string; id: number}>, optionalColorSchema: any) {
+    // eslint-disable-next-line new-cap
+    const legendChart = new legend()
+    const legendContainer = d3select('.unvisible-legend-container')
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const containerWidth = legendContainer.node() ? (legendContainer.node() as any).getBoundingClientRect().width : false
 
     if (containerWidth) {
-        d3.select('.unvisible-legend-container .britechart-legend').remove()
-        legendChart
-          .width(containerWidth)
-          .height(0)
-          .numberFormat('s')
-        if (optionalColorSchema)
-            legendChart.colorSchema(optionalColorSchema)
-    legendContainer.datum(dataset).call(legendChart)
-    return legendChart
+      d3select('.unvisible-legend-container .britechart-legend').remove()
+      legendChart
+        .width(containerWidth)
+        .height(0)
+        .numberFormat('s')
+      if (optionalColorSchema) {
+        legendChart.colorSchema(optionalColorSchema)
+      }
+      legendContainer.datum(dataset).call(legendChart)
+      return legendChart
     }
   }
 }

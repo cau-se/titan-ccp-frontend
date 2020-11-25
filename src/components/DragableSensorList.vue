@@ -1,11 +1,10 @@
 <template>
   <draggable
     :list="sensors"
-    :options="{group:'sensors'}"
-    @start="drag=true"
-    @end="drag=false"
-    :element="'ul'"
+    group="sensors"
+    tag="ul"
     class="list-group dragArea"
+    :class="{ 'list-group-flush': flush }"
   >
     <li v-for="sensor in sensors" :key="sensor.identifier" class="list-group-item-container">
       <sensor-registry-entry :sensor="sensor" @remove="remove(sensor)" class="list-group-item" />
@@ -18,23 +17,23 @@
 
 <script lang="ts">
 import { Vue, Component, Prop } from 'vue-property-decorator'
-
-import { Sensor, AggregatedSensor } from '../SensorRegistry'
-
-// @ts-ignore
 import draggable from 'vuedraggable'
 
-import SensorRegistryEntry from './SensorRegistryEntry.vue'
+import { Sensor, AggregatedSensor } from '@/model/SensorRegistry'
+
+import SensorRegistryEntry from '@/components/SensorRegistryEntry.vue'
 
 @Component({
   components: {
     draggable,
-    // DragableSensorList,
     SensorRegistryEntry
-  }
+  },
+  name: 'DragableSensorList'
 })
 export default class DragableSensorList extends Vue {
   @Prop({ required: true }) sensors!: Sensor[];
+
+  @Prop({ type: Boolean }) flush = false;
 
   private isAggregatedSensor = (sensor: Sensor) =>
     sensor instanceof AggregatedSensor;
@@ -54,6 +53,13 @@ export default class DragableSensorList extends Vue {
 }
 .list-group-item {
   margin-bottom: -1px;
+}
+.list-group-flush .list-group-item {
+  border-right: 0;
+  border-left: 0;
+}
+.card-header+.list-group-flush > .list-group-item-container:first-child > .list-group-item {
+  border-top: 0;
 }
 .list-group .list-group-item:first-child,
 .list-group
@@ -92,6 +98,10 @@ export default class DragableSensorList extends Vue {
   border-top-left-radius: 0;
   margin-bottom: -1px;
 }
+.list-group-flush.list-group:empty  {
+  border-right: 0;
+  border-left: 0;
+}
 .list-group .list-group:empty {
   padding-left: 2.5rem;
 }
@@ -106,13 +116,20 @@ export default class DragableSensorList extends Vue {
 }
 .list-group:empty::before {
   background-color: rgba(0, 0, 0, 0.05);
-  content: "no child sensors";
+  content: "no sensors";
   text-align: center;
   color: rgba(0, 0, 0, 0.5);
   font-size: 1em;
   line-height: 2em;
-  font-style: italic;
 }
+.list-group-item-container .list-group:empty::before {
+  content: "no child sensors";
+}
+.list-group-flush .list-group:empty {
+  border-right: 0;
+  border-left: 0;
+}
+
 .sortable-ghost {
   border: 2px dashed steelblue;
 }

@@ -27,8 +27,7 @@ import flatPickr from 'vue-flatpickr-component'
 import 'flatpickr/dist/flatpickr.css'
 
 import { DateTime } from 'luxon'
-import TimeMode from '../model/time-mode'
-
+import TimeMode from '@/model/time-mode'
 
 @Component({
   components: {

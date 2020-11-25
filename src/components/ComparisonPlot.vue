@@ -37,24 +37,24 @@
 <script lang="ts">
 import { Vue, Component, Prop, Watch } from 'vue-property-decorator'
 
-// @ts-ignore
 import Treeselect from '@riophae/vue-treeselect'
 import '@riophae/vue-treeselect/dist/vue-treeselect.css'
 
 import { Interval } from 'luxon'
-import ColorRepository from '../ColorRepository'
-import { HTTP } from '../http-common'
-import { Sensor, AggregatedSensor, SensorRegistry } from '../SensorRegistry'
+import ColorRepository from '@/model/ColorRepository'
+import { HTTP } from '@/model/http-common'
+import { Sensor, AggregatedSensor, SensorRegistry } from '@/model/SensorRegistry'
 
-import { Resolution } from '../model/resolution'
+import { Resolution } from '@/model/resolution'
 
-// @ts-ignore
-import { CanvasTimeSeriesPlot } from '../canvasPlot/CanvasTimeSeriesPlot'
-import { DataPoint } from '../TimeSeriesPlotManager'
+import { CanvasTimeSeriesPlot } from '@/model/canvasPlot/CanvasTimeSeriesPlot'
+import { DataPoint } from '@/model//TimeSeriesPlotManager'
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 declare let d3version3: any
 
 class DataSet {
+  // eslint-disable-next-line no-useless-constructor
   constructor (readonly sensor: Sensor) {}
 }
 
@@ -91,6 +91,7 @@ export default class ComparisonPlot extends Vue {
   private plot!: CanvasTimeSeriesPlot; // Will definitely be assigned in mounted
 
   get canvasplotContainer () {
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     return this.$el.querySelector('.canvasplot-container')!
   }
 
@@ -168,6 +169,7 @@ export default class ComparisonPlot extends Vue {
     )
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   updatedView (except: any, xDomain: any) {
     this.$emit('update-domain-x', xDomain)
   }
@@ -197,10 +199,11 @@ export default class ComparisonPlot extends Vue {
         // JSON responses are automatically parsed.
         console.log('response', response)
         return response.data.map(
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           (x: any) =>
             new DataPoint(
-              this.resolution.timestampAccessor(x, sensor),
-              this.resolution.valueAccessor(x, sensor)
+              this.resolution.accessTimestamp(x, sensor),
+              this.resolution.accessValue(x, sensor)
             )
         )
       })

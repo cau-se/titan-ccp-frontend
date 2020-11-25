@@ -2,7 +2,7 @@
 
 # Replace env vars in JavaScript files
 echo "Replacing env vars in JS"
-for file in /var/www/titan-ccp/dist/*.js;
+for file in /var/www/titan-ccp/js/*.js;
 do
   echo "Processing $file";
 

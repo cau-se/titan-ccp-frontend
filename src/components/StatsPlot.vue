@@ -27,9 +27,10 @@ import { Vue, Component, Prop, Watch } from 'vue-property-decorator'
 import { ChartAPI, generate } from 'c3'
 import 'c3/c3.css'
 import { DateTime, Interval } from 'luxon'
-import { HTTP } from '../http-common'
-import { Sensor } from '../SensorRegistry'
-import TimeMode from '../model/time-mode'
+import { HTTP } from '@/model/http-common'
+import { Sensor } from '@/model/SensorRegistry'
+import TimeMode from '@/model/time-mode'
+
 import LoadingSpinner from './LoadingSpinner.vue'
 
 function getDayOfWeekText (number: number) {
@@ -74,6 +75,7 @@ class IntervalSelectOption {
 export interface StatsType {
   title: string;
   url: string;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   accessor: (stats: any) => string;
 }
 
@@ -158,6 +160,7 @@ export default class StatsPlot extends Vue {
   private loadAvailableIntervals () {
     return HTTP.get(`/stats/interval/${this.statsType.url}`).then(
       (response) => {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         this.availableIntervals = response.data.map((i: any) =>
           Interval.fromDateTimes(
             DateTime.fromISO(i.intervalStart),
@@ -176,6 +179,7 @@ export default class StatsPlot extends Vue {
   }
 
   private createPlot (interval?: Interval) {
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     const defaultInterval = this.availableIntervals.find(interval => interval.end >= this.timeMode.getTime())! || this.availableIntervals[this.availableIntervals.length - 1]
     const interval2 = interval || defaultInterval
 
