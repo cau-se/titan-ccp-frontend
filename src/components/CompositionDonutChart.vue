@@ -46,6 +46,7 @@ export default class CompositionDonutChart extends Vue {
   private container!: d3.Selection<HTMLElement, any, HTMLElement, any>
   private containerWidth!: number
   private donutData!: Array<{quantity: number; percentage: number; name: string; id: number}>
+  private readonly onSizeChanged = debounce(this.redrawChart, 200)
 
   mounted () {
     // eslint-disable-next-line new-cap
@@ -69,16 +70,19 @@ export default class CompositionDonutChart extends Vue {
         this.legendChart.clearHighlight()
       })
     this.updateChart()
+    window.addEventListener('resize', this.onSizeChanged)
+  }
 
-    // make the chart responsive
-    const redrawChart = () => {
-      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-      const newContainerWidth = this.container.node() ? this.container.node()!.getBoundingClientRect().width : false
-      this.donutChart.width(newContainerWidth)
-      this.container.call(this.donutChart)
-    }
-    const throttledRedraw = debounce(redrawChart, 200)
-    window.addEventListener('resize', throttledRedraw)
+  destroyed () {
+    window.removeEventListener('resize', this.onSizeChanged)
+  }
+
+  // make the chart responsive
+  private redrawChart () {
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    const newContainerWidth = this.container.node() ? this.container.node()!.getBoundingClientRect().width : false
+    this.donutChart.width(newContainerWidth)
+    this.container.call(this.donutChart)
   }
 
   @Watch('sensor')
@@ -153,7 +157,6 @@ export default class CompositionDonutChart extends Vue {
         legendChart.colorSchema(optionalColorSchema)
       }
       legendContainer.datum(dataset).call(legendChart)
-      console.log('width', containerWidth)
       return legendChart
     }
   }
