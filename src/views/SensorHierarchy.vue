@@ -58,6 +58,7 @@ import {
   SensorRegistry,
   SensorRegistryRequester
 } from '@/model/SensorRegistry'
+import env from '@/util/Env'
 
 import DragableSensorList from '@/components/DragableSensorList.vue'
 
@@ -109,7 +110,7 @@ export default class SensorHierarchy extends Vue {
   }
 
   get demoMode () {
-    return process.env.DEMO === 'true'
+    return env('VUE_APP_DEMO_MODE') === 'true'
   }
 
   async save () {
