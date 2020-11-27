@@ -4,7 +4,7 @@
       <h5 class="card-title">Composition</h5>
       <loading-spinner :is-loading="isLoading" :is-error="isError">
         <div class="donut-container"></div>
-        <div class="unvisible-legend-container"></div>
+        <div class="js-inline-legend-chart-container"></div>
       </loading-spinner>
     </div>
   </div>
@@ -61,14 +61,12 @@ export default class CompositionDonutChart extends Vue {
       .externalRadius(this.containerWidth / 3.3)
       .internalRadius(this.containerWidth / 5.5)
       .isAnimated(true)
-      .hasFixedHighlightedSlice(true)
-      .highlightSliceById(1)
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       .on('customMouseOver', (data: any) => {
         this.legendChart.highlight(data.data.id)
       })
       .on('customMouseOut', () => {
-        this.legendChart.highlight()
+        this.legendChart.clearHighlight()
       })
     this.updateChart()
 
@@ -130,6 +128,7 @@ export default class CompositionDonutChart extends Vue {
         id++
       }
       this.isLoading = false
+      this.legendChart = this.getLegendChart(this.donutData, colors.colorSchemas.britecharts)
       this.container.datum(this.donutData).call(this.donutChart)
     })
   }
@@ -138,20 +137,23 @@ export default class CompositionDonutChart extends Vue {
   private getLegendChart (dataset: Array<{quantity: number; percentage: number; name: string; id: number}>, optionalColorSchema: any) {
     // eslint-disable-next-line new-cap
     const legendChart = new legend()
-    const legendContainer = d3select('.unvisible-legend-container')
+    const legendContainer = d3select('.js-inline-legend-chart-container')
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const containerWidth = legendContainer.node() ? (legendContainer.node() as any).getBoundingClientRect().width : false
 
     if (containerWidth) {
-      d3select('.unvisible-legend-container .britechart-legend').remove()
+      d3select('.js-inline-legend-chart-container .britechart-legend').remove()
       legendChart
         .width(containerWidth)
-        .height(0)
+        .height(30)
         .numberFormat('s')
+        .isHorizontal(true)
+        .markerSize(10)
       if (optionalColorSchema) {
         legendChart.colorSchema(optionalColorSchema)
       }
       legendContainer.datum(dataset).call(legendChart)
+      console.log('width', containerWidth)
       return legendChart
     }
   }
@@ -162,7 +164,7 @@ export default class CompositionDonutChart extends Vue {
   .donut-container {
     height: 300px;
   }
-  .unvisible-legend-container {
+  .js-inline-legend-chart-container {
     height: 0px;
   }
 </style>
