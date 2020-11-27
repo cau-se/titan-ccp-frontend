@@ -45,7 +45,7 @@ export default class Histogram extends Vue {
   private container!: d3.Selection<HTMLElement, any, HTMLElement, any>;
   private containerWidth!: number;
   private containerHeight!: number;
-  private barData!: Array<{name: string; value: number}>;
+  private barData!: Array<{name: string; tooltipLabel: string; value: number}>;
 
   mounted () {
     // eslint-disable-next-line new-cap
@@ -63,12 +63,11 @@ export default class Histogram extends Vue {
       .height(this.containerHeight)
       .width(this.containerWidth)
       .isAnimated(true)
-      .isHorizontal(true)
       .yAxisPaddingBetweenChart(10)
       .on('customMouseOver', this.tooltip.show)
       .on('customMouseMove', this.tooltip.update)
       .on('customMouseOut', this.tooltip.hide)
-      .margin({ left: 93, bottom: 14 })
+      .margin({ left: 93, bottom: 18 })
 
     this.updateHistogram()
 
@@ -89,9 +88,6 @@ export default class Histogram extends Vue {
   }
 
   private updateHistogram () {
-    // let resource = this.sensor instanceof AggregatedSensor ? 'aggregated-power-consumption' : 'power-consumption',
-    //     after = new Date().getTime() - (1 * 3600 * 1000)
-    // HTTP.get(resource + '/' + this.sensor.identifier + '/distribution?after=' + after+ '&buckets=' + this.buckets)
     const resource = this.sensor instanceof AggregatedSensor
       ? 'active-power/aggregated'
       : 'active-power/raw'
@@ -112,9 +108,10 @@ export default class Histogram extends Vue {
       .then(response => {
         // JSON responses are automatically parsed.
         for (const bucket of response.data) {
-          const name = '' + bucket.lower.toFixed(1) + ' - ' + bucket.upper.toFixed(1)
+          const xLabel = '' + Math.round((parseInt(bucket.lower.toFixed(1)) + parseInt(bucket.upper.toFixed(1))) / 2)
+          const tooltipLabel = '' + bucket.lower.toFixed(1) + ' - ' + bucket.upper.toFixed(1)
           if (!isNaN(bucket.elements)) {
-            this.barData.push({ name: name, value: bucket.elements })
+            this.barData.push({ name: xLabel, tooltipLabel: tooltipLabel, value: bucket.elements })
           }
         }
         return this.barData
@@ -125,6 +122,7 @@ export default class Histogram extends Vue {
         return [{ name: this.sensor.identifier, value: 0 }]
       })
       .then(data => {
+        this.tooltip.nameLabel('tooltipLabel')
         this.container.datum(data).call(this.barChart)
         const tooltipContainer = d3select('.histogram .bar-chart .metadata-group')
         tooltipContainer.datum([]).call(this.tooltip)
