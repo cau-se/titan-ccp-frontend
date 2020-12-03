@@ -24,10 +24,6 @@
 <script lang="ts">
 import { Vue, Component, Prop, Watch } from 'vue-property-decorator'
 
-// import { ChartAPI, generate } from 'c3'
-// import 'c3/c3.css'
-// import * as d3 from 'd3'
-import * as _ from 'lodash'
 import { DateTime, Interval } from 'luxon'
 import { HTTP } from '@/model/http-common'
 import { Sensor } from '@/model/SensorRegistry'
@@ -39,6 +35,7 @@ import { select as d3select } from 'd3-selection'
 import 'britecharts/dist/css/britecharts.css'
 import line from 'britecharts/dist/umd/line.min'
 import tooltip from 'britecharts/dist/umd/tooltip.min'
+import debounce from 'lodash.debounce'
 
 function getDayOfWeekText (number: number) {
   switch (number) {
@@ -155,11 +152,15 @@ export default class StatsPlot extends Vue {
   private isLoading = true;
   private isError = false;
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private plot!: any;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private tooltip!: any;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private container!: d3.Selection<any, any, null, undefined>;
   private containerWidth!: number;
   private containerHeight!: number;
+  private readonly onSizeChanged = debounce(this.redrawChart, 600)
 
   get intervalSelectOptions (): Array<IntervalSelectOption> {
     return this.availableIntervals.map((i) => new IntervalSelectOption(i))
@@ -196,19 +197,18 @@ export default class StatsPlot extends Vue {
       .on('customMouseOut', this.tooltip.hide)
 
     this.loadAvailableIntervals().then(() => this.createPlot())
-    this.makeChartResponsive(this.container, this.plot)
+    window.addEventListener('resize', this.onSizeChanged)
   }
 
-  private makeChartResponsive (container: any, plot: any) {
-    const redrawChart = () => {
-      const newContainerWidth = container.node()
-        ? container.node()!.getBoundingClientRect().width
-        : false
-      plot.width(newContainerWidth)
-      container.call(plot)
-    }
-    const throttledRedraw = _.throttle(redrawChart, 600)
-    window.addEventListener('resize', throttledRedraw)
+  destroyed () {
+    window.removeEventListener('resize', this.onSizeChanged)
+  }
+
+  private redrawChart () {
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    const newContainerWidth = this.container.node() ? this.container.node()!.getBoundingClientRect().width : false
+    this.plot.width(newContainerWidth)
+    this.container.call(this.plot)
   }
 
   @Watch('sensor')
@@ -278,17 +278,10 @@ export default class StatsPlot extends Vue {
         return [['x'], ['mean']]
       })
       .then((data) => {
-        console.log('leeeeeeeeength: ', data[0].length - 0)
         this.plot.xTicks(data[0].length - 0)
-        console.log('data: ', data[0])
-        // this.plot.xAxisLabel(data[0])
         const datal = this.cleanFormat(data)
         this.container.datum(datal).call(this.plot)
-        const tooltipContainer = d3select(
-          this.$el.querySelector(
-            '.plot-container .metadata-group .vertical-marker-container'
-          )
-        )
+        const tooltipContainer = d3select('.plot-container .metadata-group .vertical-marker-container')
         tooltipContainer.datum([]).call(this.tooltip)
         this.isLoading = false
       })
@@ -298,16 +291,17 @@ export default class StatsPlot extends Vue {
     return dateTime.toUTC().toISO({ suppressMilliseconds: true })
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private cleanFormat (rawData: any): any {
     rawData[1].shift()
     rawData[0].shift()
 
     const data = rawData[1]
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const xAxisTickName: any = rawData[0]
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const cleanFormat = { data: [] as any }
     const ticksName: Array<Date> = []
-
-    console.log('xAxisTickName: ', xAxisTickName)
 
     if (this.statsType.url === 'day-of-week') {
       for (let i = 0; i < data.length; i++) {
@@ -325,7 +319,6 @@ export default class StatsPlot extends Vue {
       }
     }
 
-    console.log('ticksName: ', ticksName)
     for (let i = 0; i < data.length; i++) {
       cleanFormat.data.push({
         topicName: 'mean',
@@ -334,104 +327,9 @@ export default class StatsPlot extends Vue {
         value: data[i]
       })
     }
-    console.log(cleanFormat)
     return cleanFormat
   }
 }
-
-// class IntervalSelectOption {
-//   public readonly value: Interval;
-//   public readonly text: string;
-
-//   constructor(interval: Interval) {
-//     this.value = interval
-//     this.text = interval.toFormat('yyyy/MM/dd')
-//   }
-// }
-
-// export interface StatsType {
-//   title: string;
-//   url: string;
-//   xAxisFormat: string;
-//   dateFormat: string;
-//   tooltipTitle: string;
-//   accessor: (stats: any) => string;
-// }
-
-// export const HOUR_OF_DAY: StatsType = {
-//   title: 'Power Consumption per Hour of Day',
-//   url: 'hour-of-day',
-//   xAxisFormat: "%H",
-//   dateFormat: "%H",
-//   tooltipTitle: "Hour of day",
-//   accessor: (stats) => stats.hourOfDay,
-// };
-
-// export const DAY_OF_WEEK: StatsType = {
-//   title: 'Power Consumption per Day of Week',
-//   url: 'day-of-week',
-//   xAxisFormat: "%A",
-//   dateFormat: "%A",
-//   tooltipTitle: "Day of week",
-//   accessor: (stats) => getDayOfWeekText(stats.dayOfWeek),
-// };
-
-// function getDayOfWeekText(number: number) {
-//   switch (number) {
-//     case 1: {
-//       return 'Monday'
-//     }
-//     case 2: {
-//       return 'Tuesday'
-//     }
-//     case 3: {
-//       return 'Wednesday'
-//     }
-//     case 4: {
-//       return 'Thursday'
-//     }
-//     case 5: {
-//       return 'Friday'
-//     }
-//     case 6: {
-//       return 'Saturday'
-//     }
-//     case 7: {
-//       return 'Sunday'
-//     }
-//     default: {
-//       throw new RangeError('Day of week number must be between 1 and 7');
-//     }
-//   }
-// }
-// function getDayOfWeekNumber(name: string) {
-//   switch (name) {
-//     case 'Sunday': {
-//       return 7
-//     }
-//     case 'Monday': {
-//       return 1
-//     }
-//     case 'Tuesday': {
-//       return 2
-//     }
-//     case 'Wednesday': {
-//       return 3
-//     }
-//     case 'Thursday': {
-//       return 4
-//     }
-//     case 'Friday': {
-//       return 5
-//     }
-//     case 'Saturday': {
-//       return 6
-//     }
-//     default: {
-//       throw new RangeError('Day of week number must be between 1 and 7');
-//     }
-//   }
-// }
 
 </script>
 
