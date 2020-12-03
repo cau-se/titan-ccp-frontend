@@ -39,11 +39,13 @@
         <contribution-pie-chart :sensor="internalSensor" :timeMode="timeMode" />
       </b-col>
     </b-row>
-    <b-row class="mb-4">
-      <b-col cols="6">
+       <b-row class="mb-4">
+      <b-col cols="12">
         <stats-plot :sensor="internalSensor" :stats-type="statsDayOfWeek" :timeMode="timeMode" />
       </b-col>
-      <b-col cols="6">
+    </b-row>
+    <b-row class="mb-4">
+      <b-col cols="12">
         <stats-plot :sensor="internalSensor" :stats-type="statsHourOfDay" :timeMode="timeMode" />
       </b-col>
     </b-row>
