@@ -1,42 +1,51 @@
-import { Interval } from 'luxon';
-import { AggregatedSensor, Sensor } from '../SensorRegistry';
+import { Interval } from 'luxon'
+import { AggregatedSensor, Sensor } from '@/model/SensorRegistry'
 
 export interface Resolution {
-
   getQueryUrl(sensor: Sensor, range: Interval): string;
 
   name: string;
 
-  valueAccessor: (json: any, sensor: Sensor) => number;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  accessValue(json: any, sensor: Sensor): number;
 
-  timestampAccessor: (json: any, sensor: Sensor) => Date;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  accessTimestamp(json: any, sensor: Sensor): Date;
 }
 
 export class RawResolution implements Resolution {
+  readonly name = 'highest'
 
-  // eslint-disable-next-line @typescript-eslint/no-empty-function
-  constructor() {}
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  accessValue (json: any, sensor: Sensor) {
+    return sensor instanceof AggregatedSensor ? json.sumInW : json.valueInW
+  }
 
-  name = 'highest'
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  accessTimestamp (json: any) {
+    return new Date(json.timestamp)
+  }
 
-  valueAccessor = (json: { sumInW: any; valueInW: any }, sensor: any) => sensor instanceof AggregatedSensor ? json.sumInW : json.valueInW;
-
-  timestampAccessor = (json: { timestamp: string | number | Date }, _: any) => new Date(json.timestamp);
-
-  getQueryUrl(sensor: Sensor, range: Interval) {
-    return `${sensor instanceof AggregatedSensor ? 'active-power/aggregated' : 'active-power/raw'}/${sensor.identifier}?from=${range.start.toMillis()}&to=${range.end.toMillis()}`;
+  getQueryUrl (sensor: Sensor, range: Interval) {
+    return `${sensor instanceof AggregatedSensor ? 'active-power/aggregated' : 'active-power/raw'}/${sensor.identifier}?from=${range.start.toMillis()}&to=${range.end.toMillis()}`
   }
 }
 
 export class WindowedResolution implements Resolution {
+  // eslint-disable-next-line no-useless-constructor
+  constructor (readonly name: string) {}
 
-  constructor(readonly name: string) {}
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  accessValue (json: any) {
+    return json.mean
+  }
 
-  valueAccessor = (json: { mean: any}, _: any) => json.mean;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  accessTimestamp (json: any) {
+    return new Date(json.startTimestamp)
+  }
 
-  timestampAccessor = (json: { startTimestamp: string | number | Date }, _: any) => new Date(json.startTimestamp);
-
-  getQueryUrl(sensor: Sensor, range: Interval) {
-    return `active-power/windowed/${this.name}/${sensor.identifier}?from=${range.start.toMillis()}&to=${range.end.toMillis()}`;
+  getQueryUrl (sensor: Sensor, range: Interval) {
+    return `active-power/windowed/${this.name}/${sensor.identifier}?from=${range.start.toMillis()}&to=${range.end.toMillis()}`
   }
 }

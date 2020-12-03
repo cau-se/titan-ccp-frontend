@@ -36,24 +36,27 @@
 
 <script lang="ts">
 import { Vue, Component, Prop, Watch } from 'vue-property-decorator'
-import { HTTP } from '../http-common'
-import {
-  Sensor,
-  AggregatedSensor,
-  MachineSensor,
-  SensorRegistry,
-} from '../SensorRegistry'
-import ColorRepository from '../ColorRepository'
-// @ts-ignore
+
 import Treeselect from '@riophae/vue-treeselect'
 import '@riophae/vue-treeselect/dist/vue-treeselect.css'
-// @ts-ignore
-import { CanvasTimeSeriesPlot } from '../canvasPlot/CanvasTimeSeriesPlot'
-import { DataPoint } from '../TimeSeriesPlotManager'
-import { DateTime, Interval } from 'luxon'
-import { Resolution } from '../model/resolution'
 
-declare var d3version3: any
+import { Interval } from 'luxon'
+import ColorRepository from '@/model/ColorRepository'
+import { HTTP } from '@/model/http-common'
+import { Sensor, AggregatedSensor, SensorRegistry } from '@/model/SensorRegistry'
+
+import { Resolution } from '@/model/resolution'
+
+import { CanvasTimeSeriesPlot } from '@/model/canvasPlot/CanvasTimeSeriesPlot'
+import { DataPoint } from '@/model//TimeSeriesPlotManager'
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+declare let d3version3: any
+
+class DataSet {
+  // eslint-disable-next-line no-useless-constructor
+  constructor (readonly sensor: Sensor) {}
+}
 
 @Component({
   components: {
@@ -88,6 +91,7 @@ export default class ComparisonPlot extends Vue {
   private plot!: CanvasTimeSeriesPlot; // Will definitely be assigned in mounted
 
   get canvasplotContainer () {
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     return this.$el.querySelector('.canvasplot-container')!
   }
 
@@ -134,12 +138,12 @@ export default class ComparisonPlot extends Vue {
 
   async addDataSet () {
     if (this.newDataSet) {
-      let dataSet = new DataSet(this.newDataSet)
+      const dataSet = new DataSet(this.newDataSet)
       this.dataSets.push(dataSet)
       this.newDataSet = null
       this.addDataSetActive = false
 
-      let dataPoints = await this.fetchNewData(dataSet.sensor)
+      const dataPoints = await this.fetchNewData(dataSet.sensor)
       this.plot.addDataSet(
         dataSet.sensor.identifier,
         dataSet.sensor.title,
@@ -153,7 +157,7 @@ export default class ComparisonPlot extends Vue {
 
   // TODO Reduce duplicate code
   async refreshDataSet (dataSet: DataSet) {
-    let dataPoints = await this.fetchNewData(dataSet.sensor)
+    const dataPoints = await this.fetchNewData(dataSet.sensor)
     this.plot.removeDataSet(dataSet.sensor.identifier)
     this.plot.addDataSet(
       dataSet.sensor.identifier,
@@ -165,13 +169,14 @@ export default class ComparisonPlot extends Vue {
     )
   }
 
-  updatedView (except: any, xDomain: any, yDomain: any) {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  updatedView (except: any, xDomain: any) {
     this.$emit('update-domain-x', xDomain)
   }
 
   @Watch('domainX')
   syncView () {
-    let currentXDomain = this.plot.getXDomain()
+    const currentXDomain = this.plot.getXDomain()
     if (
       currentXDomain[0].getTime() !== this.domainX[0].getTime() ||
       currentXDomain[1].getTime() !== this.domainX[1].getTime()
@@ -183,7 +188,7 @@ export default class ComparisonPlot extends Vue {
   @Watch('resolution')
   @Watch('range')
   onSettingsChanged () {
-    for (let dataSet of this.dataSets) {
+    for (const dataSet of this.dataSets) {
       this.refreshDataSet(dataSet)
     }
   }
@@ -194,10 +199,11 @@ export default class ComparisonPlot extends Vue {
         // JSON responses are automatically parsed.
         console.log('response', response)
         return response.data.map(
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           (x: any) =>
             new DataPoint(
-              this.resolution.timestampAccessor(x, sensor),
-              this.resolution.valueAccessor(x, sensor)
+              this.resolution.accessTimestamp(x, sensor),
+              this.resolution.accessValue(x, sensor)
             )
         )
       })
@@ -206,10 +212,6 @@ export default class ComparisonPlot extends Vue {
         return []
       })
   }
-}
-
-class DataSet {
-  constructor(readonly sensor: Sensor) {}
 }
 </script>
 

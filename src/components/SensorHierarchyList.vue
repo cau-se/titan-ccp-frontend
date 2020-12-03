@@ -48,8 +48,9 @@
 </template>
 
 <script lang="ts">
-import { Prop, Vue, Component } from 'vue-property-decorator'
-import { SensorRegistryRequester, JsonSensor } from '../SensorRegistry'
+import { Vue, Component } from 'vue-property-decorator'
+
+import { SensorRegistryRequester, JsonSensor } from '@/model/SensorRegistry'
 
 @Component({})
 export default class SensorHierarchyList extends Vue {

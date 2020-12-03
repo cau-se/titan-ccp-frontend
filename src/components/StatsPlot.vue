@@ -23,21 +23,118 @@
 
 <script lang="ts">
 import { Vue, Component, Prop, Watch } from 'vue-property-decorator'
-import LoadingSpinner from './LoadingSpinner.vue'
-import { HTTP } from '../http-common'
-import { Sensor, AggregatedSensor } from '../SensorRegistry'
+
 // import { ChartAPI, generate } from 'c3'
 // import 'c3/c3.css'
 import * as d3 from "d3"
 import * as _ from "lodash"
-
 import { DateTime, Interval } from 'luxon'
-import TimeMode from '../model/time-mode'
+import { HTTP } from '@/model/http-common'
+import { Sensor } from '@/model/SensorRegistry'
+import TimeMode from '@/model/time-mode'
+
+import LoadingSpinner from './LoadingSpinner.vue'
+
+function getDayOfWeekText (number: number) {
+  switch (number) {
+    case 1: {
+      return 'Monday'
+    }
+    case 2: {
+      return 'Tuesday'
+    }
+    case 3: {
+      return 'Wednesday'
+    }
+    case 4: {
+      return 'Thursday'
+    }
+    case 5: {
+      return 'Friday'
+    }
+    case 6: {
+      return 'Saturday'
+    }
+    case 7: {
+      return 'Sunday'
+    }
+    default: {
+      throw new RangeError('Day of week number must be between 1 and 7')
+    }
+  }
+}
+
+function getDayOfWeekNumber(name: string) {
+  switch (name) {
+    case 'Sunday': {
+      return 7
+    }
+    case 'Monday': {
+      return 1
+    }
+    case 'Tuesday': {
+      return 2
+    }
+    case 'Wednesday': {
+      return 3
+    }
+    case 'Thursday': {
+      return 4
+    }
+    case 'Friday': {
+      return 5
+    }
+    case 'Saturday': {
+      return 6
+    }
+    default: {
+      throw new RangeError('Day of week number must be between 1 and 7');
+    }
+  }
+}
+
+class IntervalSelectOption {
+  public readonly value: Interval;
+  public readonly text: string;
+
+  constructor (interval: Interval) {
+    this.value = interval
+    this.text = interval.toFormat('yyyy/MM/dd')
+  }
+}
+
+export interface StatsType {
+  title: string;
+  url: string;
+  xAxisFormat: string;
+  dateFormat: string;
+  tooltipTitle: string;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  accessor: (stats: any) => string;
+}
+
+export const HOUR_OF_DAY: StatsType = {
+  title: 'Daily Course',
+  url: 'hour-of-day',
+  xAxisFormat: '%H',
+  dateFormat: '%H',
+  tooltipTitle: 'Hour of day',
+  accessor: (stats) => stats.hourOfDay
+}
+
+export const DAY_OF_WEEK: StatsType = {
+  title: 'Weekly Course',
+  url: 'day-of-week',
+  xAxisFormat: '%A',
+  dateFormat: '%A',
+  tooltipTitle: 'Day of week',
+  accessor: (stats) => getDayOfWeekText(stats.dayOfWeek)
+}
 
 import "britecharts/dist/css/britecharts.css";
 const lineMargin = { top: 60, bottom: 30, left: 80, right: 50 };
-const line = require("britecharts/src/charts/line");
-const tooltip = require("britecharts/src/charts/tooltip");
+import line from 'britecharts/dist/umd/line.min'
+import tooltip from 'britecharts/dist/umd/tooltip.min'
 
 @Component({
   components: {
@@ -50,7 +147,7 @@ export default class StatsPlot extends Vue {
   @Prop({ required: true }) statsType!: StatsType;
 
   @Prop({ required: true }) timeMode!: TimeMode;
-  
+
   private availableIntervals: Interval[] = [];
   private selectedInterval: Interval | null = null;
 
@@ -119,6 +216,7 @@ export default class StatsPlot extends Vue {
   private loadAvailableIntervals () {
     return HTTP.get(`/stats/interval/${this.statsType.url}`).then(
       (response) => {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         this.availableIntervals = response.data.map((i: any) =>
           Interval.fromDateTimes(
             DateTime.fromISO(i.intervalStart),
@@ -137,10 +235,11 @@ export default class StatsPlot extends Vue {
   }
 
   private createPlot (interval?: Interval) {
-    let defaultInterval = this.availableIntervals.find(interval => interval.end >= this.timeMode.getTime())! ||  this.availableIntervals[this.availableIntervals.length - 1];
-    let interval2 = interval || defaultInterval
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    const defaultInterval = this.availableIntervals.find(interval => interval.end >= this.timeMode.getTime())! || this.availableIntervals[this.availableIntervals.length - 1]
+    const interval2 = interval || defaultInterval
 
-    let url = `stats/sensor/${this.sensor.identifier}/${
+    const url = `stats/sensor/${this.sensor.identifier}/${
       this.statsType.url
     }?intervalStart=${this.dateTimeToBackendISO(
       interval2.start
@@ -149,11 +248,11 @@ export default class StatsPlot extends Vue {
     HTTP.get(url)
       .then((response) => {
         // JSON responses are automatically parsed.
-        let labels: string[] = ['x']
-        let minValues: Array<string | number> = ['min']
-        let meanValues: Array<string | number> = ['mean']
-        let maxValues: Array<string | number> = ['max']
-        for (let stats of response.data) {
+        const labels: string[] = ['x']
+        const minValues: Array<string | number> = ['min']
+        const meanValues: Array<string | number> = ['mean']
+        const maxValues: Array<string | number> = ['max']
+        for (const stats of response.data) {
           labels.push(this.statsType.accessor(stats))
           minValues.push(stats.min)
           meanValues.push(stats.mean)
@@ -237,99 +336,99 @@ export default class StatsPlot extends Vue {
   }
 }
 
-class IntervalSelectOption {
-  public readonly value: Interval;
-  public readonly text: string;
+// class IntervalSelectOption {
+//   public readonly value: Interval;
+//   public readonly text: string;
 
-  constructor(interval: Interval) {
-    this.value = interval
-    this.text = interval.toFormat('yyyy/MM/dd')
-  }
-}
+//   constructor(interval: Interval) {
+//     this.value = interval
+//     this.text = interval.toFormat('yyyy/MM/dd')
+//   }
+// }
 
-export interface StatsType {
-  title: string;
-  url: string;
-  xAxisFormat: string;
-  dateFormat: string;
-  tooltipTitle: string;
-  accessor: (stats: any) => string;
-}
+// export interface StatsType {
+//   title: string;
+//   url: string;
+//   xAxisFormat: string;
+//   dateFormat: string;
+//   tooltipTitle: string;
+//   accessor: (stats: any) => string;
+// }
 
-export const HOUR_OF_DAY: StatsType = {
-  title: 'Power Consumption per Hour of Day',
-  url: 'hour-of-day',
-  xAxisFormat: "%H",
-  dateFormat: "%H",
-  tooltipTitle: "Hour of day",
-  accessor: (stats) => stats.hourOfDay,
-};
+// export const HOUR_OF_DAY: StatsType = {
+//   title: 'Power Consumption per Hour of Day',
+//   url: 'hour-of-day',
+//   xAxisFormat: "%H",
+//   dateFormat: "%H",
+//   tooltipTitle: "Hour of day",
+//   accessor: (stats) => stats.hourOfDay,
+// };
 
-export const DAY_OF_WEEK: StatsType = {
-  title: 'Power Consumption per Day of Week',
-  url: 'day-of-week',
-  xAxisFormat: "%A",
-  dateFormat: "%A",
-  tooltipTitle: "Day of week",
-  accessor: (stats) => getDayOfWeekText(stats.dayOfWeek),
-};
+// export const DAY_OF_WEEK: StatsType = {
+//   title: 'Power Consumption per Day of Week',
+//   url: 'day-of-week',
+//   xAxisFormat: "%A",
+//   dateFormat: "%A",
+//   tooltipTitle: "Day of week",
+//   accessor: (stats) => getDayOfWeekText(stats.dayOfWeek),
+// };
 
-function getDayOfWeekText(number: number) {
-  switch (number) {
-    case 1: {
-      return 'Monday'
-    }
-    case 2: {
-      return 'Tuesday'
-    }
-    case 3: {
-      return 'Wednesday'
-    }
-    case 4: {
-      return 'Thursday'
-    }
-    case 5: {
-      return 'Friday'
-    }
-    case 6: {
-      return 'Saturday'
-    }
-    case 7: {
-      return 'Sunday'
-    }
-    default: {
-      throw new RangeError('Day of week number must be between 1 and 7');
-    }
-  }
-}
-function getDayOfWeekNumber(name: string) {
-  switch (name) {
-    case 'Sunday': {
-      return 7
-    }
-    case 'Monday': {
-      return 1
-    }
-    case 'Tuesday': {
-      return 2
-    }
-    case 'Wednesday': {
-      return 3
-    }
-    case 'Thursday': {
-      return 4
-    }
-    case 'Friday': {
-      return 5
-    }
-    case 'Saturday': {
-      return 6
-    }
-    default: {
-      throw new RangeError('Day of week number must be between 1 and 7');
-    }
-  }
-}
+// function getDayOfWeekText(number: number) {
+//   switch (number) {
+//     case 1: {
+//       return 'Monday'
+//     }
+//     case 2: {
+//       return 'Tuesday'
+//     }
+//     case 3: {
+//       return 'Wednesday'
+//     }
+//     case 4: {
+//       return 'Thursday'
+//     }
+//     case 5: {
+//       return 'Friday'
+//     }
+//     case 6: {
+//       return 'Saturday'
+//     }
+//     case 7: {
+//       return 'Sunday'
+//     }
+//     default: {
+//       throw new RangeError('Day of week number must be between 1 and 7');
+//     }
+//   }
+// }
+// function getDayOfWeekNumber(name: string) {
+//   switch (name) {
+//     case 'Sunday': {
+//       return 7
+//     }
+//     case 'Monday': {
+//       return 1
+//     }
+//     case 'Tuesday': {
+//       return 2
+//     }
+//     case 'Wednesday': {
+//       return 3
+//     }
+//     case 'Thursday': {
+//       return 4
+//     }
+//     case 'Friday': {
+//       return 5
+//     }
+//     case 'Saturday': {
+//       return 6
+//     }
+//     default: {
+//       throw new RangeError('Day of week number must be between 1 and 7');
+//     }
+//   }
+// }
 
 </script>
 

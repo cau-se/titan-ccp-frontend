@@ -14,19 +14,19 @@ import { Vue, Component, Prop, Watch } from 'vue-property-decorator'
 
 import debounce from 'lodash.debounce'
 
-import { Sensor } from '../SensorRegistry'
-import TimeMode from '../model/time-mode'
-import { TimeSeriesPlotManager, DataPoint } from '../TimeSeriesPlotManager'
-import { CanvasTimeSeriesPlot } from '../canvasPlot/CanvasTimeSeriesPlot'
+import { Sensor } from '@/model/SensorRegistry'
+import TimeMode from '@/model/time-mode'
+import { TimeSeriesPlotManager } from '@/model/TimeSeriesPlotManager'
+import { CanvasTimeSeriesPlot } from '@/model/canvasPlot/CanvasTimeSeriesPlot'
 
 import LoadingSpinner from './LoadingSpinner.vue'
 
 declare const d3version3: any // eslint-disable-line @typescript-eslint/no-explicit-any
 
 @Component({
-    components: {
-        LoadingSpinner
-    }
+  components: {
+    LoadingSpinner
+  }
 })
 export default class SensorHistoryPlot extends Vue {
   @Prop({ required: true }) sensor!: Sensor
@@ -42,16 +42,17 @@ export default class SensorHistoryPlot extends Vue {
   private readonly onSizeChanged = debounce(this.createPlot, 100)
 
   get canvasplotContainer () {
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     return this.$el.querySelector('.canvasplot-container')! as HTMLElement
   }
 
   mounted () {
     this.createPlot()
-    window.addEventListener("resize", this.onSizeChanged)
+    window.addEventListener('resize', this.onSizeChanged)
   }
-  
+
   destroyed () {
-    window.removeEventListener("resize", this.onSizeChanged)
+    window.removeEventListener('resize', this.onSizeChanged)
   }
 
   @Watch('sensor')
@@ -69,7 +70,7 @@ export default class SensorHistoryPlot extends Vue {
 
     const dimensions = [this.canvasplotContainer.clientWidth, this.canvasplotContainer.clientHeight]
     this.plot = new CanvasTimeSeriesPlot(
-      d3version3.select(this.canvasplotContainer), 
+      d3version3.select(this.canvasplotContainer),
       dimensions,
       {
         plotStartsWithZero: true,
@@ -87,7 +88,6 @@ export default class SensorHistoryPlot extends Vue {
       onFinishedLoading: () => { this.isLoading = false }
     })
   }
-
 }
 </script>
 

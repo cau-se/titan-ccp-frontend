@@ -14,13 +14,13 @@
 </template>
 
 <script lang="ts">
-import { Vue, Component, Prop, Watch } from 'vue-property-decorator'
+import { Vue, Component, Prop } from 'vue-property-decorator'
 
 @Component
 export default class LoadingSpinner extends Vue {
   @Prop({ required: true }) isLoading!: boolean
 
-  @Prop() isError: boolean = false
+  @Prop() isError = false
 }
 </script>
 
