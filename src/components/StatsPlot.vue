@@ -26,7 +26,7 @@ import { Vue, Component, Prop, Watch } from 'vue-property-decorator'
 
 // import { ChartAPI, generate } from 'c3'
 // import 'c3/c3.css'
-import * as d3 from 'd3'
+// import * as d3 from 'd3'
 import * as _ from 'lodash'
 import { DateTime, Interval } from 'luxon'
 import { HTTP } from '@/model/http-common'
@@ -35,6 +35,7 @@ import TimeMode from '@/model/time-mode'
 
 import LoadingSpinner from './LoadingSpinner.vue'
 
+import { select as d3select } from 'd3-selection'
 import 'britecharts/dist/css/britecharts.css'
 import line from 'britecharts/dist/umd/line.min'
 import tooltip from 'britecharts/dist/umd/tooltip.min'
@@ -167,7 +168,7 @@ export default class StatsPlot extends Vue {
   mounted () {
     // eslint-disable-next-line new-cap
     this.plot = new line()
-    this.container = d3.select(this.$el.querySelector('.plot-container'))
+    this.container = d3select(this.$el.querySelector('.plot-container'))
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     this.containerWidth = this.container.node()!.getBoundingClientRect().width
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
@@ -283,7 +284,7 @@ export default class StatsPlot extends Vue {
         // this.plot.xAxisLabel(data[0])
         const datal = this.cleanFormat(data)
         this.container.datum(datal).call(this.plot)
-        const tooltipContainer = d3.select(
+        const tooltipContainer = d3select(
           this.$el.querySelector(
             '.plot-container .metadata-group .vertical-marker-container'
           )
