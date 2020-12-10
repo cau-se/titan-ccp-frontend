@@ -21,7 +21,7 @@ import 'britecharts/dist/css/charts/bar.min.css'
 import debounce from 'lodash.debounce'
 
 import { HTTP } from '@/model/http-common'
-import { AggregatedSensor } from '@/model/SensorRegistry'
+import { AggregatedSensor, MachineSensor, Sensor } from '@/model/SensorRegistry'
 import TimeMode from '@/model/time-mode'
 
 import LoadingSpinner from '@/components/LoadingSpinner.vue'
@@ -32,7 +32,7 @@ import LoadingSpinner from '@/components/LoadingSpinner.vue'
   }
 })
 export default class CompositionDonutChart extends Vue {
-  @Prop({ required: true }) sensor!: AggregatedSensor
+  @Prop({ required: true }) sensor!: Sensor
 
   @Prop({ required: true }) timeMode!: TimeMode;
 
@@ -95,12 +95,31 @@ export default class CompositionDonutChart extends Vue {
     this.updateChart()
   }
 
-  private updateChart () {
-    this.isLoading = true
-
+  private loadMashineSensor (sensor: MachineSensor): Promise<[string, number][]> {
     const to = this.timeMode.getTime()
 
-    Promise.all(this.sensor.children.map(child => {
+    return Promise.all([
+      HTTP.get('active-power/raw/' + sensor.identifier + '/latest?to=' + to.toMillis())
+        .then(response => {
+          return [this.sensor.name, response.data.length <= 0 ? 0 : response.data[0].valueInW] as [string, number]
+        }),
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      HTTP.get('active-power/aggregated/' + this.sensor.parent!.identifier + '/latest?to=' + to.toMillis())
+        .then(response => {
+          return ['other', response.data.length <= 0 ? 0 : response.data[0].sumInW] as [string, number]
+        })
+    ])
+      .catch(e => {
+        console.error(e)
+        this.isError = true
+        return []
+      })
+  }
+
+  private loadAggregatedSensor (sensor: AggregatedSensor): Promise<[string, number][]> {
+    const to = this.timeMode.getTime()
+
+    return Promise.all(sensor.children.map(child => {
       const resource = child instanceof AggregatedSensor ? 'active-power/aggregated' : 'active-power/raw'
       return HTTP.get(resource + '/' + child.identifier + '/latest?to=' + to.toMillis())
         .then(response => {
@@ -115,26 +134,49 @@ export default class CompositionDonutChart extends Vue {
           }
           return [child.title, value] as [string, number]
         })
-    })).catch(e => {
-      console.error(e)
-      this.isError = true
-      return []
-    }).then(columns => {
-      let sum = 0
-      let id = 1
-      for (let i = 0; i < columns.length; i++) {
-        sum += columns[i][1]
-      }
-      for (let i = 0; i < columns.length; i++) {
-        let percentage = (columns[i][1] / sum) * 100
-        percentage = parseFloat(percentage.toFixed(1))
-        this.donutData.push({ quantity: columns[i][1], percentage: percentage, name: columns[i][0], id: id })
-        id++
-      }
-      this.isLoading = false
-      this.legendChart = this.getLegendChart(this.donutData, colors.colorSchemas.britecharts)
-      this.container.datum(this.donutData).call(this.donutChart)
-    })
+    }))
+      .catch(e => {
+        console.error(e)
+        this.isError = true
+        return []
+      })
+  }
+
+  get isAggregated () {
+    return this.sensor instanceof AggregatedSensor
+  }
+
+  private drawDonut (columns: [string, number][]) {
+    this.donutData = []
+    this.donutChart
+      .highlightSliceById(this.isAggregated ? false : 1)
+      .hasFixedHighlightedSlice(this.isAggregated)
+    let sum = 0
+    let id = 1
+    for (let i = 0; i < columns.length; i++) {
+      sum += columns[i][1]
+    }
+    for (let i = 0; i < columns.length; i++) {
+      let percentage = (columns[i][1] / sum) * 100
+      percentage = parseFloat(percentage.toFixed(1))
+      this.donutData.push({ quantity: columns[i][1], percentage: percentage, name: columns[i][0], id: id })
+      id++
+    }
+    this.isLoading = false
+    this.legendChart = this.getLegendChart(this.donutData, colors.colorSchemas.britecharts)
+    this.container.datum(this.donutData).call(this.donutChart)
+  }
+
+  private updateChart () {
+    this.isLoading = true
+    if (this.isAggregated) {
+      const aggsensor = this.sensor as AggregatedSensor
+      this.loadAggregatedSensor(aggsensor)
+        .then(this.drawDonut)
+    } else {
+      this.loadMashineSensor(this.sensor)
+        .then(this.drawDonut)
+    }
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
