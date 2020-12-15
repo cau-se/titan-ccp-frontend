@@ -306,16 +306,19 @@ export default class StatsPlot extends Vue {
     if (this.statsType.url === 'day-of-week') {
       for (let i = 0; i < data.length; i++) {
         ticksName.push(
-          new Date(
-            DateTime.local()
-              .set({ weekday: getDayOfWeekNumber(xAxisTickName[i]) })
-              .toString()
-          )
+          DateTime
+            .local(2000, 1, 1, 0, 0, 0, 0)
+            .set({ weekday: getDayOfWeekNumber(xAxisTickName[i]) })
+            .toJSDate()
         )
       }
     } else {
       for (let i = 0; i < data.length; i++) {
-        ticksName.push(new Date(new Date().setHours(xAxisTickName[i])))
+        ticksName.push(
+          DateTime
+            .local(2000, 1, 1, xAxisTickName[i], 0, 0, 0)
+            .toJSDate()
+        )
       }
     }
 
