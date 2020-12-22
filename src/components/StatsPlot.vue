@@ -113,6 +113,8 @@ export interface StatsType {
   tooltipTitle: string;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   accessor: (stats: any) => string;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  tickNameToDateTime: (tickName: any) => DateTime;
 }
 
 export const HOUR_OF_DAY: StatsType = {
@@ -121,7 +123,8 @@ export const HOUR_OF_DAY: StatsType = {
   xAxisFormat: '%H',
   dateFormat: '%H',
   tooltipTitle: 'Hour of day',
-  accessor: (stats) => stats.hourOfDay
+  accessor: (stats) => stats.hourOfDay,
+  tickNameToDateTime: (tickName) => DateTime.local(2000, 1, 1, tickName, 0, 0, 0)
 }
 
 export const DAY_OF_WEEK: StatsType = {
@@ -130,7 +133,11 @@ export const DAY_OF_WEEK: StatsType = {
   xAxisFormat: '%A',
   dateFormat: '%A',
   tooltipTitle: 'Day of week',
-  accessor: (stats) => getDayOfWeekText(stats.dayOfWeek)
+  accessor: (stats) => getDayOfWeekText(stats.dayOfWeek),
+  tickNameToDateTime: (tickName) => DateTime
+    .local(2000, 1, 1, 0, 0, 0, 0)
+    .set({ weekday: getDayOfWeekNumber(tickName) })
+
 }
 const lineMargin = { top: 60, bottom: 30, left: 80, right: 50 }
 
@@ -303,23 +310,12 @@ export default class StatsPlot extends Vue {
     const cleanFormat = { data: [] as any }
     const ticksName: Array<Date> = []
 
-    if (this.statsType.url === 'day-of-week') {
-      for (let i = 0; i < data.length; i++) {
-        ticksName.push(
-          DateTime
-            .local(2000, 1, 1, 0, 0, 0, 0)
-            .set({ weekday: getDayOfWeekNumber(xAxisTickName[i]) })
-            .toJSDate()
-        )
-      }
-    } else {
-      for (let i = 0; i < data.length; i++) {
-        ticksName.push(
-          DateTime
-            .local(2000, 1, 1, xAxisTickName[i], 0, 0, 0)
-            .toJSDate()
-        )
-      }
+    // set tick names and allign time of data points in stats plot
+    for (let i = 0; i < data.length; i++) {
+      ticksName.push(
+        this.statsType.tickNameToDateTime(
+          xAxisTickName[i])
+          .toJSDate())
     }
 
     for (let i = 0; i < data.length; i++) {
