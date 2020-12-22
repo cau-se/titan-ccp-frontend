@@ -15,7 +15,7 @@
         </b-col>
       </b-row>
       <loading-spinner :is-loading="isLoading" :is-error="isError">
-        <div class="plot-container"></div>
+        <div :class="statsType.url" id="plot-container"></div>
       </loading-spinner>
     </div>
   </div>
@@ -169,7 +169,7 @@ export default class StatsPlot extends Vue {
   mounted () {
     // eslint-disable-next-line new-cap
     this.plot = new line()
-    this.container = d3select(this.$el.querySelector('.plot-container'))
+    this.container = d3select(this.$el.querySelector('.' + this.statsType.url))
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     this.containerWidth = this.container.node()!.getBoundingClientRect().width
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
@@ -281,7 +281,7 @@ export default class StatsPlot extends Vue {
         this.plot.xTicks(data[0].length - 0)
         const datal = this.cleanFormat(data)
         this.container.datum(datal).call(this.plot)
-        const tooltipContainer = d3select('.plot-container .metadata-group .vertical-marker-container')
+        const tooltipContainer = d3select('.' + this.statsType.url + ' .metadata-group .vertical-marker-container')
         tooltipContainer.datum([]).call(this.tooltip)
         this.isLoading = false
       })
@@ -337,7 +337,7 @@ export default class StatsPlot extends Vue {
 </script>
 
 <style scoped>
-.plot-container {
+#plot-container {
   height: 300px;
 }
 </style>
