@@ -32,6 +32,11 @@
         <stats-plot :sensor="sensor" :stats-type="statsHourOfDay" :timeMode="timeMode" />
       </b-col>
     </b-row>
+    <b-row class="mb-4">
+      <b-col cols="12">
+        <heat-map :sensor="sensor" :timeMode="timeMode" />
+      </b-col>
+    </b-row>
   </b-container>
 </template>
 
@@ -46,6 +51,7 @@ import Histogram from '@/components/Histogram.vue'
 import SensorHistoryPlot from '@/components/SensorHistoryPlot.vue'
 import StatsPlot, { HOUR_OF_DAY, DAY_OF_WEEK } from '@/components/StatsPlot.vue'
 import TrendArrow, { Timespan } from '@/components/TrendArrow.vue'
+import HeatMap from '@/components/HeatMap.vue'
 
 @Component({
   components: {
@@ -53,7 +59,8 @@ import TrendArrow, { Timespan } from '@/components/TrendArrow.vue'
     CompositionPieChart,
     Histogram,
     StatsPlot,
-    TrendArrow
+    TrendArrow,
+    HeatMap
   }
 })
 export default class Dashboard extends Vue {
