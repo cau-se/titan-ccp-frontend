@@ -15,7 +15,7 @@
         </b-col>
       </b-row>
       <loading-spinner :is-loading="isLoading" :is-error="isError">
-        <div class="correlationHeatMap"></div>
+        <div class="correlationHeatMap" id='heatmap'></div>
       </loading-spinner>
     </div>
   </div>
@@ -27,7 +27,7 @@ import { Vue, Component, Prop, Watch } from 'vue-property-decorator'
 import { DateTime, Interval } from 'luxon'
 import { HTTP } from '@/model/http-common'
 import { Sensor } from '@/model/SensorRegistry'
-import { select as d3select } from 'd3-selection'
+import { select as d3select, selectAll as d3selectAll } from 'd3-selection'
 
 import LoadingSpinner from './LoadingSpinner.vue'
 
@@ -76,17 +76,8 @@ export default class Heatmap extends Vue {
     }
 
     mounted () {
-      // eslint-disable-next-line new-cap
-      this.heatMap = new heatmap()
       this.container = d3select('.correlationHeatMap')
-      const containerWidth = this.container.node()?.getBoundingClientRect().width
-      const boxSize = containerWidth / 25
-      const containerHeigth = 8 * boxSize
-      this.heatMap = this.heatMap
-        .width(containerWidth)
-        .height(containerHeigth)
-        .boxSize(boxSize)
-        .colorSchema(colors.colorSchemas.red)
+      this.createNewHeatMap()
       this.loadAvailableIntervals().then(() => this.createPlot())
       window.addEventListener('resize', this.onSizeChanged)
     }
@@ -96,19 +87,9 @@ export default class Heatmap extends Vue {
     }
 
     private redrawChart () {
-      const newContainerWidth = this.container.node() ? this.container.node()?.getBoundingClientRect().width : false
-      const newContainerHeight = this.container.node() ? this.container.node()?.getBoundingClientRect().height : false
-      const boxSize = newContainerWidth / 25
-      this.heatMap
-        .width(newContainerWidth)
-        .height(newContainerHeight)
-        .boxSize(boxSize)
-        .colorSchema(colors.colorSchemas.green)
-      this.container.attr('dayLabelWidth', 2)
-
+      d3selectAll('#heatmap > *').remove()
+      this.createNewHeatMap()
       this.createPlot()
-      // this.container.call(this.heatMap)
-      console.log(boxSize)
     }
 
     private loadAvailableIntervals () {
@@ -135,6 +116,20 @@ export default class Heatmap extends Vue {
     @Watch('sensor')
     onSensorChanged () {
       this.createPlot()
+    }
+
+    private createNewHeatMap () {
+      const containerWidth = this.container.node() ? this.container.node()?.getBoundingClientRect().width : false
+      const boxSize = (containerWidth - 20) / 25
+      const containerHeight = 8 * boxSize
+
+      // eslint-disable-next-line new-cap
+      this.heatMap = new heatmap()
+      this.heatMap
+        .width(containerWidth)
+        .height(containerHeight)
+        .boxSize(boxSize)
+        .colorSchema(colors.colorSchemas.green)
     }
 
     private createPlot (interval?: Interval) {
@@ -179,6 +174,6 @@ export default class Heatmap extends Vue {
 </script>
 <style scoped>
   .correlationHeatMap {
-    height: 370px;
+    height: auto
   }
 </style>
