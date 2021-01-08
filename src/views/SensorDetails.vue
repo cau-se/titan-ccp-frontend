@@ -52,6 +52,11 @@
         <heat-map :sensor="internalSensor" :timeMode="timeMode" />
       </b-col>
     </b-row>
+    <b-row class="mb-4"  v-if="isAggregated">
+    <b-col cols="12">
+      <correlation-heatmap :sensor="internalSensor" :timeMode="timeMode" />
+    </b-col>
+  </b-row>
   </b-container>
 </template>
 
@@ -69,6 +74,7 @@ import SensorParents from '@/components/SensorParents.vue'
 import StatsPlot, { HOUR_OF_DAY, DAY_OF_WEEK } from '@/components/StatsPlot.vue'
 import TrendArrow, { Timespan } from '@/components/TrendArrow.vue'
 import HeatMap from '@/components/HeatMap.vue'
+import CorrelationHeatmap from '@/components/CorrelationHeatMap.vue'
 
 @Component({
   components: {
@@ -79,7 +85,8 @@ import HeatMap from '@/components/HeatMap.vue'
     Histogram,
     StatsPlot,
     TrendArrow,
-    HeatMap
+    HeatMap,
+    CorrelationHeatmap
   }
 })
 export default class SensorDetails extends Vue {
