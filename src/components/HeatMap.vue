@@ -3,7 +3,7 @@
     <div class="card-body">
       <b-row>
         <b-col cols="4">
-          <h5 class="card-title">Correlation of Power Consumption {{ sensor.title }}</h5>
+          <h5 class="card-title">Weekly Course {{ sensor.title }}</h5>
         </b-col>
         <b-col cols="3">
           <b-form-select
@@ -15,7 +15,7 @@
         </b-col>
       </b-row>
       <loading-spinner :is-loading="isLoading" :is-error="isError">
-        <div class="correlationHeatMap" id='heatmap'></div>
+        <div class="heatmap" id='heatmap'></div>
       </loading-spinner>
     </div>
   </div>
@@ -76,7 +76,7 @@ export default class Heatmap extends Vue {
     }
 
     mounted () {
-      this.container = d3select('.correlationHeatMap')
+      this.container = d3select('.heatmap')
       this.createNewHeatMap()
       this.loadAvailableIntervals().then(() => this.createPlot())
       window.addEventListener('resize', this.onSizeChanged)
@@ -173,7 +173,8 @@ export default class Heatmap extends Vue {
 }
 </script>
 <style scoped>
-  .correlationHeatMap {
-    height: auto
+  .heatmap {
+    height: auto;
+    min-height: 250px;
   }
 </style>
