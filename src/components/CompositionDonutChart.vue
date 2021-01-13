@@ -45,18 +45,14 @@ export default class CompositionDonutChart extends Vue {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private container!: d3.Selection<HTMLElement, any, HTMLElement, any>
   private containerWidth!: number
-  private donutData!: Array<{quantity: number; percentage: number; name: string; id: number}>
   private readonly onSizeChanged = debounce(this.redrawChart, 200)
 
   mounted () {
     // eslint-disable-next-line new-cap
     this.donutChart = new donut()
     this.container = d3select('.donut-container')
-    this.donutData = []
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     this.containerWidth = this.container.node()!.getBoundingClientRect().width
-    this.legendChart = this.getLegendChart(this.donutData, colors.colorSchemas.britecharts)
-
     this.donutChart
       .width(this.containerWidth)
       .externalRadius(this.containerWidth / 3.3)
@@ -97,8 +93,8 @@ export default class CompositionDonutChart extends Vue {
 
   private updateChart () {
     this.isLoading = true
-
     const to = this.timeMode.getTime()
+    const donutData: Array<{quantity: number; percentage: number; name: string; id: number}> = []
 
     Promise.all(this.sensor.children.map(child => {
       const resource = child instanceof AggregatedSensor ? 'active-power/aggregated' : 'active-power/raw'
@@ -128,12 +124,12 @@ export default class CompositionDonutChart extends Vue {
       for (let i = 0; i < columns.length; i++) {
         let percentage = (columns[i][1] / sum) * 100
         percentage = parseFloat(percentage.toFixed(1))
-        this.donutData.push({ quantity: columns[i][1], percentage: percentage, name: columns[i][0], id: id })
+        donutData.push({ quantity: columns[i][1], percentage: percentage, name: columns[i][0], id: id })
         id++
       }
       this.isLoading = false
-      this.legendChart = this.getLegendChart(this.donutData, colors.colorSchemas.britecharts)
-      this.container.datum(this.donutData).call(this.donutChart)
+      this.legendChart = this.getLegendChart(donutData, colors.colorSchemas.britecharts)
+      this.container.datum(donutData).call(this.donutChart)
     })
   }
 

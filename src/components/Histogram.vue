@@ -45,7 +45,6 @@ export default class Histogram extends Vue {
   private container!: d3.Selection<HTMLElement, any, HTMLElement, any>;
   private containerWidth!: number;
   private containerHeight!: number;
-  private barData!: Array<{name: string; tooltipLabel: string; value: number}>;
 
   mounted () {
     // eslint-disable-next-line new-cap
@@ -55,7 +54,6 @@ export default class Histogram extends Vue {
     this.containerWidth = this.container.node()!.getBoundingClientRect().width
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     this.containerHeight = this.container.node()!.getBoundingClientRect().height
-    this.barData = []
     // eslint-disable-next-line new-cap
     this.tooltip = new miniTooltip()
 
@@ -88,6 +86,8 @@ export default class Histogram extends Vue {
   }
 
   private updateHistogram () {
+    const barData: Array<{name: string; tooltipLabel: string; value: number}> = []
+
     const resource = this.sensor instanceof AggregatedSensor
       ? 'active-power/aggregated'
       : 'active-power/raw'
@@ -111,10 +111,10 @@ export default class Histogram extends Vue {
           const xLabel = '' + Math.round((parseInt(bucket.lower.toFixed(1)) + parseInt(bucket.upper.toFixed(1))) / 2)
           const tooltipLabel = '' + bucket.lower.toFixed(1) + ' - ' + bucket.upper.toFixed(1)
           if (!isNaN(bucket.elements)) {
-            this.barData.push({ name: xLabel, tooltipLabel: tooltipLabel, value: bucket.elements })
+            barData.push({ name: xLabel, tooltipLabel: tooltipLabel, value: bucket.elements })
           }
         }
-        return this.barData
+        return barData
       })
       .catch(e => {
         console.error(e)
