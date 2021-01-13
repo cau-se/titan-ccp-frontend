@@ -64,7 +64,6 @@ export default class Heatmap extends Vue {
     private heatMap!: any;
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     private container!: d3.Selection<any, any, HTMLElement, undefined>;
-    private heatMapData: Array <{ 'day': number; 'hour': number; 'value': number }> = []
     private readonly onSizeChanged = debounce(this.redrawChart, 600)
 
     get intervalSelectOptions (): Array<IntervalSelectOption> {
@@ -77,8 +76,7 @@ export default class Heatmap extends Vue {
 
     mounted () {
       this.container = d3select('.heatmap')
-      this.createNewHeatMap()
-      this.loadAvailableIntervals().then(() => this.createPlot())
+      this.loadAvailableIntervals().then(() => this.drawHeatmap())
       window.addEventListener('resize', this.onSizeChanged)
     }
 
@@ -87,9 +85,7 @@ export default class Heatmap extends Vue {
     }
 
     private redrawChart () {
-      d3selectAll('#heatmap > *').remove()
-      this.createNewHeatMap()
-      this.createPlot()
+      this.drawHeatmap()
     }
 
     private loadAvailableIntervals () {
@@ -109,16 +105,18 @@ export default class Heatmap extends Vue {
     @Watch('selectedInterval')
     onIntervalChanged (interval: Interval, oldInterval: Interval) {
       if (oldInterval != null) {
-        this.createPlot(interval)
+        this.drawHeatmap(interval)
       }
     }
 
     @Watch('sensor')
     onSensorChanged () {
-      this.createPlot()
+      this.drawHeatmap()
     }
 
-    private createNewHeatMap () {
+    private createHeatmapChart () {
+      this.container.html('')
+      d3selectAll('#heatmap > *').remove()
       const containerWidth = this.container.node() ? this.container.node()?.getBoundingClientRect().width : false
       const boxSize = (containerWidth - 20) / 25
       const containerHeight = 8 * boxSize
@@ -132,7 +130,9 @@ export default class Heatmap extends Vue {
         .colorSchema(colors.colorSchemas.green)
     }
 
-    private createPlot (interval?: Interval) {
+    private drawHeatmap (interval?: Interval) {
+      this.createHeatmapChart()
+      const heatMapData: Array <{ 'day': number; 'hour': number; 'value': number }> = []
       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       const defaultInterval = this.availableIntervals.find(interval => interval.end >= this.timeMode.getTime())! ||
         this.availableIntervals[this.availableIntervals.length - 1]
@@ -145,7 +145,7 @@ export default class Heatmap extends Vue {
         .then(response => {
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           response.data.forEach((element: any) => {
-            this.heatMapData.push({
+            heatMapData.push({
               day: element.dayOfWeek - 1,
               hour: element.hourOfDay,
               value: element.mean
@@ -158,7 +158,7 @@ export default class Heatmap extends Vue {
               DateTime.fromMillis(response.data[0].periodEnd)
             )
           }
-          return this.heatMapData
+          return heatMapData
         })
         .catch(e => {
           console.error(e)
