@@ -116,7 +116,7 @@ export default class CorrelationHeatmap extends Vue {
     }
 
     private getIdentifiers () {
-      const result: any = []
+      const result: string[] = []
       Promise.all(
         this.sensor.children.map(child => {
           result.push(child.identifier)
@@ -142,22 +142,22 @@ export default class CorrelationHeatmap extends Vue {
 
     private async drawHeatmap (interval?: Interval) {
       this.createHeatmapChart()
-      const heatMapData: Array <{ 'day': number; 'hour': number; 'value': number }> = []
       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       const defaultInterval = this.availableIntervals.find(interval => interval.end >= this.timeMode.getTime())! ||
        this.availableIntervals[this.availableIntervals.length - 1]
       const interval2 = interval || defaultInterval
       const ids = this.getIdentifiers()
-      for (let id = 0; id < ids.length; id++) {
-        const url = `stats/sensor/${ids[id]}/${'hour-of-day'
+      Promise.all(ids.map((id: string) => {
+        const resource = `stats/sensor/${id}/${'hour-of-day'
           }?intervalStart=${this.dateTimeToBackendISO(interval2.start)
           }&intervalEnd=${this.dateTimeToBackendISO(interval2.end)}`
-        await HTTP.get(url)
+        return HTTP.get(resource)
           .then(response => {
+            const heatMapData: Array <{ 'day': number; 'hour': number; 'value': number }> = []
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
             response.data.forEach((element: any) => {
               heatMapData.push({
-                day: id,
+                day: ids.indexOf(id),
                 hour: element.hourOfDay,
                 value: element.mean
               })
@@ -171,18 +171,19 @@ export default class CorrelationHeatmap extends Vue {
             }
             return heatMapData
           })
-          .catch(e => {
-            console.error(e)
-            this.isError = true
-            return [['x'], ['mean']]
-          })
-          .then(data => {
-            this.isLoading = false
-            this.container.datum(data).call(this.heatMap)
-          })
-      }
+      })).catch(e => {
+        console.error(e)
+        this.isError = true
+        return []
+      })
+        .then(data => {
+          const chartData = data.flat(1)
+          this.isLoading = false
+          this.container.datum(chartData).call(this.heatMap)
+        })
     }
 }
+
 </script>
 <style scoped>
   .correlation-heatmap {
