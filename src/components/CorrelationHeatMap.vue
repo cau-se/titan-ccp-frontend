@@ -16,11 +16,11 @@
       </b-row>
       <loading-spinner :is-loading="isLoading" :is-error="isError">
         <div class="correlation-heatmap" id='cheatmap'></div>
-        <div v-if="labels.length > 0">
+        <div v-if="ids.length > 0">
          <b> Legend</b>
         <ul id="legend">
-          <li v-for="id in labels" :key="id">
-           <b> &bull; {{ id.substring(0,2) }} </b>: {{id}}
+          <li v-for="i in ids.length" :key="i">
+           <b> &bull; {{ shortIds[i - 1] }} </b>: {{ids[i - 1]}}
           </li>
         </ul>
       </div>
@@ -73,7 +73,8 @@ export default class CorrelationHeatmap extends Vue {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     private container!: d3.Selection<any, any, HTMLElement, undefined>;
     private readonly onSizeChanged = debounce(this.redrawChart, 600)
-    private labels: Array<string> = []
+    private ids: Array<string> = []
+    private shortIds: Array<string> = []
     private titleContainer!: d3.Selection<any, any, HTMLElement, undefined>;
 
     get intervalSelectOptions (): Array<IntervalSelectOption> {
@@ -87,8 +88,11 @@ export default class CorrelationHeatmap extends Vue {
     mounted () {
       this.container = d3select('.correlation-heatmap')
       this.titleContainer = d3select('.card-title')
-      this.labels = this.getIdentifiers()
-      this.loadAvailableIntervals().then(() => this.drawHeatmap())
+      this.getIdentifiers()
+        .then(() => {
+          this.loadAvailableIntervals()
+            .then(() => this.drawHeatmap())
+        })
       window.addEventListener('resize', this.onSizeChanged)
     }
 
@@ -126,14 +130,20 @@ export default class CorrelationHeatmap extends Vue {
       this.drawHeatmap()
     }
 
-    private getIdentifiers (): Array<string> {
-      const result: Array<string> = []
-      Promise.all(
+    private getIdentifiers () {
+      return Promise.all(
         this.sensor.children.map(child => {
-          result.push(child.identifier)
+          this.ids.push(child.identifier)
+          // create short version of this as label
+          let to = 2
+          let sid: string = child.identifier.substring(0, to)
+          while (this.shortIds.indexOf(sid) > -1 && to < child.identifier.length) {
+            to++
+            sid = child.identifier.charAt(0) + child.identifier.charAt(to)
+          }
+          this.shortIds.push(sid)
         })
       )
-      return result
     }
 
     private createHeatmapChart () {
@@ -142,10 +152,10 @@ export default class CorrelationHeatmap extends Vue {
       const containerWidth = this.container.node() ? this.container.node()?.getBoundingClientRect().width : false
       const titleHight = this.titleContainer.node() ? this.titleContainer.node().getBoundingClientRect().height : false
       const boxSize = (containerWidth - 20) / 25
-      const containerHeight = ((this.getIdentifiers().length + 1) * boxSize) + titleHight
+      const containerHeight = ((this.ids.length + 1) * boxSize) + titleHight
       // eslint-disable-next-line new-cap
       this.heatMap = new heatmap()
-        .yAxisLabels(this.getIdentifiers().map(id => id.substring(0, 2)))
+        .yAxisLabels(this.shortIds)
         .width(containerWidth)
         .height(containerHeight)
         .boxSize(boxSize)
@@ -158,8 +168,7 @@ export default class CorrelationHeatmap extends Vue {
       const defaultInterval = this.availableIntervals.find(interval => interval.end >= this.timeMode.getTime())! ||
        this.availableIntervals[this.availableIntervals.length - 1]
       const interval2 = interval || defaultInterval
-      const ids = this.getIdentifiers()
-      Promise.all(ids.map((id: string) => {
+      Promise.all(this.ids.map((id: string) => {
         const resource = `stats/sensor/${id}/${'hour-of-day'
           }?intervalStart=${this.dateTimeToBackendISO(interval2.start)
           }&intervalEnd=${this.dateTimeToBackendISO(interval2.end)}`
@@ -169,7 +178,7 @@ export default class CorrelationHeatmap extends Vue {
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
             response.data.forEach((element: any) => {
               heatMapData.push({
-                day: ids.indexOf(id),
+                day: this.ids.indexOf(id),
                 hour: element.hourOfDay,
                 value: element.mean
               })
