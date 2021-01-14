@@ -64,6 +64,8 @@ export default class Heatmap extends Vue {
     private heatMap!: any;
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     private container!: d3.Selection<any, any, HTMLElement, undefined>;
+    private titleContainer!: d3.Selection<any, any, HTMLElement, undefined>;
+
     private readonly onSizeChanged = debounce(this.redrawChart, 600)
 
     get intervalSelectOptions (): Array<IntervalSelectOption> {
@@ -76,6 +78,7 @@ export default class Heatmap extends Vue {
 
     mounted () {
       this.container = d3select('.heatmap')
+      this.titleContainer = d3select('.card-title')
       this.loadAvailableIntervals().then(() => this.drawHeatmap())
       window.addEventListener('resize', this.onSizeChanged)
     }
@@ -117,9 +120,10 @@ export default class Heatmap extends Vue {
     private createHeatmapChart () {
       this.container.html('')
       d3selectAll('#heatmap > *').remove()
+      const titleHight = this.titleContainer.node() ? this.titleContainer.node().getBoundingClientRect().height : false
       const containerWidth = this.container.node() ? this.container.node()?.getBoundingClientRect().width : false
       const boxSize = (containerWidth - 20) / 25
-      const containerHeight = 8 * boxSize
+      const containerHeight = (8 * boxSize) + titleHight
 
       // eslint-disable-next-line new-cap
       this.heatMap = new heatmap()
@@ -175,6 +179,6 @@ export default class Heatmap extends Vue {
 <style scoped>
   .heatmap {
     height: auto;
-    min-height: 250px;
+    min-height: 200px;
   }
 </style>

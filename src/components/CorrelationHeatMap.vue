@@ -16,6 +16,14 @@
       </b-row>
       <loading-spinner :is-loading="isLoading" :is-error="isError">
         <div class="correlation-heatmap" id='cheatmap'></div>
+        <div v-if="labels.length > 0">
+         <b> Legend</b>
+        <ul id="legend">
+          <li v-for="id in labels" :key="id">
+           <b> &bull; {{ id.substring(0,2) }} </b>: {{id}}
+          </li>
+        </ul>
+      </div>
       </loading-spinner>
     </div>
   </div>
@@ -65,7 +73,8 @@ export default class CorrelationHeatmap extends Vue {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     private container!: d3.Selection<any, any, HTMLElement, undefined>;
     private readonly onSizeChanged = debounce(this.redrawChart, 600)
-    private readonly labels = ['M1', 'T1', 'W1', 'T1', 'F1', 'S1', 'S2'] // only test labels, should be replaced by function call this.getIdentifiers()
+    private labels: Array<string> = []
+    private titleContainer!: d3.Selection<any, any, HTMLElement, undefined>;
 
     get intervalSelectOptions (): Array<IntervalSelectOption> {
       return this.availableIntervals.map(i => new IntervalSelectOption(i))
@@ -77,6 +86,8 @@ export default class CorrelationHeatmap extends Vue {
 
     mounted () {
       this.container = d3select('.correlation-heatmap')
+      this.titleContainer = d3select('.card-title')
+      this.labels = this.getIdentifiers()
       this.loadAvailableIntervals().then(() => this.drawHeatmap())
       window.addEventListener('resize', this.onSizeChanged)
     }
@@ -115,8 +126,8 @@ export default class CorrelationHeatmap extends Vue {
       this.drawHeatmap()
     }
 
-    private getIdentifiers () {
-      const result: string[] = []
+    private getIdentifiers (): Array<string> {
+      const result: Array<string> = []
       Promise.all(
         this.sensor.children.map(child => {
           result.push(child.identifier)
@@ -129,11 +140,12 @@ export default class CorrelationHeatmap extends Vue {
       this.container.html('')
       d3selectAll('#cheatmap > *').remove()
       const containerWidth = this.container.node() ? this.container.node()?.getBoundingClientRect().width : false
+      const titleHight = this.titleContainer.node() ? this.titleContainer.node().getBoundingClientRect().height : false
       const boxSize = (containerWidth - 20) / 25
-      const containerHeight = (this.getIdentifiers().length + 1) * boxSize
+      const containerHeight = ((this.getIdentifiers().length + 1) * boxSize) + titleHight
       // eslint-disable-next-line new-cap
       this.heatMap = new heatmap()
-        .yAxisLabels(this.labels)
+        .yAxisLabels(this.getIdentifiers().map(id => id.substring(0, 2)))
         .width(containerWidth)
         .height(containerHeight)
         .boxSize(boxSize)
@@ -188,6 +200,9 @@ export default class CorrelationHeatmap extends Vue {
 <style scoped>
   .correlation-heatmap {
     height: auto;
-    min-height: 250px;
+    min-height: 200px;
   }
+  ul#legend li {
+  display:inline;
+}
 </style>
