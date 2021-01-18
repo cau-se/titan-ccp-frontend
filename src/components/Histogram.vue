@@ -3,22 +3,27 @@
     <div class="card-body">
       <h5 class="card-title">Histogram</h5>
       <loading-spinner :is-loading="isLoading" :is-error="isError">
-        <div class="c3-container"></div>
+        <div class="histogram"></div>
       </loading-spinner>
     </div>
   </div>
 </template>
 
 <script lang="ts">
+
 import { Vue, Component, Prop, Watch } from 'vue-property-decorator'
 
-import { ChartAPI, generate } from 'c3'
-import 'c3/c3.css'
+import { select as d3select } from 'd3-selection'
+import bar from 'britecharts/dist/umd/bar.min'
+import miniTooltip from 'britecharts/dist/umd/miniTooltip.min'
+import 'britecharts/dist/css/charts/bar.min.css'
+import debounce from 'lodash.debounce'
+
 import { HTTP } from '@/model/http-common'
 import { Sensor, AggregatedSensor } from '@/model/SensorRegistry'
 import TimeMode from '@/model/time-mode'
 
-import LoadingSpinner from './LoadingSpinner.vue'
+import LoadingSpinner from '@/components/LoadingSpinner.vue'
 
 @Component({
   components: {
@@ -26,55 +31,66 @@ import LoadingSpinner from './LoadingSpinner.vue'
   }
 })
 export default class Histogram extends Vue {
-  @Prop({ required: true }) sensor!: Sensor;
-
-  @Prop({ default: 8 }) buckets!: number;
-
-  @Prop({ required: true }) timeMode!: TimeMode;
-
-  private chart!: ChartAPI;
+  @Prop({ required: true }) sensor!: Sensor
+  @Prop({ required: true }) timeMode!: TimeMode
+  @Prop({ default: 8 }) buckets!: number
 
   private isLoading = true;
   private isError = false;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  private barChart!: any;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  private tooltip!: any;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  private container!: d3.Selection<HTMLElement, any, HTMLElement, any>;
+  private containerWidth!: number;
+  private containerHeight!: number;
 
   mounted () {
-    this.chart = generate({
-      bindto: this.$el.querySelector('.c3-container') as HTMLElement,
-      data: {
-        x: 'x',
-        columns: [],
-        type: 'bar'
-      },
-      legend: {
-        show: false
-      },
-      axis: {
-        x: {
-          type: 'category' // this needed to load string x value
-        }
-      },
-      tooltip: {
-        show: false
-      }
-    })
-    this.createPlot()
+    // eslint-disable-next-line new-cap
+    this.barChart = new bar()
+    this.container = d3select('.histogram')
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    this.containerWidth = this.container.node()!.getBoundingClientRect().width
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    this.containerHeight = this.container.node()!.getBoundingClientRect().height
+    // eslint-disable-next-line new-cap
+    this.tooltip = new miniTooltip()
+
+    this.barChart
+      .height(this.containerHeight)
+      .width(this.containerWidth)
+      .isAnimated(true)
+      .yAxisPaddingBetweenChart(10)
+      .on('customMouseOver', this.tooltip.show)
+      .on('customMouseMove', this.tooltip.update)
+      .on('customMouseOut', this.tooltip.hide)
+      .margin({ left: 93, bottom: 18 })
+
+    this.updateHistogram()
+
+    // make the chart responsive
+    const redrawChart = () => {
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      const newContainerWidth = this.container.node() ? this.container.node()!.getBoundingClientRect().width : false
+      this.barChart.width(newContainerWidth)
+      this.container.call(this.barChart)
+    }
+    const throttledRedraw = debounce(redrawChart, 200)
+    window.addEventListener('resize', throttledRedraw)
   }
 
   @Watch('sensor')
   onSensorChanged () {
-    this.createPlot()
+    this.updateHistogram()
   }
 
-  @Watch('timeMode')
-  onTimeModeChanged () {
-    this.createPlot()
-  }
+  private updateHistogram () {
+    const barData: Array<{name: string; tooltipLabel: string; value: number}> = []
 
-  private createPlot () {
-    const resource =
-      this.sensor instanceof AggregatedSensor
-        ? 'active-power/aggregated'
-        : 'active-power/raw'
+    const resource = this.sensor instanceof AggregatedSensor
+      ? 'active-power/aggregated'
+      : 'active-power/raw'
     // Distribution of last hour
     const after = this.timeMode.getTime().minus({ hours: 1 })
     const to = this.timeMode.getTime()
@@ -91,27 +107,25 @@ export default class Histogram extends Vue {
     )
       .then(response => {
         // JSON responses are automatically parsed.
-        const labels: string[] = ['x']
-        const values: Array<string | number> = [this.sensor.identifier]
         for (const bucket of response.data) {
-          labels.push(
-            '' + bucket.lower.toFixed(1) + ' - ' + bucket.upper.toFixed(1)
-          )
-          values.push(bucket.elements)
+          const xLabel = '' + Math.round((parseInt(bucket.lower.toFixed(1)) + parseInt(bucket.upper.toFixed(1))) / 2)
+          const tooltipLabel = '' + bucket.lower.toFixed(1) + ' - ' + bucket.upper.toFixed(1)
+          if (!isNaN(bucket.elements)) {
+            barData.push({ name: xLabel, tooltipLabel: tooltipLabel, value: bucket.elements })
+          }
         }
-        return [labels, values]
+        return barData
       })
       .catch(e => {
         console.error(e)
         this.isError = true
-        return [['x'], [this.sensor.identifier]]
+        return [{ name: this.sensor.identifier, value: 0 }]
       })
       .then(data => {
-        this.chart.unload()
-        this.chart.load({
-          columns: data,
-          unload: true
-        })
+        this.tooltip.nameLabel('tooltipLabel')
+        this.container.datum(data).call(this.barChart)
+        const tooltipContainer = d3select('.histogram .bar-chart .metadata-group')
+        tooltipContainer.datum([]).call(this.tooltip)
         this.isLoading = false
       })
   }
@@ -119,7 +133,7 @@ export default class Histogram extends Vue {
 </script>
 
 <style scoped>
-.c3-container {
-  height: 300px;
-}
+  .histogram {
+    height: 300px;
+  }
 </style>
