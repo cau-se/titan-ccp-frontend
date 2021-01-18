@@ -13,7 +13,7 @@
 
 import { Vue, Component, Prop, Watch } from 'vue-property-decorator'
 
-import { select as d3select } from 'd3-selection'
+import { select as d3select, Selection } from 'd3-selection'
 import bar from 'britecharts/dist/umd/bar.min'
 import miniTooltip from 'britecharts/dist/umd/miniTooltip.min'
 import 'britecharts/dist/css/charts/bar.min.css'
@@ -42,7 +42,7 @@ export default class Histogram extends Vue {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private tooltip!: any;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  private container!: d3.Selection<HTMLElement, any, HTMLElement, any>;
+  private container!: Selection<HTMLElement, any, HTMLElement, any>;
   private containerWidth!: number;
   private containerHeight!: number;
 

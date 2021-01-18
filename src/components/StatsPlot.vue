@@ -31,7 +31,7 @@ import TimeMode from '@/model/time-mode'
 
 import LoadingSpinner from './LoadingSpinner.vue'
 
-import { select as d3select } from 'd3-selection'
+import { select as d3select, Selection } from 'd3-selection'
 import 'britecharts/dist/css/britecharts.css'
 import line from 'britecharts/dist/umd/line.min'
 import tooltip from 'britecharts/dist/umd/tooltip.min'
@@ -164,7 +164,7 @@ export default class StatsPlot extends Vue {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private tooltip!: any;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  private container!: d3.Selection<any, any, null, undefined>;
+  private container!: Selection<any, any, null, undefined>;
   private containerWidth!: number;
   private containerHeight!: number;
   private readonly onSizeChanged = debounce(this.redrawChart, 600)

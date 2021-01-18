@@ -13,7 +13,7 @@
 <script lang="ts">
 import { Vue, Component, Prop, Watch } from 'vue-property-decorator'
 
-import { select as d3select } from 'd3-selection'
+import { select as d3select, Selection } from 'd3-selection'
 import colors from 'britecharts/dist/umd/colors.min'
 import donut from 'britecharts/dist/umd/donut.min'
 import legend from 'britecharts/dist/umd/legend.min'
@@ -43,7 +43,7 @@ export default class CompositionDonutChart extends Vue {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private legendChart!: any
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  private container!: d3.Selection<HTMLElement, any, HTMLElement, any>
+  private container!: Selection<HTMLElement, any, HTMLElement, any>
   private containerWidth!: number
   private readonly onSizeChanged = debounce(this.redrawChart, 200)
 
