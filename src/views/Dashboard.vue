@@ -21,7 +21,7 @@
           <histogram :timeMode="timeMode" :sensor="sensor" />
         </b-col>
         <b-col cols="6">
-          <composition-pie-chart :sensor="sensor" :timeMode="timeMode" />
+          <composition-donut-chart :sensor="sensor" :timeMode="timeMode" />
         </b-col>
     </b-row>
     <b-row class="mb-4">
@@ -43,7 +43,7 @@ import { Component, Prop, Vue } from 'vue-property-decorator'
 import { Sensor } from '@/model/SensorRegistry'
 import TimeMode from '@/model/time-mode'
 
-import CompositionPieChart from '@/components/CompositionPieChart.vue'
+import CompositionDonutChart from '@/components/CompositionDonutChart.vue'
 import Histogram from '@/components/Histogram.vue'
 import SensorHistoryPlot from '@/components/SensorHistoryPlot.vue'
 import StatsPlot, { HOUR_OF_DAY, DAY_OF_WEEK } from '@/components/StatsPlot.vue'
@@ -52,7 +52,7 @@ import TrendArrow, { Timespan } from '@/components/TrendArrow.vue'
 @Component({
   components: {
     SensorHistoryPlot,
-    CompositionPieChart,
+    CompositionDonutChart,
     Histogram,
     StatsPlot,
     TrendArrow
