@@ -51,6 +51,7 @@ export default class CompositionChart extends Vue {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private container!: Selection<HTMLElement, any, HTMLElement, any>
   private readonly onSizeChanged = debounce(this.redrawChart, 200)
+  private readonly idRegistry = new Registry<string>()
 
   mounted () {
     // eslint-disable-next-line new-cap
@@ -69,8 +70,10 @@ export default class CompositionChart extends Vue {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       .on('customClick', (slice: any) => {
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        const clickedSensor = slice.data.id
-        // TODO navigate to parent sensor
+        const clickedSensor = this.idRegistry.get(slice.data.id)
+        this.$router.push({
+          path: `/sensor-details/${[...this.sensor.allParents, this.sensor].map(s => s.identifier).join('/')}/${clickedSensor}`
+        })
       })
     this.updateChart()
     window.addEventListener('resize', this.onSizeChanged)
@@ -140,7 +143,7 @@ export default class CompositionChart extends Vue {
     const donutData = shares.map(share => ({
       quantity: share.valueInW,
       name: share.sensor.title,
-      id: share.sensor.identifier
+      id: this.idRegistry.register(share.sensor.identifier)
     }))
 
     this.isLoading = false
@@ -155,7 +158,7 @@ export default class CompositionChart extends Vue {
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  private getLegendChart (dataset: Array<{quantity: number; name: string; id: string}>, optionalColorSchema: any) {
+  private getLegendChart (dataset: Array<{quantity: number; name: string; id: number}>, optionalColorSchema: any) {
     // eslint-disable-next-line new-cap
     const legendChart = new legend()
     const legendContainer = d3select('.js-inline-legend-chart-container')

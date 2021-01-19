@@ -64,7 +64,9 @@ export default class ContributionChart extends Vue {
       .on('customClick', (slice: any) => {
         const clickedSensor = slice.data.id
         if (clickedSensor !== this.sensor.identifier) {
-          // TODO navigate to parent sensor
+          this.$router.push({
+            path: `/sensor-details/${this.sensor.allParents.map(s => s.identifier).join('/')}`
+          })
         }
       })
     this.updateChart()
