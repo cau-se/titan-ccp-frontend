@@ -48,13 +48,9 @@
 </template>
 
 <script lang="ts">
-import { Prop, Vue, Component } from "vue-property-decorator";
-import {
-  SensorRegistry,
-  SensorRegistryRequester,
-  JsonSensor
-} from "../SensorRegistry";
-import { HTTP } from "../http-common";
+import { Vue, Component } from 'vue-property-decorator'
+
+import { SensorRegistryRequester, JsonSensor } from '@/model/SensorRegistry'
 
 @Component({})
 export default class SensorHierarchyList extends Vue {
@@ -62,54 +58,54 @@ export default class SensorHierarchyList extends Vue {
 
   sensorRegistryRequester: SensorRegistryRequester = new SensorRegistryRequester();
 
-  newSensorRegistryName: string = "";
+  newSensorRegistryName = '';
 
-  hierarchyExists: boolean = false;
-  error: boolean = false;
+  hierarchyExists = false;
+  error = false;
 
-  async createNewSensorRegistry() {
-    this.error = false;
-    this.hierarchyExists = false;
-    const name = this.newSensorRegistryName.trim();
+  async createNewSensorRegistry () {
+    this.error = false
+    this.hierarchyExists = false
+    const name = this.newSensorRegistryName.trim()
     if (name.length) {
       try {
-        await this.sensorRegistryRequester.create(this.slugify(name), name);
-        this.newSensorRegistryName = "";
-        this.sensorRegistries.push({ identifier: this.slugify(name), name });
+        await this.sensorRegistryRequester.create(this.slugify(name), name)
+        this.newSensorRegistryName = ''
+        this.sensorRegistries.push({ identifier: this.slugify(name), name })
         this.sensorRegistries.sort((a, b) =>
           a.identifier < b.identifier ? -1 : 1
-        );
+        )
       } catch (e) {
-        if (e.response.status == 409) {
-          this.hierarchyExists = true;
+        if (e.response.status === 409) {
+          this.hierarchyExists = true
         } else {
-          this.error = true;
+          this.error = true
         }
       }
     }
   }
 
-  async created() {
-    this.sensorRegistries = await this.sensorRegistryRequester.requestAll();
+  async created () {
+    this.sensorRegistries = await this.sensorRegistryRequester.requestAll()
   }
 
-  async deleteSensorRegistry(registry: JsonSensor) {
-    await this.sensorRegistryRequester.delete(registry.identifier);
+  async deleteSensorRegistry (registry: JsonSensor) {
+    await this.sensorRegistryRequester.delete(registry.identifier)
 
-    const i = this.sensorRegistries.indexOf(registry);
-    this.sensorRegistries.splice(i, 1);
+    const i = this.sensorRegistries.indexOf(registry)
+    this.sensorRegistries.splice(i, 1)
   }
 
-  //TODO utility method
-  private slugify = (text: String) =>
+  // TODO utility method
+  private slugify = (text: string) =>
     text
       .toString()
       .toLowerCase()
-      .replace(/\s+/g, "-") // Replace spaces with -
-      .replace(/[^\w\-]+/g, "") // Remove all non-word chars
-      .replace(/\-\-+/g, "-") // Replace multiple - with single -
-      .replace(/^-+/, "") // Trim - from start of text
-      .replace(/-+$/, ""); // Trim - from end of text
+      .replace(/\s+/g, '-') // Replace spaces with -
+      .replace(/[^\w-]+/g, '') // Remove all non-word chars
+      .replace(/--+/g, '-') // Replace multiple - with single -
+      .replace(/^-+/, '') // Trim - from start of text
+      .replace(/-+$/, ''); // Trim - from end of text
 }
 </script>
 

@@ -1,40 +1,35 @@
 <template>
-    <b-breadcrumb class="sensor-parents">
-        <b-breadcrumb-item v-for="sensor in parents" :key="sensor.identifier" @click="select(sensor)" href="#" :text="sensor.title" />
-        <b-breadcrumb-item active :text="sensor.title" />
-    </b-breadcrumb>
+  <b-breadcrumb class="sensor-parents">
+    <b-breadcrumb-item v-for="sensor in sensor.allParents" :key="sensor.identifier" :to="buildPath(sensor)" :text="sensor.title" />
+    <b-breadcrumb-item active :text="sensor.title" />
+  </b-breadcrumb>
 </template>
 
 <script lang="ts">
-import { Vue, Component, Prop, Emit } from "vue-property-decorator"
-import { Sensor, AggregatedSensor } from '../SensorRegistry'
+import { Vue, Component, Prop } from 'vue-property-decorator'
 
-import BootstrapVue from 'bootstrap-vue'
-import 'bootstrap/dist/css/bootstrap.css'//TODO necessary?
-import 'bootstrap-vue/dist/bootstrap-vue.css' //TODO necessary?
+import { Sensor, AggregatedSensor } from '@/model/SensorRegistry'
 
 @Component
 export default class SensorParents extends Vue {
+  @Prop({ required: true }) sensor!: Sensor
 
-    @Prop({ required: true }) sensor!: Sensor
-
-    get parents () {
-        let parents = [this.sensor]
-        while (parents[parents.length - 1].parent) {
-            parents.push(parents[parents.length - 1].parent as AggregatedSensor) // cast shouldn't be necessary
-        }
-        return parents.reverse().slice(0, -1)
+  get parents () {
+    const parents = [this.sensor]
+    while (parents[parents.length - 1].parent) {
+      parents.push(parents[parents.length - 1].parent as AggregatedSensor) // cast shouldn't be necessary
     }
+    return parents.reverse().slice(0, -1)
+  }
 
-    @Emit()
-    select(sensor: AggregatedSensor) {
-    }
-
+  buildPath (sensor: Sensor): string {
+    return '/sensor-details/' + [...sensor.allParents, sensor].map(s => s.identifier).join('/')
+  }
 }
 </script>
 
 <style scoped>
-    .sensor-parents {
-        margin-bottom: 0;
-    }
+  .sensor-parents {
+    margin-bottom: 0;
+  }
 </style>

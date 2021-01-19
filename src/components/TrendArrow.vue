@@ -15,12 +15,17 @@
 </template>
 
 <script lang="ts">
-import { Vue, Component, Prop, Watch } from "vue-property-decorator";
-import { AggregatedSensor, Sensor } from "../SensorRegistry";
-import { HTTP } from "../http-common";
-import Repeater from "../Repeater";
-import { DateTime } from "luxon";
-import TimeMode from "../model/time-mode";
+import { Vue, Component, Prop, Watch } from 'vue-property-decorator'
+import { AggregatedSensor, Sensor } from '@/model/SensorRegistry'
+import { HTTP } from '@/model/http-common'
+import Repeater from '@/model/Repeater'
+import TimeMode from '../model/time-mode'
+
+export enum Timespan {
+  LastHour,
+  LastDay,
+  LastWeek
+}
 
 @Component
 export default class TrendArrow extends Vue {
@@ -30,114 +35,109 @@ export default class TrendArrow extends Vue {
 
   @Prop({ required: true }) timeMode!: TimeMode;
 
-  trendValue = -1;
+  trendValue = -1
 
-  requester = new Repeater(this.updateChart, this.updateChart, 10_000);
+  requester = new Repeater(this.updateChart, this.updateChart, 10_000)
 
-  created() {
-    this.requester.start();
+  created () {
+    this.requester.start()
   }
 
-  destroyed() {
-    this.requester.stop();
+  destroyed () {
+    this.requester.stop()
   }
 
-  @Watch("sensor")
-  onSensorChanged() {
-    this.requester.restart();
+  @Watch('sensor')
+  onSensorChanged () {
+    this.requester.restart()
   }
 
-  @Watch("timeMode")
-  onTimeModeChanged() {
+  @Watch('timeMode')
+  onTimeModeChanged () {
     if (this.timeMode.autoLoading) {
-      this.requester.start();
+      this.requester.start()
     } else {
-      this.requester.stop();
-      this.updateChart();
+      this.requester.stop()
+      this.updateChart()
     }
   }
 
-  private updateChart() {
-    let resource =
+  private updateChart () {
+    const resource =
       this.sensor instanceof AggregatedSensor
-        ? "aggregated-power-consumption"
-        : "power-consumption";
+        ? 'active-power/aggregated'
+        : 'active-power/raw'
     return HTTP.get(
       resource +
-        "/" +
+        '/' +
         this.sensor.identifier +
-        "/trend?after=" +
+        '/trend?after=' +
         this.after.toMillis()
     )
       .then(response => {
-        this.trendValue = response.data as number;
+        this.trendValue = response.data as number
       })
       .catch(e => {
-        console.error(e);
-      });
+        console.error(e)
+      })
   }
 
-  private get after() {
-    let now = this.timeMode.getTime();
+  private get after () {
+    const now = this.timeMode.getTime()
     switch (this.timespan) {
       case Timespan.LastHour: {
-        return now.minus({ hours: 1 });
+        return now.minus({ hours: 1 })
       }
       case Timespan.LastDay: {
-        return now.minus({ days: 1 });
+        return now.minus({ days: 1 })
       }
       case Timespan.LastWeek: {
-        return now.minus({ weeks: 1 });
+        return now.minus({ weeks: 1 })
       }
     }
   }
 
-  get rotation() {
+  get rotation () {
     if (this.trendValue > 1.5) {
-      return 270;
+      return 270
     } else if (this.trendValue > 1.1) {
-      return 315;
+      return 315
     } else if (this.trendValue > 0.9) {
-      return 0;
+      return 0
     } else if (this.trendValue > 0.5) {
-      return 45;
+      return 45
     } else {
-      return 90;
+      return 90
     }
   }
 
-  get color() {
+  get color () {
     if (this.trendValue > 1.5) {
-      return "text-danger";
+      return 'text-danger'
     } else if (this.trendValue > 1.1) {
-      return "text-danger";
+      return 'text-danger'
     } else if (this.trendValue > 0.9) {
-      return "text-warning";
+      return 'text-warning'
     } else if (this.trendValue > 0.5) {
-      return "text-success";
+      return 'text-success'
     } else {
-      return "text-success";
+      return 'text-success'
     }
   }
 
-  get text() {
+  get text () {
     switch (this.timespan) {
       case Timespan.LastHour: {
-        return "Last hour";
+        return 'Last hour'
       }
       case Timespan.LastDay: {
-        return "Last 24 hours";
+        return 'Last 24 hours'
       }
       case Timespan.LastWeek: {
-        return "Last 7 days";
+        return 'Last 7 days'
       }
     }
   }
 }
 
-export enum Timespan {
-  LastHour,
-  LastDay,
-  LastWeek
-}
 </script>

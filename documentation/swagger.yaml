@@ -108,7 +108,7 @@ paths:
         204:
           description: "Created"
       
-  /power-consumption/:identifier:
+  /active-power/raw/:identifier:
     get:
       tags:
       - "Power Consumption"
@@ -154,7 +154,7 @@ paths:
         400:
           description: "Invalid operation"
       
-  /power-consumption/:identifier/latest:
+  /active-power/raw/:identifier/latest:
     get:
       tags:
       - "Power Consumption"
@@ -199,7 +199,7 @@ paths:
                 -1
         400:
           description: "Invalid operation"
-  /power-consumption/:identifier/distribution:
+  /active-power/raw/:identifier/distribution:
     get:
       tags:
       - "Power Consumption"
@@ -248,7 +248,7 @@ paths:
               
         400:
           description: "Invalid operation"
-  /power-consumption/:identifier/trend:
+  /active-power/raw/:identifier/trend:
     get:
       tags:
       - "Power Consumption"
@@ -279,7 +279,7 @@ paths:
               
         400:
           description: "Invalid operation"
-  /aggregated-power-consumption/:identifier:
+  /active-power/aggregated/:identifier:
     get:
       tags:
       - "Aggregated Power consumption"
@@ -342,7 +342,7 @@ paths:
         400:
           description: "Invalid operation"
       
-  /aggregated-power-consumption/:identifier/latest:
+  /active-power/aggregated/:identifier/latest:
     get:
       tags:
       - "Aggregated Power consumption"
@@ -404,7 +404,7 @@ paths:
 
         400:
           description: "Invalid operation"
-  /aggregated-power-consumption/:identifier/distribution:
+  /active-power/aggregated/:identifier/distribution:
     get:
       tags:
       - "Aggregated Power consumption"
@@ -453,7 +453,7 @@ paths:
               
         400:
           description: "Invalid operation"
-  /aggregated-power-consumption/:identifier/trend:
+  /active-power/aggregated/:identifier/trend:
     get:
       tags:
       - "Aggregated Power consumption"
