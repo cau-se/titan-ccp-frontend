@@ -162,4 +162,7 @@ export default class ContributionChart extends Vue {
     height: 300px;
     overflow: hidden;
   }
+  .donut-container >>> svg g.arc:not(:first-child) path {
+    cursor: pointer;
+  }
 </style>
