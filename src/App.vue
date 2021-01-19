@@ -187,3 +187,8 @@ export default class App extends Vue {
   box-shadow: inset -1px 0 0 rgba(0, 0, 0, 0.25);
 }
 </style>
+<style>
+svg.britechart .tick text {
+    font-size: 10px;
+}
+</style>

@@ -33,13 +33,13 @@
         <histogram :sensor="internalSensor" :timeMode="timeMode" :key="internalSensor.identifier" />
       </b-col>
       <b-col v-if="isAggregated" cols="6">
-        <composition-pie-chart :sensor="internalSensor" :timeMode="timeMode" />
+        <composition-chart :sensor="internalSensor" :timeMode="timeMode" />
       </b-col>
       <b-col v-else cols="6">
-        <contribution-pie-chart :sensor="internalSensor" :timeMode="timeMode" />
+        <contribution-chart :sensor="internalSensor" :timeMode="timeMode" />
       </b-col>
     </b-row>
-    <b-row class="mb-4">
+       <b-row class="mb-4">
       <b-col cols="6">
         <stats-plot :sensor="internalSensor" :stats-type="statsDayOfWeek" :timeMode="timeMode" />
       </b-col>
@@ -56,8 +56,8 @@ import { Vue, Component, Prop } from 'vue-property-decorator'
 import { Sensor, AggregatedSensor, SensorRegistry } from '@/model/SensorRegistry'
 import TimeMode from '@/model/time-mode'
 
-import CompositionPieChart from '@/components/CompositionPieChart.vue'
-import ContributionPieChart from '@/components/ContributionPieChart.vue'
+import CompositionChart from '@/components/CompositionChart.vue'
+import ContributionChart from '@/components/ContributionChart.vue'
 import Histogram from '@/components/Histogram.vue'
 import SensorHistoryPlot from '@/components/SensorHistoryPlot.vue'
 import SensorParents from '@/components/SensorParents.vue'
@@ -68,8 +68,8 @@ import TrendArrow, { Timespan } from '@/components/TrendArrow.vue'
   components: {
     SensorParents,
     SensorHistoryPlot,
-    CompositionPieChart,
-    ContributionPieChart,
+    CompositionChart,
+    ContributionChart,
     Histogram,
     StatsPlot,
     TrendArrow
@@ -116,7 +116,6 @@ export default class SensorDetails extends Vue {
       return undefined
     }
     for (const identifier of identifierPath.slice(1)) {
-      console.log('id ' + identifier)
       if (!(sensor instanceof AggregatedSensor)) {
         // identifierPath has at least one more item but sensor has no children
         return undefined
