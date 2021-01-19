@@ -186,6 +186,9 @@ export default class CompositionChart extends Vue {
   .donut-container {
     height: 280px;
   }
+  .donut-container >>> svg g.arc path {
+    cursor: pointer;
+  }
   .js-inline-legend-chart-container {
     padding-top: 20px;
     height: 0px;
