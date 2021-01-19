@@ -20,6 +20,7 @@ import legend from 'britecharts/dist/umd/legend.min'
 import 'britecharts/dist/css/charts/bar.min.css'
 import debounce from 'lodash.debounce'
 
+import Registry from '@/util/Registry'
 import { HTTP } from '@/model/http-common'
 import { AggregatedSensor, MachineSensor, Sensor } from '@/model/SensorRegistry'
 import TimeMode from '@/model/time-mode'
@@ -36,7 +37,7 @@ interface CompositionShare {
     LoadingSpinner
   }
 })
-export default class CompositionDonutChart extends Vue {
+export default class CompositionChart extends Vue {
   @Prop({ required: true }) sensor!: AggregatedSensor
 
   @Prop({ required: true }) timeMode!: TimeMode;
@@ -135,6 +136,7 @@ export default class CompositionDonutChart extends Vue {
   }
 
   private drawDonut (shares: Array<CompositionShare>) {
+    console.log(shares)
     const donutData = shares.map(share => ({
       quantity: share.valueInW,
       name: share.sensor.title,

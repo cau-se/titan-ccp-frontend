@@ -33,7 +33,7 @@
         <histogram :sensor="internalSensor" :timeMode="timeMode" :key="internalSensor.identifier" />
       </b-col>
       <b-col v-if="isAggregated" cols="6">
-        <composition-donut-chart :sensor="internalSensor" :timeMode="timeMode" />
+        <composition-chart :sensor="internalSensor" :timeMode="timeMode" />
       </b-col>
       <b-col v-else cols="6">
         <contribution-chart :sensor="internalSensor" :timeMode="timeMode" />
@@ -56,7 +56,7 @@ import { Vue, Component, Prop } from 'vue-property-decorator'
 import { Sensor, AggregatedSensor, SensorRegistry } from '@/model/SensorRegistry'
 import TimeMode from '@/model/time-mode'
 
-import CompositionDonutChart from '@/components/CompositionDonutChart.vue'
+import CompositionChart from '@/components/CompositionChart.vue'
 import ContributionChart from '@/components/ContributionChart.vue'
 import Histogram from '@/components/Histogram.vue'
 import SensorHistoryPlot from '@/components/SensorHistoryPlot.vue'
@@ -68,7 +68,7 @@ import TrendArrow, { Timespan } from '@/components/TrendArrow.vue'
   components: {
     SensorParents,
     SensorHistoryPlot,
-    CompositionDonutChart,
+    CompositionChart,
     ContributionChart,
     Histogram,
     StatsPlot,
