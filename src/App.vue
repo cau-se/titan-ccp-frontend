@@ -2,7 +2,10 @@
   <div id="app">
 
     <nav class="navbar navbar-dark sticky-top bg-dark flex-md-nowrap p-0">
-      <router-link to="/" class="navbar-brand col-sm-3 col-md-2 mr-0">Titan Control Center</router-link>
+      <router-link to="/" class="navbar-brand col-sm-3 col-md-2 mr-0">
+        <img src="@/assets/titan-logo.svg" height="24" class="d-inline-block mr-2 align-middle" alt="">
+        <span class="align-middle">Titan Control Center</span>
+      </router-link>
       <div class="container justify-content-end">
         <ul class="navbar-nav">
           <li class="nav-item text-nowrap">
@@ -179,7 +182,13 @@ export default class App extends Vue {
   padding-top: 0.75rem;
   padding-bottom: 0.75rem;
   font-size: 1rem;
+  line-height: 1rem;
   background-color: rgba(0, 0, 0, 0.25);
   box-shadow: inset -1px 0 0 rgba(0, 0, 0, 0.25);
+}
+</style>
+<style>
+svg.britechart .tick text {
+    font-size: 10px;
 }
 </style>

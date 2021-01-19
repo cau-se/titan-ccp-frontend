@@ -15,7 +15,7 @@
         </b-col>
       </b-row>
       <loading-spinner :is-loading="isLoading" :is-error="isError">
-        <div class="c3-container"></div>
+        <div :class="statsType.url" class="plot-container"></div>
       </loading-spinner>
     </div>
   </div>
@@ -24,14 +24,18 @@
 <script lang="ts">
 import { Vue, Component, Prop, Watch } from 'vue-property-decorator'
 
-import { ChartAPI, generate } from 'c3'
-import 'c3/c3.css'
 import { DateTime, Interval } from 'luxon'
 import { HTTP } from '@/model/http-common'
 import { Sensor } from '@/model/SensorRegistry'
 import TimeMode from '@/model/time-mode'
 
 import LoadingSpinner from './LoadingSpinner.vue'
+
+import { select as d3select, Selection } from 'd3-selection'
+import 'britecharts/dist/css/britecharts.css'
+import line from 'britecharts/dist/umd/line.min'
+import tooltip from 'britecharts/dist/umd/tooltip.min'
+import debounce from 'lodash.debounce'
 
 function getDayOfWeekText (number: number) {
   switch (number) {
@@ -62,6 +66,35 @@ function getDayOfWeekText (number: number) {
   }
 }
 
+function getDayOfWeekNumber (name: string) {
+  switch (name) {
+    case 'Sunday': {
+      return 7
+    }
+    case 'Monday': {
+      return 1
+    }
+    case 'Tuesday': {
+      return 2
+    }
+    case 'Wednesday': {
+      return 3
+    }
+    case 'Thursday': {
+      return 4
+    }
+    case 'Friday': {
+      return 5
+    }
+    case 'Saturday': {
+      return 6
+    }
+    default: {
+      throw new RangeError('Day of week number must be between 1 and 7')
+    }
+  }
+}
+
 class IntervalSelectOption {
   public readonly value: Interval;
   public readonly text: string;
@@ -75,21 +108,38 @@ class IntervalSelectOption {
 export interface StatsType {
   title: string;
   url: string;
+  xAxisFormat: string;
+  dateFormat: string;
+  tooltipTitle: string;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   accessor: (stats: any) => string;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  tickNameToDateTime: (tickName: any) => DateTime;
 }
 
 export const HOUR_OF_DAY: StatsType = {
   title: 'Daily Course',
   url: 'hour-of-day',
-  accessor: (stats) => stats.hourOfDay
+  xAxisFormat: '%H',
+  dateFormat: '%H',
+  tooltipTitle: 'Hour of day',
+  accessor: (stats) => stats.hourOfDay,
+  tickNameToDateTime: (tickName) => DateTime.local(2000, 1, 1, tickName, 0, 0, 0)
 }
 
 export const DAY_OF_WEEK: StatsType = {
   title: 'Weekly Course',
   url: 'day-of-week',
-  accessor: (stats) => getDayOfWeekText(stats.dayOfWeek)
+  xAxisFormat: '%A',
+  dateFormat: '%A',
+  tooltipTitle: 'Day of week',
+  accessor: (stats) => getDayOfWeekText(stats.dayOfWeek),
+  tickNameToDateTime: (tickName) => DateTime
+    .local(2000, 1, 1, 0, 0, 0, 0)
+    .set({ weekday: getDayOfWeekNumber(tickName) })
+
 }
+const lineMargin = { top: 20, bottom: 30, left: 50, right: 20 }
 
 @Component({
   components: {
@@ -106,50 +156,66 @@ export default class StatsPlot extends Vue {
   private availableIntervals: Interval[] = [];
   private selectedInterval: Interval | null = null;
 
-  private chart!: ChartAPI;
-
   private isLoading = true;
   private isError = false;
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  private plot!: any;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  private tooltip!: any;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  private container!: Selection<any, any, null, undefined>;
+  private containerWidth!: number;
+  private containerHeight!: number;
+  private readonly onSizeChanged = debounce(this.redrawChart, 600)
 
   get intervalSelectOptions (): Array<IntervalSelectOption> {
     return this.availableIntervals.map((i) => new IntervalSelectOption(i))
   }
 
   mounted () {
-    this.chart = generate({
-      bindto: this.$el.querySelector('.c3-container') as HTMLElement,
-      data: {
-        x: 'x',
-        columns: [],
-        type: 'spline'
-      },
-      legend: {
-        show: false
-      },
-      axis: {
-        x: {
-          type: 'category',
-          tick: {
-            multiline: false
-          }
-        },
-        y: {
-          min: 0
-        }
-      },
-      grid: {
-        x: {
-          show: true
-        },
-        y: {
-          show: true
-        }
-      },
-      tooltip: {
-        show: false
-      }
-    })
+    // eslint-disable-next-line new-cap
+    this.plot = new line()
+    this.container = d3select(this.$el.querySelector('.' + this.statsType.url))
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    this.containerWidth = this.container.node()!.getBoundingClientRect().width
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    this.containerHeight = this.container.node()!.getBoundingClientRect().height
+    // eslint-disable-next-line new-cap
+    this.tooltip = new tooltip()
+
+    this.tooltip
+      .title(this.statsType.tooltipTitle)
+      .numberFormat('.2f')
+      .dateFormat(this.tooltip.axisTimeCombinations.CUSTOM)
+      .dateCustomFormat(this.statsType.dateFormat)
+
+    this.plot
+      .width(this.containerWidth)
+      .height(this.containerHeight)
+      .tooltipThreshold(600)
+      .grid('full')
+      .xAxisFormat('custom')
+      .xAxisCustomFormat(this.statsType.xAxisFormat)
+      .isAnimated(true)
+      .margin(lineMargin)
+      .on('customMouseOver', this.tooltip.show)
+      .on('customMouseMove', this.tooltip.update)
+      .on('customMouseOut', this.tooltip.hide)
+
     this.loadAvailableIntervals().then(() => this.createPlot())
+    window.addEventListener('resize', this.onSizeChanged)
+  }
+
+  destroyed () {
+    window.removeEventListener('resize', this.onSizeChanged)
+  }
+
+  private redrawChart () {
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    const newContainerWidth = this.container.node() ? this.container.node()!.getBoundingClientRect().width : false
+    this.plot.width(newContainerWidth)
+    this.container.call(this.plot)
   }
 
   @Watch('sensor')
@@ -219,10 +285,11 @@ export default class StatsPlot extends Vue {
         return [['x'], ['mean']]
       })
       .then((data) => {
-        this.chart.load({
-          columns: data,
-          unload: true
-        })
+        this.plot.xTicks(data[0].length - 0)
+        const datal = this.cleanFormat(data)
+        this.container.datum(datal).call(this.plot)
+        const tooltipContainer = d3select('.' + this.statsType.url + ' .metadata-group .vertical-marker-container')
+        tooltipContainer.datum([]).call(this.tooltip)
         this.isLoading = false
       })
   }
@@ -230,20 +297,44 @@ export default class StatsPlot extends Vue {
   private dateTimeToBackendISO (dateTime: DateTime): string {
     return dateTime.toUTC().toISO({ suppressMilliseconds: true })
   }
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  private cleanFormat (rawData: any): any {
+    rawData[1].shift()
+    rawData[0].shift()
+
+    const data = rawData[1]
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const xAxisTickName: any = rawData[0]
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const cleanFormat = { data: [] as any }
+    const ticksName: Array<Date> = []
+
+    // set tick names and allign time of data points in stats plot
+    for (let i = 0; i < data.length; i++) {
+      ticksName.push(
+        this.statsType.tickNameToDateTime(
+          xAxisTickName[i])
+          .toJSDate())
+    }
+
+    for (let i = 0; i < data.length; i++) {
+      cleanFormat.data.push({
+        topicName: 'mean',
+        name: 0,
+        date: ticksName[i].toISOString(),
+        value: data[i]
+      })
+    }
+    return cleanFormat
+  }
 }
+
 </script>
 
 <style scoped>
-.c3-container {
+.plot-container {
   height: 300px;
-}
-</style>
-<style>
-.c3-grid line {
-  stroke: #dfdfdf;
-}
-.c3-xgrid,
-.c3-ygrid {
-  stroke-dasharray: 0;
+  overflow: hidden;
 }
 </style>
