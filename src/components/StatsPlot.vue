@@ -2,10 +2,10 @@
   <div class="card">
     <div class="card-body">
       <b-row>
-        <b-col cols="9">
+        <b-col cols="6">
           <h5 class="card-title">{{ statsType.title }}</h5>
         </b-col>
-        <b-col cols="3">
+        <b-col cols="6">
           <b-form-select
             v-if="selectedInterval"
             v-model="selectedInterval"
@@ -15,7 +15,7 @@
         </b-col>
       </b-row>
       <loading-spinner :is-loading="isLoading" :is-error="isError">
-        <div :class="statsType.url" id="plot-container"></div>
+        <div :class="statsType.url" class="plot-container"></div>
       </loading-spinner>
     </div>
   </div>
@@ -139,7 +139,7 @@ export const DAY_OF_WEEK: StatsType = {
     .set({ weekday: getDayOfWeekNumber(tickName) })
 
 }
-const lineMargin = { top: 60, bottom: 30, left: 80, right: 50 }
+const lineMargin = { top: 20, bottom: 30, left: 50, right: 20 }
 
 @Component({
   components: {
@@ -333,7 +333,8 @@ export default class StatsPlot extends Vue {
 </script>
 
 <style scoped>
-#plot-container {
+.plot-container {
   height: 300px;
+  overflow: hidden;
 }
 </style>
