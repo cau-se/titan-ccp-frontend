@@ -26,13 +26,18 @@ import TimeMode from '@/model/time-mode'
 
 import LoadingSpinner from '@/components/LoadingSpinner.vue'
 
+interface CompositionShare {
+  sensor: Sensor;
+  valueInW: number;
+}
+
 @Component({
   components: {
     LoadingSpinner
   }
 })
 export default class CompositionDonutChart extends Vue {
-  @Prop({ required: true }) sensor!: Sensor
+  @Prop({ required: true }) sensor!: AggregatedSensor
 
   @Prop({ required: true }) timeMode!: TimeMode;
 
@@ -44,19 +49,14 @@ export default class CompositionDonutChart extends Vue {
   private legendChart!: any
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private container!: Selection<HTMLElement, any, HTMLElement, any>
-  private containerWidth!: number
   private readonly onSizeChanged = debounce(this.redrawChart, 200)
 
   mounted () {
     // eslint-disable-next-line new-cap
     this.donutChart = new donut()
     this.container = d3select('.donut-container')
-    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-    this.containerWidth = this.container.node()!.getBoundingClientRect().width
+    this.computeChartSize()
     this.donutChart
-      .width(this.containerWidth)
-      .externalRadius(this.containerWidth / 3.3)
-      .internalRadius(this.containerWidth / 5.5)
       .isAnimated(true)
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       .on('customMouseOver', (data: any) => {
@@ -64,6 +64,12 @@ export default class CompositionDonutChart extends Vue {
       })
       .on('customMouseOut', () => {
         this.legendChart.clearHighlight()
+      })
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      .on('customClick', (slice: any) => {
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        const clickedSensor = slice.data.id
+        // TODO navigate to parent sensor
       })
     this.updateChart()
     window.addEventListener('resize', this.onSizeChanged)
@@ -73,12 +79,21 @@ export default class CompositionDonutChart extends Vue {
     window.removeEventListener('resize', this.onSizeChanged)
   }
 
-  // make the chart responsive
   private redrawChart () {
-    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-    const newContainerWidth = this.container.node() ? this.container.node()!.getBoundingClientRect().width : false
-    this.donutChart.width(newContainerWidth)
+    this.computeChartSize()
     this.container.call(this.donutChart)
+  }
+
+  private computeChartSize () {
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    const containerWidth = this.container.node()!.getBoundingClientRect().width
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    const containerHeight = this.container.node()!.getBoundingClientRect().height
+    const donutRadius = Math.min(containerWidth, containerHeight) / 2
+    this.donutChart
+      .width(containerWidth)
+      .internalRadius(donutRadius * 0.5)
+      .externalRadius(donutRadius)
   }
 
   @Watch('sensor')
@@ -91,28 +106,7 @@ export default class CompositionDonutChart extends Vue {
     this.updateChart()
   }
 
-  private loadMashineSensor (sensor: MachineSensor): Promise<[string, number][]> {
-    const to = this.timeMode.getTime()
-
-    return Promise.all([
-      HTTP.get('active-power/raw/' + sensor.identifier + '/latest?to=' + to.toMillis())
-        .then(response => {
-          return [this.sensor.name, response.data.length <= 0 ? 0 : response.data[0].valueInW] as [string, number]
-        }),
-      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-      HTTP.get('active-power/aggregated/' + this.sensor.parent!.identifier + '/latest?to=' + to.toMillis())
-        .then(response => {
-          return ['other', response.data.length <= 0 ? 0 : response.data[0].sumInW] as [string, number]
-        })
-    ])
-      .catch(e => {
-        console.error(e)
-        this.isError = true
-        return []
-      })
-  }
-
-  private loadAggregatedSensor (sensor: AggregatedSensor): Promise<[string, number][]> {
+  private loadAggregatedSensor (sensor: AggregatedSensor): Promise<Array<CompositionShare>> {
     const to = this.timeMode.getTime()
 
     return Promise.all(sensor.children.map(child => {
@@ -125,10 +119,12 @@ export default class CompositionDonutChart extends Vue {
             value = 0
           } else if (child instanceof AggregatedSensor) {
             value = response.data[0].sumInW
-          } else {
+          } else if (child instanceof MachineSensor) {
             value = response.data[0].valueInW
+          } else {
+            value = 0
           }
-          return [child.title, value] as [string, number]
+          return { sensor: child, valueInW: value } as CompositionShare
         })
     }))
       .catch(e => {
@@ -138,26 +134,13 @@ export default class CompositionDonutChart extends Vue {
       })
   }
 
-  get isAggregated () {
-    return this.sensor instanceof AggregatedSensor
-  }
+  private drawDonut (shares: Array<CompositionShare>) {
+    const donutData = shares.map(share => ({
+      quantity: share.valueInW,
+      name: share.sensor.title,
+      id: share.sensor.identifier
+    }))
 
-  private drawDonut (columns: [string, number][]) {
-    const donutData: Array<{quantity: number; percentage: number; name: string; id: number}> = []
-    this.donutChart
-      .highlightSliceById(this.isAggregated ? false : 1)
-      .hasFixedHighlightedSlice(this.isAggregated)
-    let sum = 0
-    let id = 1
-    for (let i = 0; i < columns.length; i++) {
-      sum += columns[i][1]
-    }
-    for (let i = 0; i < columns.length; i++) {
-      let percentage = (columns[i][1] / sum) * 100
-      percentage = parseFloat(percentage.toFixed(1))
-      donutData.push({ quantity: columns[i][1], percentage: percentage, name: columns[i][0], id: id })
-      id++
-    }
     this.isLoading = false
     this.legendChart = this.getLegendChart(donutData, colors.colorSchemas.britecharts)
     this.container.datum(donutData).call(this.donutChart)
@@ -165,18 +148,12 @@ export default class CompositionDonutChart extends Vue {
 
   private updateChart () {
     this.isLoading = true
-    if (this.isAggregated) {
-      const aggsensor = this.sensor as AggregatedSensor
-      this.loadAggregatedSensor(aggsensor)
-        .then(this.drawDonut)
-    } else {
-      this.loadMashineSensor(this.sensor)
-        .then(this.drawDonut)
-    }
+    this.loadAggregatedSensor(this.sensor)
+      .then(this.drawDonut)
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  private getLegendChart (dataset: Array<{quantity: number; percentage: number; name: string; id: number}>, optionalColorSchema: any) {
+  private getLegendChart (dataset: Array<{quantity: number; name: string; id: string}>, optionalColorSchema: any) {
     // eslint-disable-next-line new-cap
     const legendChart = new legend()
     const legendContainer = d3select('.js-inline-legend-chart-container')
@@ -203,9 +180,10 @@ export default class CompositionDonutChart extends Vue {
 
 <style scoped>
   .donut-container {
-    height: 300px;
+    height: 280px;
   }
   .js-inline-legend-chart-container {
+    padding-top: 20px;
     height: 0px;
   }
 </style>

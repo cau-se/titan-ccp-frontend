@@ -77,9 +77,7 @@ export default class ContributionChart extends Vue {
 
   // make the chart responsive
   private redrawChart () {
-    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-    const newContainerWidth = this.container.node() ? this.container.node()!.getBoundingClientRect().width : false
-    this.donutChart.width(newContainerWidth)
+    this.computeChartSize()
     this.container.call(this.donutChart)
   }
 
@@ -131,7 +129,7 @@ export default class ContributionChart extends Vue {
     const donutData: Array<{quantity: number; name: string; id: string}> = []
     donutData.push({
       quantity: data.share,
-      name: this.sensor.name,
+      name: this.sensor.title,
       id: this.sensor.identifier
     })
     donutData.push({
