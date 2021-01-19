@@ -139,7 +139,6 @@ export default class CompositionChart extends Vue {
   }
 
   private drawDonut (shares: Array<CompositionShare>) {
-    console.log(shares)
     const donutData = shares.map(share => ({
       quantity: share.valueInW,
       name: share.sensor.title,
