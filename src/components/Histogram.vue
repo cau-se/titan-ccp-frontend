@@ -65,7 +65,7 @@ export default class Histogram extends Vue {
       .on('customMouseOver', this.tooltip.show)
       .on('customMouseMove', this.tooltip.update)
       .on('customMouseOut', this.tooltip.hide)
-      .margin({ left: 93, bottom: 18 })
+      .margin({ left: 40, bottom: 18 })
 
     this.updateHistogram()
 
@@ -108,10 +108,16 @@ export default class Histogram extends Vue {
       .then(response => {
         // JSON responses are automatically parsed.
         for (const bucket of response.data) {
-          const xLabel = '' + Math.round((parseInt(bucket.lower.toFixed(1)) + parseInt(bucket.upper.toFixed(1))) / 2)
-          const tooltipLabel = '' + bucket.lower.toFixed(1) + ' - ' + bucket.upper.toFixed(1)
+          const xLabel = Math.round(
+            (parseFloat(bucket.lower) + parseFloat(bucket.upper)) / 2)
+            .toString()
+          const tooltipLabel = `${bucket.lower.toFixed(1)} – ${bucket.upper.toFixed(1)}`
           if (!isNaN(bucket.elements)) {
-            barData.push({ name: xLabel, tooltipLabel: tooltipLabel, value: bucket.elements })
+            barData.push({
+              name: xLabel,
+              tooltipLabel: tooltipLabel,
+              value: bucket.elements.toFixed(0)
+            })
           }
         }
         return barData
