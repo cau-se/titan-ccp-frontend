@@ -65,7 +65,7 @@ export default class Histogram extends Vue {
       .on('customMouseOver', this.tooltip.show)
       .on('customMouseMove', this.tooltip.update)
       .on('customMouseOut', this.tooltip.hide)
-      .margin({ left: 40, bottom: 18 })
+      .margin({ left: 60, bottom: 18 })
 
     this.updateHistogram()
 
