@@ -2,15 +2,14 @@
   <div class="card">
     <div class="card-body">
       <b-row>
-        <b-col cols="4">
-          <h5 class="card-title">Correlation of Power Consumption {{ sensor.title }}</h5>
+        <b-col cols="9">
+          <h5 class="card-title">Daily Composition</h5>
         </b-col>
         <b-col cols="3">
           <b-form-select
             v-if="selectedInterval"
             v-model="selectedInterval"
             :options="intervalSelectOptions"
-            class="mb-3"
           ></b-form-select>
         </b-col>
       </b-row>
