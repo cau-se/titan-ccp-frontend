@@ -35,7 +35,7 @@ import { Vue, Component, Prop, Watch } from 'vue-property-decorator'
 import { DateTime, Interval } from 'luxon'
 import { HTTP } from '@/model/http-common'
 import { AggregatedSensor } from '@/model/SensorRegistry'
-import { select as d3select, selectAll as d3selectAll } from 'd3-selection'
+import { select as d3select, selectAll as d3selectAll, Selection } from 'd3-selection'
 
 import LoadingSpinner from './LoadingSpinner.vue'
 
@@ -71,11 +71,12 @@ export default class CorrelationHeatmap extends Vue {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     private heatMap!: any;
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    private container!: d3.Selection<any, any, HTMLElement, undefined>;
+    private container!: Selection<any, any, HTMLElement, undefined>;
     private readonly onSizeChanged = debounce(this.redrawChart, 600)
     private ids: Array<string> = []
     private shortIds: Array<string> = []
-    private titleContainer!: d3.Selection<any, any, HTMLElement, undefined>;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    private titleContainer!: Selection<any, any, HTMLElement, undefined>;
 
     get intervalSelectOptions (): Array<IntervalSelectOption> {
       return this.availableIntervals.map(i => new IntervalSelectOption(i))
