@@ -43,125 +43,113 @@
 </template>
 
 <script lang="ts">
-import { Vue, Component, Prop, Watch } from "vue-property-decorator"
-import { Sensor, AggregatedSensor, MachineSensor, SensorRegistry } from '../SensorRegistry'
+import { Vue, Component, Prop, Watch } from 'vue-property-decorator'
+import { Sensor, AggregatedSensor, MachineSensor, SensorRegistry } from '@/model/SensorRegistry'
 
-import { HTTP } from "../http-common";
+import { HTTP } from '@/model/http-common'
 
 import BootstrapVue from 'bootstrap-vue'
 import 'bootstrap/dist/css/bootstrap.css'
 import 'bootstrap-vue/dist/bootstrap-vue.css'
 
+// eslint-disable-next-line @typescript-eslint/ban-ts-ignore
 // @ts-ignore
-import Treeselect from "@riophae/vue-treeselect";
-import "@riophae/vue-treeselect/dist/vue-treeselect.css";
+import Treeselect from '@riophae/vue-treeselect'
+import '@riophae/vue-treeselect/dist/vue-treeselect.css'
 
-import SensorHistoryPlot from "./SensorHistoryPlot.vue"
-import TimeMode from "../model/time-mode";
-import AnomalyView from "./AnomalyView.vue"
-import LoadingSpinner from "./LoadingSpinner.vue";
+import SensorHistoryPlot from './SensorHistoryPlot.vue'
+import TimeMode from '../model/time-mode'
+import AnomalyView from './AnomalyView.vue'
+import LoadingSpinner from './LoadingSpinner.vue'
 
-import { MovingTimeSeriesPlot, DataPoint } from "../MovingTimeSeriesPlot";
-
+// eslint-disable-next-line @typescript-eslint/ban-ts-ignore
 // @ts-ignore
-import { CanvasTimeSeriesPlot } from "../canvasplot.js";
-import { Interval } from "luxon";
-declare var d3version3: any;
-
+import { CanvasTimeSeriesPlot } from '@/model/canvasPlot/CanvasTimeSeriesPlot'
+import { Interval } from 'luxon'
+import { DataPoint, TimeSeriesPlotManager } from '@/model/TimeSeriesPlotManager'
+import d3 from 'd3'
+declare let d3version3: any
 
 @Component({
-    components: {
-        SensorHistoryPlot,
-        LoadingSpinner,
-        AnomalyView,
-        Treeselect
-    }
+  components: {
+    SensorHistoryPlot,
+    LoadingSpinner,
+    AnomalyView,
+    Treeselect
+  }
 })
 export default class Anomalies extends Vue {
-
     @Prop({ required: true }) sensorRegistry!: SensorRegistry;
 
     @Prop({ required: true }) timeMode!: TimeMode
 
-    private internalSensor: Sensor = this.sensorRegistry.registeredSensors.find(s => s.identifier == "e-druckluft-e2")!
+    private internalSensor: Sensor = this.sensorRegistry.topLevelSensor
 
-    private threshold: number = 3;
+    private threshold = 3;
+    private plot!: CanvasTimeSeriesPlot // Will definitely be assigned in mounted
+    private plotManager!: TimeSeriesPlotManager;
 
-    private get interval(): Interval {
-        return Interval.fromDateTimes(
-            this.timeMode.getTime().minus({ days: 7 }),
-            this.timeMode.getTime(),
-        )
+    private get interval (): Interval {
+      return Interval.fromDateTimes(
+        this.timeMode.getTime().minus({ minutes: 40 }),
+        this.timeMode.getTime()
+      )
     }
 
-    covertSensorToSelectable(sensor: Sensor) {
-        if (sensor instanceof AggregatedSensor) {
+    covertSensorToSelectable (sensor: Sensor) {
+      if (sensor instanceof AggregatedSensor) {
         return {
-            id: sensor.identifier,
-            label: sensor.title,
-            children: sensor.children,
-        };
-        } else {
-        return {
-            id: sensor.identifier,
-            label: sensor.title,
-        };
+          id: sensor.identifier,
+          label: sensor.title,
+          children: sensor.children
         }
+      } else {
+        return {
+          id: sensor.identifier,
+          label: sensor.title
+        }
+      }
     }
 
     private isLoading = false;
     private isError = false;
 
-    //private plot!: CanvasTimeSeriesPlot; // Will definitely be assigned in mounted
-    private plot!: MovingTimeSeriesPlot; // Will definitely be assigned in mounted
-
-    get canvasplotContainer() {
-        return this.$el.querySelector(".canvasplot-container")! as HTMLElement;
+    get canvasplotContainer () {
+      return this.$el.querySelector('.canvasplot-container')! as HTMLElement
     }
 
-    mounted() {
-        this.plot = new MovingTimeSeriesPlot(this.canvasplotContainer, {
-            plotStartsWithZero: true,
-            yAxisLabel: "Active Power in kW",
-        });
-        this.fetchHistoryData();
+    mounted () {
+      this.fetchHistoryData()
     }
 
-    @Watch("timeMode")
-    ontimeModeChanged() {
-        this.plot.destroy();
-        this.plot = new MovingTimeSeriesPlot(this.canvasplotContainer, {
-            plotStartsWithZero: true,
-            yAxisLabel: "Active Power in kW",
-        });
-        this.fetchHistoryData();
+    @Watch('timeMode')
+    ontimeModeChanged () {
+      this.fetchHistoryData()
     }
 
-    private fetchHistoryData() {
-        this.isLoading = true;
-        let resource = this.internalSensor instanceof AggregatedSensor
-            ? "aggregated-power-consumption"
-            : "power-consumption";
-        HTTP.get(resource + "/" + this.internalSensor.identifier + "?from=" + this.interval.start.toMillis() + "&to=" + this.interval.end.toMillis())
-            .then((response) => {
-                // JSON responses are automatically parsed.
-                console.log(response.data)
-                // TODO access sum generically
-                let dataPoints: DataPoint[] = response.data.map(
-                    (x: any) =>
-                    new DataPoint(
-                        new Date(x.timestamp),
-                        this.internalSensor instanceof AggregatedSensor ? x.sumInW : x.valueInW
-                    )
-                );
-                return dataPoints;
-            })
-            .then((points) => {
-                this.plot.setDataPoints(points);
-                this.isLoading = false;
-            });;
-    }
+    private fetchHistoryData () {
+      this.plot && this.plot.destroy()
 
+      const dimensions = [this.canvasplotContainer.clientWidth, this.canvasplotContainer.clientHeight]
+      this.plot = new CanvasTimeSeriesPlot(
+        d3version3.select(this.canvasplotContainer),
+        dimensions,
+        {
+          plotStartsWithZero: true,
+          yAxisLabel: 'Active Power in kW',
+          numberOfResolutionLevels: 3,
+          disableLegend: true
+        }
+      )
+      this.plot.setZoomYAxis(false)
+      this.isLoading = true
+      this.plotManager = new TimeSeriesPlotManager({
+        plot: this.plot,
+        sensor: this.internalSensor,
+        timeMode: this.timeMode,
+        onFinishedLoading: () => { this.isLoading = false }
+      })
+    }
 }
 </script>
 
