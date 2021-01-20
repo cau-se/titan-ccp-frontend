@@ -48,13 +48,13 @@ export default class ContributionChart extends Vue {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private donutChart!: any
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  private container!: Selection<HTMLElement, any, HTMLElement, any>
+  private container!: Selection<HTMLElement, unknown, null, unknown>
   private readonly onSizeChanged = debounce(this.redrawChart, 200)
 
   mounted () {
     // eslint-disable-next-line new-cap
     this.donutChart = new donut()
-    this.container = d3select('.donut-container')
+    this.container = d3select(this.$el).select('.donut-container')
     this.computeChartSize()
     this.donutChart
       .isAnimated(true)
@@ -91,6 +91,7 @@ export default class ContributionChart extends Vue {
     const donutRadius = Math.min(containerWidth, containerHeight) / 2
     this.donutChart
       .width(containerWidth)
+      .height(containerHeight)
       .internalRadius(donutRadius * 0.5)
       .externalRadius(donutRadius)
   }

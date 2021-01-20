@@ -49,14 +49,14 @@ export default class CompositionChart extends Vue {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private legendChart!: any
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  private container!: Selection<HTMLElement, any, HTMLElement, any>
+  private container!: Selection<HTMLElement, unknown, null, unknown>
   private readonly onSizeChanged = debounce(this.redrawChart, 200)
   private readonly idRegistry = new Registry<string>()
 
   mounted () {
     // eslint-disable-next-line new-cap
     this.donutChart = new donut()
-    this.container = d3select('.donut-container')
+    this.container = d3select(this.$el).select('.donut-container')
     this.computeChartSize()
     this.donutChart
       .isAnimated(true)
@@ -96,6 +96,7 @@ export default class CompositionChart extends Vue {
     const donutRadius = Math.min(containerWidth, containerHeight) / 2
     this.donutChart
       .width(containerWidth)
+      .height(containerHeight)
       .internalRadius(donutRadius * 0.5)
       .externalRadius(donutRadius)
   }
@@ -160,7 +161,7 @@ export default class CompositionChart extends Vue {
   private getLegendChart (dataset: Array<{quantity: number; name: string; id: number}>, optionalColorSchema: any) {
     // eslint-disable-next-line new-cap
     const legendChart = new legend()
-    const legendContainer = d3select('.js-inline-legend-chart-container')
+    const legendContainer = d3select(this.$el).select('.js-inline-legend-chart-container')
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const containerWidth = legendContainer.node() ? (legendContainer.node() as any).getBoundingClientRect().width : false
 
@@ -190,7 +191,7 @@ export default class CompositionChart extends Vue {
     cursor: pointer;
   }
   .js-inline-legend-chart-container {
-    padding-top: 20px;
-    height: 0px;
+    height: 20px;
+    padding-top: 10px;
   }
 </style>
