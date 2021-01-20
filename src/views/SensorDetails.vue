@@ -74,7 +74,7 @@ import SensorParents from '@/components/SensorParents.vue'
 import StatsPlot, { HOUR_OF_DAY, DAY_OF_WEEK } from '@/components/StatsPlot.vue'
 import TrendArrow, { Timespan } from '@/components/TrendArrow.vue'
 import WeeklyHeatMap from '@/components/WeeklyHeatMap.vue'
-import CorrelationHeatmap from '@/components/CorrelationHeatMap.vue'
+import CorrelationHeatMap from '@/components/CorrelationHeatMap.vue'
 
 @Component({
   components: {
@@ -86,7 +86,7 @@ import CorrelationHeatmap from '@/components/CorrelationHeatMap.vue'
     StatsPlot,
     TrendArrow,
     WeeklyHeatMap,
-    CorrelationHeatmap
+    CorrelationHeatMap
   }
 })
 export default class SensorDetails extends Vue {
