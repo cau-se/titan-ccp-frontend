@@ -122,7 +122,7 @@ export default class WeeklyHeatMap extends Vue {
       d3selectAll('#heatmap > *').remove()
       const titleHight = this.titleContainer.node() ? this.titleContainer.node().getBoundingClientRect().height : false
       const containerWidth = this.container.node() ? this.container.node()?.getBoundingClientRect().width : false
-      const boxSize = (containerWidth - 20) / 25
+      const boxSize = containerWidth / 25
       const containerHeight = (8 * boxSize) + titleHight
 
       // eslint-disable-next-line new-cap
@@ -137,13 +137,10 @@ export default class WeeklyHeatMap extends Vue {
     private drawHeatmap (interval?: Interval) {
       this.createHeatmapChart()
       const heatMapData: Array <{ 'day': number; 'hour': number; 'value': number }> = []
-      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-      const defaultInterval = this.availableIntervals.find(interval => interval.end >= this.timeMode.getTime())! ||
+      const defaultInterval = this.availableIntervals.find(interval => interval.end >= this.timeMode.getTime()) ||
         this.availableIntervals[this.availableIntervals.length - 1]
       const interval2 = interval || defaultInterval
-      const url = `stats/sensor/${this.sensor.identifier}/${'hour-of-week'
-        }?intervalStart=${this.dateTimeToBackendISO(interval2.start)
-        }&intervalEnd=${this.dateTimeToBackendISO(interval2.end)}`
+      const url = `stats/sensor/${this.sensor.identifier}/hour-of-week?intervalStart=${this.dateTimeToBackendISO(interval2.start)}&intervalEnd=${this.dateTimeToBackendISO(interval2.end)}`
 
       HTTP.get(url)
         .then(response => {

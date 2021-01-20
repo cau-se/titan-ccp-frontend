@@ -151,7 +151,7 @@ export default class CorrelationHeatMap extends Vue {
       d3selectAll('#cheatmap > *').remove()
       const containerWidth = this.container.node() ? this.container.node()?.getBoundingClientRect().width : false
       const titleHight = this.titleContainer.node() ? this.titleContainer.node().getBoundingClientRect().height : false
-      const boxSize = (containerWidth - 20) / 25
+      const boxSize = containerWidth / 25
       const containerHeight = ((this.ids.length + 1) * boxSize) + titleHight
       // eslint-disable-next-line new-cap
       this.heatMap = new heatmap()
@@ -164,14 +164,11 @@ export default class CorrelationHeatMap extends Vue {
 
     private async drawHeatmap (interval?: Interval) {
       this.createHeatmapChart()
-      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-      const defaultInterval = this.availableIntervals.find(interval => interval.end >= this.timeMode.getTime())! ||
-       this.availableIntervals[this.availableIntervals.length - 1]
+      const defaultInterval = this.availableIntervals.find(interval => interval.end >= this.timeMode.getTime()) ||
+        this.availableIntervals[this.availableIntervals.length - 1]
       const interval2 = interval || defaultInterval
       Promise.all(this.ids.map((id: string) => {
-        const resource = `stats/sensor/${id}/${'hour-of-day'
-          }?intervalStart=${this.dateTimeToBackendISO(interval2.start)
-          }&intervalEnd=${this.dateTimeToBackendISO(interval2.end)}`
+        const resource = `stats/sensor/${id}/hour-of-day?intervalStart=${this.dateTimeToBackendISO(interval2.start)}&intervalEnd=${this.dateTimeToBackendISO(interval2.end)}`
         return HTTP.get(resource)
           .then(response => {
             const heatMapData: Array <{ 'day': number; 'hour': number; 'value': number }> = []
