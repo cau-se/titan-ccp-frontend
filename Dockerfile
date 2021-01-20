@@ -8,7 +8,7 @@ COPY entrypoint.sh /entrypoint.sh
 ENV SENSOR_MANAGEMENT_BASE_URL http://titan-ccp-sensor-management:80
 ENV HISTORY_BASE_URL http://titan-ccp-history:80
 ENV STATS_BASE_URL http://titan-ccp-stats:80
-ENV ANOMALY_DETECTION_BASE_URL http://titan-ccp-anomlies:80
+ENV ANOMALY_DETECTION_BASE_URL http://titan-ccp-anomaly-detection:80
 
 ENTRYPOINT ["/entrypoint.sh"]
 
