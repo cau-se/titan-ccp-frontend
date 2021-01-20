@@ -26,7 +26,7 @@ import { Vue, Component, Prop, Watch } from 'vue-property-decorator'
 import { DateTime, Interval } from 'luxon'
 import { HTTP } from '@/model/http-common'
 import { Sensor } from '@/model/SensorRegistry'
-import { select as d3select, selectAll as d3selectAll, Selection } from 'd3-selection'
+import { select as d3select, Selection } from 'd3-selection'
 
 import LoadingSpinner from './LoadingSpinner.vue'
 
@@ -62,9 +62,7 @@ export default class WeeklyHeatMap extends Vue {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     private heatMap!: any;
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    private container!: Selection<any, any, HTMLElement, undefined>;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    private titleContainer!: Selection<any, any, HTMLElement, undefined>;
+    private container!: Selection<any, unknown, null, undefined>;
 
     private readonly onSizeChanged = debounce(this.redrawChart, 600)
 
@@ -77,8 +75,7 @@ export default class WeeklyHeatMap extends Vue {
     }
 
     mounted () {
-      this.container = d3select('.heatmap')
-      this.titleContainer = d3select('.card-title')
+      this.container = d3select(this.$el).select('.heatmap')
       this.loadAvailableIntervals().then(() => this.drawHeatmap())
       window.addEventListener('resize', this.onSizeChanged)
     }
@@ -118,8 +115,7 @@ export default class WeeklyHeatMap extends Vue {
     }
 
     private createHeatmapChart () {
-      this.container.html('')
-      d3selectAll('#heatmap > *').remove()
+      this.container.selectAll('*').remove()
       const containerWidth = this.container.node() ? this.container.node()?.getBoundingClientRect().width : false
       const boxSize = containerWidth / 25
       const containerHeight = 8 * boxSize

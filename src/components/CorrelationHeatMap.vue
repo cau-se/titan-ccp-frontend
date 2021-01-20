@@ -70,7 +70,7 @@ export default class CorrelationHeatMap extends Vue {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     private heatMap!: any;
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    private container!: Selection<any, any, HTMLElement, undefined>;
+    private container!: Selection<any, unknown, null, undefined>;
     private readonly onSizeChanged = debounce(this.redrawChart, 600)
     private ids: Array<string> = []
     private shortIds: Array<string> = []
@@ -84,7 +84,7 @@ export default class CorrelationHeatMap extends Vue {
     }
 
     mounted () {
-      this.container = d3select('.correlation-heatmap')
+      this.container = d3select(this.$el).select('.correlation-heatmap')
       this.getIdentifiers()
         .then(() => {
           this.loadAvailableIntervals()
@@ -144,8 +144,7 @@ export default class CorrelationHeatMap extends Vue {
     }
 
     private createHeatmapChart () {
-      // this.container.html('')
-      // d3selectAll('#cheatmap > *').remove()
+      this.container.selectAll('*').remove()
       const containerWidth = this.container.node() ? this.container.node()?.getBoundingClientRect().width : false
       const boxSize = containerWidth / 25
       const containerHeight = (this.ids.length + 1) * boxSize
