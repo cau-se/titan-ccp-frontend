@@ -15,10 +15,10 @@
       </b-row>
       <loading-spinner :is-loading="isLoading" :is-error="isError">
         <div class="correlation-heatmap"></div>
-        <div v-if="ids.length > 0">
+        <div v-if="ids.length > 0" class="mt-2">
           <strong> Legend</strong>
-          <ul class="legend">
-            <li v-for="i in ids.length" :key="i">
+          <ul class="list-inline mt-2">
+            <li v-for="i in ids.length" :key="i" class="list-inline-item">
               <strong> &bull; {{ shortIds[i - 1] }}</strong>&nbsp;: {{ids[i - 1]}}
             </li>
           </ul>
@@ -200,7 +200,4 @@ export default class CorrelationHeatMap extends Vue {
 
 </script>
 <style scoped>
-  ul.legend li {
-    display: inline;
-  }
 </style>
