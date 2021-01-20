@@ -2,7 +2,7 @@
   <b-container>
     <b-row class="mb-4">
       <b-col :cols="isAggregated ? 10 : 12">
-        <sensor-parents :sensor="internalSensor" v-on:select="setSensor"/>
+        <sensor-parents :sensor="internalSensor" />
       </b-col>
       <b-col v-if="isAggregated" cols ="2">
         <b-dropdown right text="Subconsumers" variant="secondary" size="lg" block class="children-dropdown">
