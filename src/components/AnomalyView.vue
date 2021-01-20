@@ -10,12 +10,9 @@
 import { Vue, Component, Prop, Watch } from 'vue-property-decorator'
 import LoadingSpinner from './LoadingSpinner.vue'
 import { HTTP } from '@/model/http-common'
-import { Sensor, AggregatedSensor } from '@/model/SensorRegistry'
-import { ChartAPI, generate } from 'c3'
+import { Sensor } from '@/model/SensorRegistry'
 import 'c3/c3.css'
 import { DateTime, Interval } from 'luxon'
-import TimeMode from '../model/time-mode'
-import d3 from 'd3'
 
 @Component({
   components: {
@@ -25,8 +22,6 @@ import d3 from 'd3'
 export default class AnomalyView extends Vue {
   @Prop({ required: true }) sensor!: Sensor;
 
-  @Prop({ required: true }) timeMode!: TimeMode;
-
   @Prop({ required: true }) interval!: Interval;
 
   @Prop({ required: true }) threshold!: number;
@@ -34,6 +29,7 @@ export default class AnomalyView extends Vue {
   private isLoading = true;
   private isError = false;
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private anomalies: any[] = [];
 
   get filteredAnomalies () {
@@ -45,7 +41,7 @@ export default class AnomalyView extends Vue {
   }
 
   @Watch('sensor')
-  onSensorChanged (sensor: Sensor) {
+  onSensorChanged () {
     this.anomalies = []
     this.loadData()
   }

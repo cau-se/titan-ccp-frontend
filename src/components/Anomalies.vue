@@ -35,7 +35,7 @@
             </b-row>
             <b-row class="mb-4">
                 <b-col>
-                    <anomaly-view :sensor="internalSensor" :timeMode="timeMode" :interval="interval" :threshold="threshold" />
+                    <anomaly-view :sensor="internalSensor" :interval="interval" :threshold="threshold" />
                 </b-col>
             </b-row>
         </b-container>
@@ -44,11 +44,8 @@
 
 <script lang="ts">
 import { Vue, Component, Prop, Watch } from 'vue-property-decorator'
-import { Sensor, AggregatedSensor, MachineSensor, SensorRegistry } from '@/model/SensorRegistry'
+import { Sensor, AggregatedSensor, SensorRegistry } from '@/model/SensorRegistry'
 
-import { HTTP } from '@/model/http-common'
-
-import BootstrapVue from 'bootstrap-vue'
 import 'bootstrap/dist/css/bootstrap.css'
 import 'bootstrap-vue/dist/bootstrap-vue.css'
 
@@ -66,8 +63,8 @@ import LoadingSpinner from './LoadingSpinner.vue'
 // @ts-ignore
 import { CanvasTimeSeriesPlot } from '@/model/canvasPlot/CanvasTimeSeriesPlot'
 import { Interval } from 'luxon'
-import { DataPoint, TimeSeriesPlotManager } from '@/model/TimeSeriesPlotManager'
-import d3 from 'd3'
+import { TimeSeriesPlotManager } from '@/model/TimeSeriesPlotManager'
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 declare let d3version3: any
 
 @Component({
@@ -88,13 +85,9 @@ export default class Anomalies extends Vue {
     private threshold = 3;
     private plot!: CanvasTimeSeriesPlot // Will definitely be assigned in mounted
     private plotManager!: TimeSeriesPlotManager;
-
-    private get interval (): Interval {
-      return Interval.fromDateTimes(
-        this.timeMode.getTime().minus({ minutes: 40 }),
-        this.timeMode.getTime()
-      )
-    }
+    private interval: Interval = Interval.fromDateTimes(
+      this.timeMode.getTime().minus({ hours: 1 }),
+      this.timeMode.getTime())
 
     covertSensorToSelectable (sensor: Sensor) {
       if (sensor instanceof AggregatedSensor) {
@@ -122,9 +115,20 @@ export default class Anomalies extends Vue {
       this.fetchHistoryData()
     }
 
+    @Watch('internalSensor')
+    onSensorChanged () {
+      this.fetchHistoryData()
+    }
+
     @Watch('timeMode')
     ontimeModeChanged () {
       this.fetchHistoryData()
+    }
+
+    private updateAnomlies (timeDomain: any) {
+      this.interval = Interval.fromDateTimes(
+        new Date(timeDomain[0]),
+        new Date(timeDomain[1]))
     }
 
     private fetchHistoryData () {
@@ -141,13 +145,15 @@ export default class Anomalies extends Vue {
           disableLegend: true
         }
       )
+
       this.plot.setZoomYAxis(false)
       this.isLoading = true
       this.plotManager = new TimeSeriesPlotManager({
         plot: this.plot,
         sensor: this.internalSensor,
         timeMode: this.timeMode,
-        onFinishedLoading: () => { this.isLoading = false }
+        onFinishedLoading: () => { this.isLoading = false },
+        xDomainCallback: this.updateAnomlies
       })
     }
 }
