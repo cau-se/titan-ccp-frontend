@@ -120,10 +120,9 @@ export default class WeeklyHeatMap extends Vue {
     private createHeatmapChart () {
       this.container.html('')
       d3selectAll('#heatmap > *').remove()
-      const titleHight = this.titleContainer.node() ? this.titleContainer.node().getBoundingClientRect().height : false
       const containerWidth = this.container.node() ? this.container.node()?.getBoundingClientRect().width : false
       const boxSize = containerWidth / 25
-      const containerHeight = (8 * boxSize) + titleHight
+      const containerHeight = 8 * boxSize
 
       // eslint-disable-next-line new-cap
       this.heatMap = new heatmap()

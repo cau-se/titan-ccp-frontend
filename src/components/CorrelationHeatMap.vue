@@ -14,14 +14,14 @@
         </b-col>
       </b-row>
       <loading-spinner :is-loading="isLoading" :is-error="isError">
-        <div class="correlation-heatmap" id='cheatmap'></div>
+        <div class="correlation-heatmap"></div>
         <div v-if="ids.length > 0">
-         <b> Legend</b>
-        <ul id="legend">
-          <li v-for="i in ids.length" :key="i">
-           <b> &bull; {{ shortIds[i - 1] }} </b>: {{ids[i - 1]}}
-          </li>
-        </ul>
+          <strong> Legend</strong>
+          <ul class="legend">
+            <li v-for="i in ids.length" :key="i">
+              <strong> &bull; {{ shortIds[i - 1] }}</strong>&nbsp;: {{ids[i - 1]}}
+            </li>
+          </ul>
       </div>
       </loading-spinner>
     </div>
@@ -34,7 +34,7 @@ import { Vue, Component, Prop, Watch } from 'vue-property-decorator'
 import { DateTime, Interval } from 'luxon'
 import { HTTP } from '@/model/http-common'
 import { AggregatedSensor } from '@/model/SensorRegistry'
-import { select as d3select, selectAll as d3selectAll, Selection } from 'd3-selection'
+import { select as d3select, Selection } from 'd3-selection'
 
 import LoadingSpinner from './LoadingSpinner.vue'
 
@@ -74,8 +74,6 @@ export default class CorrelationHeatMap extends Vue {
     private readonly onSizeChanged = debounce(this.redrawChart, 600)
     private ids: Array<string> = []
     private shortIds: Array<string> = []
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    private titleContainer!: Selection<any, any, HTMLElement, undefined>;
 
     get intervalSelectOptions (): Array<IntervalSelectOption> {
       return this.availableIntervals.map(i => new IntervalSelectOption(i))
@@ -87,7 +85,6 @@ export default class CorrelationHeatMap extends Vue {
 
     mounted () {
       this.container = d3select('.correlation-heatmap')
-      this.titleContainer = d3select('.card-title')
       this.getIdentifiers()
         .then(() => {
           this.loadAvailableIntervals()
@@ -147,12 +144,11 @@ export default class CorrelationHeatMap extends Vue {
     }
 
     private createHeatmapChart () {
-      this.container.html('')
-      d3selectAll('#cheatmap > *').remove()
+      // this.container.html('')
+      // d3selectAll('#cheatmap > *').remove()
       const containerWidth = this.container.node() ? this.container.node()?.getBoundingClientRect().width : false
-      const titleHight = this.titleContainer.node() ? this.titleContainer.node().getBoundingClientRect().height : false
       const boxSize = containerWidth / 25
-      const containerHeight = ((this.ids.length + 1) * boxSize) + titleHight
+      const containerHeight = (this.ids.length + 1) * boxSize
       // eslint-disable-next-line new-cap
       this.heatMap = new heatmap()
         .yAxisLabels(this.shortIds)
@@ -204,11 +200,7 @@ export default class CorrelationHeatMap extends Vue {
 
 </script>
 <style scoped>
-  .correlation-heatmap {
-    height: auto;
-    min-height: 200px;
+  ul.legend li {
+    display: inline;
   }
-  ul#legend li {
-  display:inline;
-}
 </style>
