@@ -3,7 +3,7 @@
     <div class="card-body">
       <h5 class="card-title">Histogram</h5>
       <loading-spinner :is-loading="isLoading" :is-error="isError">
-        <div class="histogram"></div>
+        <div class="histogram" :class="xthtickClass"></div>
       </loading-spinner>
     </div>
   </div>
@@ -31,9 +31,11 @@ import LoadingSpinner from '@/components/LoadingSpinner.vue'
   }
 })
 export default class Histogram extends Vue {
+  static readonly BUCKET_LABEL_BREAKPOINT = 16;
+
   @Prop({ required: true }) sensor!: Sensor
   @Prop({ required: true }) timeMode!: TimeMode
-  @Prop({ default: 8 }) buckets!: number
+  @Prop({ default: 64 }) buckets!: number
 
   private isLoading = true;
   private isError = false;
@@ -135,11 +137,26 @@ export default class Histogram extends Vue {
         this.isLoading = false
       })
   }
+
+  get xthtickClass (): string {
+    return `xthtick${Math.ceil(this.buckets / Histogram.BUCKET_LABEL_BREAKPOINT)}`
+  }
 }
 </script>
 
 <style scoped>
   .histogram {
     height: 300px;
+  }
+  /* Start with 3rd element (first .tick) and then show every x-th tick */
+  /* 3 + ( n - 1 ) * x => 3 + xn - x => xn - (x - 3) */
+  .histogram.xthtick2 >>> .bar-chart .x-axis-group .tick:not(:nth-child(2n+1)),
+  .histogram.xthtick3 >>> .bar-chart .x-axis-group .tick:not(:nth-child(3n-0)),
+  .histogram.xthtick4 >>> .bar-chart .x-axis-group .tick:not(:nth-child(4n-1)),
+  .histogram.xthtick5 >>> .bar-chart .x-axis-group .tick:not(:nth-child(5n-2)),
+  .histogram.xthtick6 >>> .bar-chart .x-axis-group .tick:not(:nth-child(6n-3)),
+  .histogram.xthtick7 >>> .bar-chart .x-axis-group .tick:not(:nth-child(7n-4)),
+  .histogram.xthtick8 >>> .bar-chart .x-axis-group .tick:not(:nth-child(8n-5)) {
+    display: none;
   }
 </style>
