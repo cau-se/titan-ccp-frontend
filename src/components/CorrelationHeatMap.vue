@@ -58,7 +58,7 @@ class IntervalSelectOption {
     LoadingSpinner
   }
 })
-export default class CorrelationHeatmap extends Vue {
+export default class CorrelationHeatMap extends Vue {
     @Prop({ required: true }) sensor!: AggregatedSensor;
 
     @Prop({ required: true }) timeMode!: TimeMode;

@@ -50,7 +50,7 @@ class IntervalSelectOption {
     LoadingSpinner
   }
 })
-export default class Heatmap extends Vue {
+export default class WeeklyHeatMap extends Vue {
     @Prop({ required: true }) sensor!: Sensor;
 
     @Prop({ required: true }) timeMode!: TimeMode;

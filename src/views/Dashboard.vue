@@ -34,12 +34,12 @@
     </b-row>
     <b-row class="mb-4">
       <b-col cols="12">
-        <heat-map :sensor="sensor" :timeMode="timeMode" />
+        <weekly-heat-map :sensor="sensor" :timeMode="timeMode" />
       </b-col>
     </b-row>
     <b-row class="mb-4">
     <b-col cols="12">
-      <correlation-heatmap :sensor="sensor" :timeMode="timeMode" />
+      <correlation-heat-map :sensor="sensor" :timeMode="timeMode" />
     </b-col>
   </b-row>
   </b-container>
@@ -56,8 +56,8 @@ import Histogram from '@/components/Histogram.vue'
 import SensorHistoryPlot from '@/components/SensorHistoryPlot.vue'
 import StatsPlot, { HOUR_OF_DAY, DAY_OF_WEEK } from '@/components/StatsPlot.vue'
 import TrendArrow, { Timespan } from '@/components/TrendArrow.vue'
-import HeatMap from '@/components/HeatMap.vue'
-import CorrelationHeatmap from '@/components/CorrelationHeatMap.vue'
+import WeeklyHeatMap from '@/components/WeeklyHeatMap.vue'
+import CorrelationHeatMap from '@/components/CorrelationHeatMap.vue'
 
 @Component({
   components: {
@@ -66,8 +66,8 @@ import CorrelationHeatmap from '@/components/CorrelationHeatMap.vue'
     Histogram,
     StatsPlot,
     TrendArrow,
-    HeatMap,
-    CorrelationHeatmap
+    WeeklyHeatMap,
+    CorrelationHeatMap
   }
 })
 export default class Dashboard extends Vue {
