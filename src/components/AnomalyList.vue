@@ -55,8 +55,10 @@ export default class AnomalyList extends Vue {
       },
       {
         key: 'valueInW',
-        label: 'Value in kW',
-        formatter: (value: number) => (value / 1000).toFixed(1)
+        // label: 'Value in kW',
+        label: 'Value in Watt',
+        // formatter: (value: number) => (value / 1000).toFixed(1)
+        formatter: (value: number) => value.toFixed(1)
       },
       {
         key: 'anomalyScore',
