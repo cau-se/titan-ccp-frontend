@@ -18,37 +18,37 @@
       </div>
     </nav>
 
-    <div class="container-fluid">
-      <div class="row">
+    <!--<div class="container-fluid">-->
+    <div class="row no-gutters">
+      <nav class="col-md-2 d-none d-md-block bg-light sidebar">
+        <div class="sidebar-sticky">
+          <ul class="nav flex-column">
+            <li class="nav-item">
+              <router-link to="/" exact class="nav-link">
+                <font-awesome-icon icon="tachometer-alt" fixed-width class="feather" />Dashboard
+              </router-link>
+            </li>
+            <li class="nav-item">
+              <router-link to="/sensor-details" class="nav-link">
+                <font-awesome-icon icon="chart-bar" fixed-width class="feather" />Sensor Details
+              </router-link>
+            </li>
+            <li class="nav-item">
+              <router-link to="/comparison" class="nav-link">
+                <font-awesome-icon icon="balance-scale" fixed-width class="feather" />Comparison
+              </router-link>
+            </li>
+            <li class="nav-item">
+              <router-link to="/sensor-management" class="nav-link">
+                <font-awesome-icon icon="sliders-h" fixed-width class="feather" />Sensor Management
+              </router-link>
+            </li>
+          </ul>
+        </div>
+      </nav>
 
-        <nav class="col-md-2 d-none d-md-block bg-light sidebar">
-          <div class="sidebar-sticky">
-            <ul class="nav flex-column">
-              <li class="nav-item">
-                <router-link to="/" exact class="nav-link">
-                  <font-awesome-icon icon="tachometer-alt" fixed-width class="feather" />Dashboard
-                </router-link>
-              </li>
-              <li class="nav-item">
-                <router-link to="/sensor-details" class="nav-link">
-                  <font-awesome-icon icon="chart-bar" fixed-width class="feather" />Sensor Details
-                </router-link>
-              </li>
-              <li class="nav-item">
-                <router-link to="/comparison" class="nav-link">
-                  <font-awesome-icon icon="balance-scale" fixed-width class="feather" />Comparison
-                </router-link>
-              </li>
-              <li class="nav-item">
-                <router-link to="/sensor-management" class="nav-link">
-                  <font-awesome-icon icon="sliders-h" fixed-width class="feather" />Sensor Management
-                </router-link>
-              </li>
-            </ul>
-          </div>
-        </nav>
-
-        <main role="main" class="col-md-9 ml-sm-auto col-lg-10 pt-3 px-4">
+      <div class="col-md-9 ml-sm-auto col-lg-10 d-flex flex-column">
+        <main role="main" class="pt-3 px-4 flex-fill">
           <loading-spinner :is-loading="isLoading" :is-error="isError">
             <router-view
               v-if="sensorRegistry != null"
@@ -59,7 +59,20 @@
             ></router-view>
           </loading-spinner>
         </main>
-
+        <footer class="footer">
+          <div class="container-fluid">
+            <div class="text-muted row">
+              <div class="text-center col">
+                <p class="mb-0 py-3">
+                  The
+                  <a href="https://github.com/cau-se/titan-ccp">Titan Control Center</a>
+                  is free and open source software as part of the
+                  <a href="https://www.industrial-devops.org/en">Titan project on Industrial DevOps</a>.
+                </p>
+              </div>
+            </div>
+          </div>
+        </footer>
       </div>
     </div>
 
@@ -195,6 +208,10 @@ export default class App extends Vue {
   line-height: 1rem;
   background-color: rgba(0, 0, 0, 0.25);
   box-shadow: inset -1px 0 0 rgba(0, 0, 0, 0.25);
+}
+
+.footer{
+  box-shadow: inset 0 1px 0 rgba(0, 0, 0, 0.1);
 }
 </style>
 <style>
