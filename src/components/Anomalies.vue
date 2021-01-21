@@ -46,9 +46,6 @@
 import { Vue, Component, Prop, Watch } from 'vue-property-decorator'
 import { Sensor, AggregatedSensor, SensorRegistry } from '@/model/SensorRegistry'
 
-import 'bootstrap/dist/css/bootstrap.css'
-import 'bootstrap-vue/dist/bootstrap-vue.css'
-
 // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
 // @ts-ignore
 import Treeselect from '@riophae/vue-treeselect'

@@ -1,9 +1,9 @@
 <template>
-  <div>
+  <b-card no-body>
     <loading-spinner :is-loading="isLoading" :is-error="isError">
-      <b-table striped :fields="fields" :items="filteredAnomalies" bordered></b-table>
+      <b-table striped :fields="fields" :items="filteredAnomalies" class="m-0"></b-table>
     </loading-spinner>
-  </div>
+  </b-card>
 </template>
 
 <script lang="ts">
@@ -130,5 +130,7 @@ export default class AnomalyList extends Vue {
 </script>
 
 <style scoped>
-
+.card .table >>> thead th {
+  border-top: 0
+}
 </style>
