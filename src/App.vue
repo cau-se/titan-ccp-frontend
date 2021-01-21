@@ -73,9 +73,9 @@ import { SensorRegistry, SensorRegistryRequester } from '@/model/SensorRegistry'
 import TimeMode from '@/model/time-mode'
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-import BootstrapVue from 'bootstrap-vue'
-import 'bootstrap/dist/css/bootstrap.css'
-import 'bootstrap-vue/dist/bootstrap-vue.css'
+// import BootstrapVue from 'bootstrap-vue'
+// import 'bootstrap/dist/css/bootstrap.css'
+// import 'bootstrap-vue/dist/bootstrap-vue.css'
 
 import LoadingSpinner from '@/components/LoadingSpinner.vue'
 import TimeModePicker from '@/components/TimeModePicker.vue'
@@ -123,6 +123,16 @@ export default class App extends Vue {
 }
 </script>
 
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Nunito:ital,wght@0,400;0,600;0,700;1,400&display=swap');
+</style>
+<style lang="scss">
+  @import '@/assets/custom.scss';
+  // Bootstrap and its default variables
+  // @import '../node_modules/bootstrap/scss/bootstrap.scss';
+  // BootstrapVue and its default variables
+  // @import '../node_modules/bootstrap-vue/src/index.scss';
+</style>
 <style scoped>
 /*
  * Sidebar

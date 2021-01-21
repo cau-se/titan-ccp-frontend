@@ -1,8 +1,10 @@
 <template>
-  <b-breadcrumb class="sensor-parents">
-    <b-breadcrumb-item v-for="sensor in sensor.allParents" :key="sensor.identifier" :to="buildPath(sensor)" :text="sensor.title" />
-    <b-breadcrumb-item active :text="sensor.title" />
-  </b-breadcrumb>
+  <b-card no-body>
+    <b-breadcrumb class="sensor-parents">
+      <b-breadcrumb-item v-for="sensor in sensor.allParents" :key="sensor.identifier" :to="buildPath(sensor)" :text="sensor.title" />
+      <b-breadcrumb-item active :text="sensor.title" />
+    </b-breadcrumb>
+  </b-card>
 </template>
 
 <script lang="ts">
