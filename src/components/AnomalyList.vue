@@ -24,7 +24,7 @@ interface Anomaly {
     LoadingSpinner
   }
 })
-export default class AnomalyView extends Vue {
+export default class AnomalyList extends Vue {
   @Prop({ required: true }) sensor!: Sensor;
 
   @Prop({ required: true }) interval!: Interval;

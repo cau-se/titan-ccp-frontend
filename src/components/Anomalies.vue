@@ -35,7 +35,7 @@
             </b-row>
             <b-row class="mb-4">
                 <b-col>
-                    <anomaly-view :sensor="internalSensor" :interval="interval" :threshold="threshold" />
+                    <anomaly-list :sensor="internalSensor" :interval="interval" :threshold="threshold" />
                 </b-col>
             </b-row>
         </b-container>
@@ -56,7 +56,7 @@ import '@riophae/vue-treeselect/dist/vue-treeselect.css'
 
 import SensorHistoryPlot from './SensorHistoryPlot.vue'
 import TimeMode from '../model/time-mode'
-import AnomalyView from './AnomalyView.vue'
+import AnomalyList from './AnomalyList.vue'
 import LoadingSpinner from './LoadingSpinner.vue'
 
 // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
@@ -71,7 +71,7 @@ declare let d3version3: any
   components: {
     SensorHistoryPlot,
     LoadingSpinner,
-    AnomalyView,
+    AnomalyList,
     Treeselect
   }
 })
