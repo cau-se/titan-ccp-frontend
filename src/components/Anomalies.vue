@@ -2,16 +2,16 @@
     <div>
         <b-container>
             <b-row class="mb-4">
-                <b-col cols ="6">
+                <b-col cols="6">
                     <h2>Anomalies</h2>
                 </b-col>
-                <b-col cols ="3" class="text-right">
+                <b-col cols="3" class="text-right">
                     <b-form inline>
-                        <label for="inline-form-input-name">Threshold:</label>
+                        <label for="inline-form-input-name" class="pr-1">Threshold:</label>
                         <b-input id="inline-form-input-name" v-model="threshold" style="width: 3em;"></b-input>
                     </b-form>
                 </b-col>
-                <b-col cols ="3" class="text-right">
+                <b-col cols="3" class="text-right">
                     <treeselect
                         v-model="internalSensor"
                         :options="[ this.sensorRegistry.topLevelSensor ]"
@@ -108,7 +108,7 @@ export default class Anomalies extends Vue {
     private isError = false;
 
     get canvasplotContainer () {
-      return this.$el.querySelector('.canvasplot-container')! as HTMLElement
+      return this.$el.querySelector('.canvasplot-container') as HTMLElement
     }
 
     mounted () {
