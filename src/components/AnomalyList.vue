@@ -8,9 +8,13 @@
 
 <script lang="ts">
 import { Vue, Component, Prop, Watch } from 'vue-property-decorator'
+
 import LoadingSpinner from './LoadingSpinner.vue'
+
 import { HTTP } from '@/model/http-common'
 import { Sensor } from '@/model/SensorRegistry'
+
+import axios, { CancelTokenSource } from 'axios'
 import { DateTime, Interval } from 'luxon'
 
 interface Anomaly {
@@ -31,7 +35,9 @@ export default class AnomalyList extends Vue {
 
   @Prop({ required: true }) threshold!: number;
 
-  private isLoading = true;
+  private cancelTokenSource?: CancelTokenSource;
+
+  private isLoading = false;
   private isError = false;
 
   private anomalies: Anomaly[] = [];
@@ -77,11 +83,15 @@ export default class AnomalyList extends Vue {
   }
 
   private loadData () {
+    if (this.cancelTokenSource) {
+      this.cancelTokenSource.cancel('Previous request canceled.')
+    }
+
+    this.cancelTokenSource = axios.CancelToken.source()
     this.isLoading = true
+    this.isError = false
 
-    const url = `anomalies/${this.sensor.identifier}?from=${this.interval.start.toMillis()}&to=${this.interval.end.toMillis()}`
-
-    HTTP.get(url)
+    HTTP.get(this.resourceUrl, { cancelToken: this.cancelTokenSource.token })
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       .then((response: any) => {
         // JSON responses are automatically parsed.
@@ -94,12 +104,24 @@ export default class AnomalyList extends Vue {
               anomalyScore: entry.anomalyScore
             }
           })
-        this.isLoading = false
       })
       .catch((e) => {
-        console.error(e)
-        this.isError = true
+        if (axios.isCancel(e)) {
+          console.log('Request canceled.')
+          console.log(e)
+        } else {
+          console.error(e)
+          this.isError = true
+        }
       })
+      .then(() => {
+        this.isLoading = false
+        this.cancelTokenSource = undefined
+      })
+  }
+
+  private get resourceUrl () {
+    return `anomalies/${this.sensor.identifier}?from=${this.interval.start.toMillis()}&to=${this.interval.end.toMillis()}`
   }
 }
 
