@@ -21,7 +21,7 @@
           <histogram :timeMode="timeMode" :sensor="sensor" />
         </b-col>
         <b-col cols="6">
-          <composition-pie-chart :sensor="sensor" :timeMode="timeMode" />
+          <composition-chart :sensor="sensor" :timeMode="timeMode" />
         </b-col>
     </b-row>
     <b-row class="mb-4">
@@ -32,6 +32,16 @@
         <stats-plot :sensor="sensor" :stats-type="statsHourOfDay" :timeMode="timeMode" />
       </b-col>
     </b-row>
+    <b-row class="mb-4">
+      <b-col cols="12">
+        <weekly-heat-map :sensor="sensor" :timeMode="timeMode" />
+      </b-col>
+    </b-row>
+    <b-row class="mb-4">
+    <b-col cols="12">
+      <correlation-heat-map :sensor="sensor" :timeMode="timeMode" />
+    </b-col>
+  </b-row>
   </b-container>
 </template>
 
@@ -41,19 +51,23 @@ import { Component, Prop, Vue } from 'vue-property-decorator'
 import { Sensor } from '@/model/SensorRegistry'
 import TimeMode from '@/model/time-mode'
 
-import CompositionPieChart from '@/components/CompositionPieChart.vue'
+import CompositionChart from '@/components/CompositionChart.vue'
 import Histogram from '@/components/Histogram.vue'
 import SensorHistoryPlot from '@/components/SensorHistoryPlot.vue'
 import StatsPlot, { HOUR_OF_DAY, DAY_OF_WEEK } from '@/components/StatsPlot.vue'
 import TrendArrow, { Timespan } from '@/components/TrendArrow.vue'
+import WeeklyHeatMap from '@/components/WeeklyHeatMap.vue'
+import CorrelationHeatMap from '@/components/CorrelationHeatMap.vue'
 
 @Component({
   components: {
     SensorHistoryPlot,
-    CompositionPieChart,
+    CompositionChart,
     Histogram,
     StatsPlot,
-    TrendArrow
+    TrendArrow,
+    WeeklyHeatMap,
+    CorrelationHeatMap
   }
 })
 export default class Dashboard extends Vue {

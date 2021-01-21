@@ -2,7 +2,7 @@
   <b-container>
     <b-row class="mb-4">
       <b-col :cols="isAggregated ? 10 : 12">
-        <sensor-parents :sensor="internalSensor" v-on:select="setSensor"/>
+        <sensor-parents :sensor="internalSensor" />
       </b-col>
       <b-col v-if="isAggregated" cols ="2">
         <b-dropdown right text="Subconsumers" variant="secondary" size="lg" block class="children-dropdown">
@@ -33,13 +33,13 @@
         <histogram :sensor="internalSensor" :timeMode="timeMode" :key="internalSensor.identifier" />
       </b-col>
       <b-col v-if="isAggregated" cols="6">
-        <composition-pie-chart :sensor="internalSensor" :timeMode="timeMode" />
+        <composition-chart :sensor="internalSensor" :timeMode="timeMode" />
       </b-col>
       <b-col v-else cols="6">
-        <contribution-pie-chart :sensor="internalSensor" :timeMode="timeMode" />
+        <contribution-chart :sensor="internalSensor" :timeMode="timeMode" />
       </b-col>
     </b-row>
-    <b-row class="mb-4">
+       <b-row class="mb-4">
       <b-col cols="6">
         <stats-plot :sensor="internalSensor" :stats-type="statsDayOfWeek" :timeMode="timeMode" />
       </b-col>
@@ -47,6 +47,16 @@
         <stats-plot :sensor="internalSensor" :stats-type="statsHourOfDay" :timeMode="timeMode" />
       </b-col>
     </b-row>
+      <b-row class="mb-4">
+      <b-col cols="12">
+        <weekly-heat-map :sensor="internalSensor" :timeMode="timeMode" />
+      </b-col>
+    </b-row>
+    <b-row class="mb-4"  v-if="isAggregated">
+    <b-col cols="12">
+      <correlation-heat-map :sensor="internalSensor" :timeMode="timeMode" />
+    </b-col>
+  </b-row>
   </b-container>
 </template>
 
@@ -56,23 +66,27 @@ import { Vue, Component, Prop } from 'vue-property-decorator'
 import { Sensor, AggregatedSensor, SensorRegistry } from '@/model/SensorRegistry'
 import TimeMode from '@/model/time-mode'
 
-import CompositionPieChart from '@/components/CompositionPieChart.vue'
-import ContributionPieChart from '@/components/ContributionPieChart.vue'
+import CompositionChart from '@/components/CompositionChart.vue'
+import ContributionChart from '@/components/ContributionChart.vue'
 import Histogram from '@/components/Histogram.vue'
 import SensorHistoryPlot from '@/components/SensorHistoryPlot.vue'
 import SensorParents from '@/components/SensorParents.vue'
 import StatsPlot, { HOUR_OF_DAY, DAY_OF_WEEK } from '@/components/StatsPlot.vue'
 import TrendArrow, { Timespan } from '@/components/TrendArrow.vue'
+import WeeklyHeatMap from '@/components/WeeklyHeatMap.vue'
+import CorrelationHeatMap from '@/components/CorrelationHeatMap.vue'
 
 @Component({
   components: {
     SensorParents,
     SensorHistoryPlot,
-    CompositionPieChart,
-    ContributionPieChart,
+    CompositionChart,
+    ContributionChart,
     Histogram,
     StatsPlot,
-    TrendArrow
+    TrendArrow,
+    WeeklyHeatMap,
+    CorrelationHeatMap
   }
 })
 export default class SensorDetails extends Vue {
@@ -116,7 +130,6 @@ export default class SensorDetails extends Vue {
       return undefined
     }
     for (const identifier of identifierPath.slice(1)) {
-      console.log('id ' + identifier)
       if (!(sensor instanceof AggregatedSensor)) {
         // identifierPath has at least one more item but sensor has no children
         return undefined
