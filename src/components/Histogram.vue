@@ -82,6 +82,11 @@ export default class Histogram extends Vue {
     window.addEventListener('resize', throttledRedraw)
   }
 
+  @Watch('timeMode')
+  onTimeModeChanged () {
+    this.updateHistogram()
+  }
+
   @Watch('sensor')
   onSensorChanged () {
     this.updateHistogram()
