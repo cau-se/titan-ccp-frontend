@@ -194,6 +194,7 @@ export default class StatsPlot extends Vue {
       .width(this.containerWidth)
       .height(this.containerHeight)
       .tooltipThreshold(600)
+      .lineCurve('basis')
       .grid('full')
       .xAxisFormat('custom')
       .xAxisCustomFormat(this.statsType.xAxisFormat)
