@@ -84,6 +84,7 @@ import { Component, Vue } from 'vue-property-decorator'
 import { DateTime } from 'luxon'
 import { SensorRegistry, SensorRegistryRequester } from '@/model/SensorRegistry'
 import TimeMode from '@/model/time-mode'
+import env from '@/util/Env'
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 // import BootstrapVue from 'bootstrap-vue'
@@ -103,10 +104,7 @@ export default class App extends Vue {
   private sensorRegistry: SensorRegistry | null = null;
   private isLoading = false;
   private isError = false;
-  private timeMode: TimeMode = {
-    autoLoading: true,
-    getTime: () => DateTime.local() // now
-  };
+  private timeMode: TimeMode = App.getDefaultTimeMode();
 
   updateTimeMode (timeMode: TimeMode) {
     this.timeMode = timeMode
@@ -132,6 +130,21 @@ export default class App extends Vue {
         this.sensorRegistry = registry
         return registry
       })
+  }
+
+  static getDefaultTimeMode () {
+    const timeModeNow = env('VUE_APP_TIME_MODE_NOW')
+    if (timeModeNow === undefined) {
+      return {
+        autoLoading: true,
+        getTime: () => DateTime.local() // now
+      }
+    } else {
+      return {
+        autoLoading: false,
+        getTime: () => DateTime.fromISO(timeModeNow)
+      }
+    }
   }
 }
 </script>
