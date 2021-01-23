@@ -10,7 +10,6 @@
             v-if="selectedInterval"
             v-model="selectedInterval"
             :options="intervalSelectOptions"
-            class="mb-3"
           ></b-form-select>
         </b-col>
       </b-row>
