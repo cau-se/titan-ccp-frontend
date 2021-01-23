@@ -34,6 +34,7 @@ import LoadingSpinner from '@/components/LoadingSpinner.vue'
 export default class Histogram extends Vue {
   static readonly BUCKET_LABEL_BREAKPOINT = 16;
   static readonly TIME_SPAN_IN_SEC = 1000 * parseInt(env('VUE_APP_BASE_RECORD_FREQ_SEC'))
+  static readonly UNIT_FACTOR = parseFloat(env('VUE_APP_UNIT_FACTOR', '1'))
 
   @Prop({ required: true }) sensor!: Sensor
   @Prop({ required: true }) timeMode!: TimeMode
@@ -120,10 +121,10 @@ export default class Histogram extends Vue {
       .then(response => {
         // JSON responses are automatically parsed.
         for (const bucket of response.data) {
-          const xLabel = Math.round(
-            (parseFloat(bucket.lower) + parseFloat(bucket.upper)) / 2)
-            .toString()
-          const tooltipLabel = `${bucket.lower.toFixed(1)} – ${bucket.upper.toFixed(1)}`
+          const bucketLower = Histogram.UNIT_FACTOR * parseFloat(bucket.lower)
+          const bucketUpper = Histogram.UNIT_FACTOR * parseFloat(bucket.upper)
+          const xLabel = Math.round((bucketLower + bucketUpper) / 2).toString()
+          const tooltipLabel = `${bucketLower.toFixed(1)} – ${bucketUpper.toFixed(1)}`
           if (!isNaN(bucket.elements)) {
             barData.push({
               name: xLabel,
