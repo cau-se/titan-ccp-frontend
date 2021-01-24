@@ -139,7 +139,10 @@ export default class Anomalies extends Vue {
           plotStartsWithZero: true,
           yAxisLabel: 'Active Power in kW',
           numberOfResolutionLevels: 3,
-          disableLegend: true
+          disableLegend: true,
+          plotLineWidth: 1.5,
+          markerFill: true,
+          areaFillGradient: true
         }
       )
 
@@ -150,7 +153,8 @@ export default class Anomalies extends Vue {
         sensor: this.internalSensor,
         timeMode: this.timeMode,
         onFinishedLoading: () => { this.isLoading = false },
-        xDomainCallback: this.updateAnomlies
+        xDomainCallback: this.updateAnomlies,
+        color: '#7bdcc0'
       })
     }
 }
