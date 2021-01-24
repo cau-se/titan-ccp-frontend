@@ -44,11 +44,13 @@ import { Interval } from 'luxon'
 import ColorRepository from '@/model/ColorRepository'
 import { HTTP } from '@/model/http-common'
 import TimeMode from '@/model/time-mode'
-import { Resolution, RawResolution, WindowedResolution } from '@/model/resolution'
+import { Resolution, RawResolution, ScalingResolution, WindowedResolution } from '@/model/resolution'
 import { SensorRegistry } from '@/model/SensorRegistry'
 
 import ComparisonPlot from '@/components/ComparisonPlot.vue'
 import ComparisonSettingHeader from '@/components/ComparisonSettingHeader.vue'
+
+import env from '@/util/Env'
 
 /* class Plot {
   readonly dataSets = new Array<DataSet>();
@@ -70,13 +72,14 @@ import ComparisonSettingHeader from '@/components/ComparisonSettingHeader.vue'
   }
 })
 export default class Comparision extends Vue {
-  private readonly DEFAULT_RESOLUTION = new RawResolution();
+  static readonly UNIT_FACTOR = parseFloat(env('VUE_APP_UNIT_FACTOR', '1'))
+  static readonly DEFAULT_RESOLUTION = new ScalingResolution(new RawResolution(), Comparision.UNIT_FACTOR);
 
   @Prop({ required: true }) sensorRegistry!: SensorRegistry;
 
   @Prop({ required: true }) timeMode!: TimeMode;
 
-  private resolution: Resolution = this.DEFAULT_RESOLUTION;
+  private resolution: Resolution = Comparision.DEFAULT_RESOLUTION;
 
   private range: Interval = Interval.fromDateTimes(
     this.timeMode.getTime().minus({ days: 7 }),
@@ -84,7 +87,7 @@ export default class Comparision extends Vue {
   );
 
   private availableResolutions: Resolution[] = [
-    this.DEFAULT_RESOLUTION
+    Comparision.DEFAULT_RESOLUTION
     // new WindowedResolution('minutely'),
     // new WindowedResolution('hourly')
     // new WindowedResolution('daily'),
@@ -123,7 +126,7 @@ export default class Comparision extends Vue {
   private async loadAvailableResolutions (): Promise<Resolution[]> {
     return HTTP.get('active-power/windowed').then(
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (response: any) => response.data.map((i: string) => new WindowedResolution(i))
+      (response: any) => response.data.map((i: string) => new ScalingResolution(new WindowedResolution(i), Comparision.UNIT_FACTOR))
     )
   }
 

@@ -50,6 +50,8 @@ import { Resolution } from '@/model/resolution'
 import { CanvasTimeSeriesPlot } from '@/model/canvasPlot/CanvasTimeSeriesPlot'
 import { DataPoint } from '@/model//TimeSeriesPlotManager'
 
+import env from '@/util/Env'
+
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 declare let d3version3: any
 
@@ -118,7 +120,7 @@ export default class ComparisonPlot extends Vue {
         this.canvasplotContainer.clientHeight
       ],
       {
-        yAxisLabel: 'Active Power in Watt',
+        yAxisLabel: env('VUE_APP_UNIT_FULL_LEGEND'),
         // plotMargins: { top: 20, right: 20, bottom: 30, left: this.yAxisSpacing },
         updateViewCallback: this.updatedView.bind(this)
       }
