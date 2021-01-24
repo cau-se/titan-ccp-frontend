@@ -49,3 +49,26 @@ export class WindowedResolution implements Resolution {
     return `active-power/windowed/${this.name}/${sensor.identifier}?from=${range.start.toMillis()}&to=${range.end.toMillis()}`
   }
 }
+
+export class ScalingResolution implements Resolution {
+  // eslint-disable-next-line no-useless-constructor
+  constructor (private readonly delegate: Resolution, private readonly factor: number) {}
+
+  get name () {
+    return this.delegate.name
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  accessValue (json: any, sensor: Sensor) {
+    return this.delegate.accessValue(json, sensor) * this.factor
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  accessTimestamp (json: any, sensor: Sensor) {
+    return this.delegate.accessTimestamp(json, sensor)
+  }
+
+  getQueryUrl (sensor: Sensor, range: Interval) {
+    return this.delegate.getQueryUrl(sensor, range)
+  }
+}

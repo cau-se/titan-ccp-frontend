@@ -21,6 +21,8 @@ import { CanvasTimeSeriesPlot } from '@/model/canvasPlot/CanvasTimeSeriesPlot'
 
 import LoadingSpinner from './LoadingSpinner.vue'
 
+import env from '@/util/Env'
+
 declare const d3version3: any // eslint-disable-line @typescript-eslint/no-explicit-any
 
 @Component({
@@ -74,7 +76,7 @@ export default class SensorHistoryPlot extends Vue {
       dimensions,
       {
         plotStartsWithZero: true,
-        yAxisLabel: 'Active Power in Watt',
+        yAxisLabel: env('VUE_APP_UNIT_FULL_LEGEND'),
         numberOfResolutionLevels: 3,
         disableLegend: true,
         plotLineWidth: 1.5,

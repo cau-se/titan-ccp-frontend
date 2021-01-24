@@ -9,8 +9,11 @@ import { DownloadManager } from './api'
 // import CanvasTimeSeriesPlot as interface only, shall not get instantiated here for loose coupling
 import { CanvasTimeSeriesPlot as TimeSeriesPlot } from '@/model/canvasPlot/CanvasTimeSeriesPlot'
 import { Sensor } from '@/model/SensorRegistry'
-import { RawResolution, Resolution, WindowedResolution } from '@/model/resolution'
+import { RawResolution, Resolution, ScalingResolution, WindowedResolution } from '@/model/resolution'
 import { HTTP } from '@/model/http-common'
+import env from '@/util/Env'
+
+const UNIT_FACTOR = parseFloat(env('VUE_APP_UNIT_FACTOR', '1'))
 
 interface PlotManagerConstructor {
   plot: TimeSeriesPlot;
@@ -29,7 +32,7 @@ interface PlotManagerConstructor {
  * It loads new data points every x seconds, handles zoom events in the plots and manages data prefetching.
  */
 export class TimeSeriesPlotManager {
-  private readonly DEFAULT_RESOLUTION = new RawResolution();
+  private readonly DEFAULT_RESOLUTION = new ScalingResolution(new RawResolution(), UNIT_FACTOR);
   private readonly resolutionToTimeRange = new Map<string, number>([
     ['minutely', 15 * 60 * 1000], // 15 minutes
     ['hourly', 11 * 60 * 60 * 1000], // 11 hours
@@ -114,7 +117,7 @@ export class TimeSeriesPlotManager {
 
   private async loadAvailableResolutions (): Promise<Resolution[]> {
     return await HTTP.get('active-power/windowed').then(
-      response => response.data.map((i: string) => new WindowedResolution(i))
+      response => response.data.map((i: string) => new ScalingResolution(new WindowedResolution(i), UNIT_FACTOR))
     )
   }
 
