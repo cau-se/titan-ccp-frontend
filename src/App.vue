@@ -40,6 +40,11 @@
                 </router-link>
               </li>
               <li class="nav-item">
+                <router-link to="/anomalies" class="nav-link">
+                  <font-awesome-icon icon="exclamation-triangle" fixed-width class="feather" />Anomalies
+                </router-link>
+              </li>
+              <li class="nav-item">
                 <router-link to="/sensor-management" class="nav-link">
                   <font-awesome-icon icon="sliders-h" fixed-width class="feather" />Sensor Management
                 </router-link>
