@@ -56,11 +56,12 @@ import TimeMode from '../model/time-mode'
 import AnomalyList from './AnomalyList.vue'
 import LoadingSpinner from './LoadingSpinner.vue'
 
-// eslint-disable-next-line @typescript-eslint/ban-ts-ignore
-// @ts-ignore
 import { CanvasTimeSeriesPlot } from '@/model/canvasPlot/CanvasTimeSeriesPlot'
 import { Interval } from 'luxon'
 import { TimeSeriesPlotManager } from '@/model/TimeSeriesPlotManager'
+
+import env from '@/util/Env'
+
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 declare let d3version3: any
 
@@ -122,6 +123,7 @@ export default class Anomalies extends Vue {
       this.fetchHistoryData()
     }
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     private updateAnomlies (timeDomain: any) {
       this.interval = Interval.fromDateTimes(
         new Date(timeDomain[0]),
@@ -137,7 +139,7 @@ export default class Anomalies extends Vue {
         dimensions,
         {
           plotStartsWithZero: true,
-          yAxisLabel: 'Active Power in kW',
+          yAxisLabel: env('VUE_APP_UNIT_FULL_LEGEND'),
           numberOfResolutionLevels: 3,
           disableLegend: true,
           plotLineWidth: 1.5,
