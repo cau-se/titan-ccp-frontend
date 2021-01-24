@@ -2,8 +2,8 @@
   <div id="app">
 
     <nav class="navbar navbar-dark sticky-top bg-dark flex-md-nowrap p-0">
-      <router-link to="/" class="navbar-brand col-sm-3 col-md-2 mr-0">
-        <img src="@/assets/titan-logo.svg" height="24" class="d-inline-block mr-2 align-middle" alt="">
+      <router-link to="/" class="navbar-brand bg-dark col-sm-3 col-md-2 mr-0">
+        <img src="@/assets/titan-logo.svg" height="28" class="d-inline-block mr-3 align-middle" alt="">
         <span class="align-middle">Titan Control Center</span>
       </router-link>
       <div class="container justify-content-end">
@@ -20,7 +20,7 @@
 
     <!--<div class="container-fluid">-->
     <div class="row no-gutters">
-      <nav class="col-md-2 d-none d-md-block bg-light sidebar">
+      <nav class="col-md-2 d-none d-md-block bg-dark sidebar">
         <div class="sidebar-sticky">
           <ul class="nav flex-column">
             <li class="nav-item">
@@ -177,32 +177,30 @@ export default class App extends Vue {
 .sidebar-sticky {
   /*position: -webkit-sticky;*/
   position: sticky;
-  top: 48px; /* Height of navbar */
-  height: calc(100vh - 48px);
+  top: 68px; /* Height of navbar */
+  height: calc(100vh - 68px);
   padding-top: 0.5rem;
   overflow-x: hidden;
   overflow-y: auto; /* Scrollable contents if viewport is shorter than content. */
 }
 
+.sidebar .nav-item {
+  padding: 0.25em;
+}
+
 .sidebar .nav-link {
   font-weight: 500;
-  color: #333;
+  color: rgba(255, 255, 255, 0.55);
 }
 
 .sidebar .nav-link .feather {
-  color: #aaa;
-  margin-right: 4px;
+  color: inheit;
+  margin-right: 16px;
 }
 
-/*
-.sidebar .nav-link.active {
-  color: #007bff;
-}
-*/
-
-.sidebar .nav-link:hover .feather,
-.sidebar .nav-link.router-link-active .feather {
-  color: inherit;
+.sidebar .nav-link:hover,
+.sidebar .nav-link.router-link-active {
+  color: #FFFFFF;
 }
 
 .sidebar-heading {
@@ -214,12 +212,17 @@ export default class App extends Vue {
  * Navbar
  */
 
+.navbar-dark {
+  background-color: #3c4450 !important;
+}
 .navbar-brand {
-  padding-top: 0.75rem;
-  padding-bottom: 0.75rem;
-  font-size: 1rem;
+  padding-top: 1.25rem;
+  padding-bottom: 1.25rem;
+  padding-left: 1.1rem;
+  padding-right: 1.1rem;
+  font-size: 1.25rem;
   line-height: 1rem;
-  background-color: rgba(0, 0, 0, 0.25);
+  /* background-color: rgba(0, 0, 0, 0.25); */
   box-shadow: inset -1px 0 0 rgba(0, 0, 0, 0.25);
 }
 
