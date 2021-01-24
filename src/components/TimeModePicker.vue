@@ -86,6 +86,6 @@ export default class TimeModePicker extends Vue {
 }
 
 .play-pause-button {
-  color: #aaa;
+  color: rgba(255, 255, 255, 0.85);
 }
 </style>

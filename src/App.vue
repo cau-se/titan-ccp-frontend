@@ -7,8 +7,13 @@
         <span class="align-middle">Titan Control Center</span>
       </router-link>
       <div class="container justify-content-end">
-        <ul class="navbar-nav">
-          <li class="nav-item text-nowrap">
+        <ul class="navbar-nav mr-4">
+          <li class="nav-item text-nowrap justify-content-end">
+            <a class="nav-link" href="https://titan.industrial-devops.org/">Titan Flow</a>
+          </li>
+        </ul>
+        <ul class="navbar-nav d-flex flex-row-reverse">
+          <li class="nav-item">
             <time-mode-picker
               :timeMode="timeMode"
               @update-timeMode="updateTimeMode">
@@ -224,6 +229,13 @@ export default class App extends Vue {
   line-height: 1rem;
   /* background-color: rgba(0, 0, 0, 0.25); */
   box-shadow: inset -1px 0 0 rgba(0, 0, 0, 0.25);
+}
+
+.navbar-nav .nav-link {
+  color: rgba(255, 255, 255, 0.85);
+  font-weight: 600;
+  letter-spacing: 0.04rem;
+  text-transform: uppercase;
 }
 
 .footer{
