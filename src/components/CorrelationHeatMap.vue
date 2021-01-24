@@ -2,10 +2,10 @@
   <div class="card">
     <div class="card-body">
       <b-row>
-        <b-col cols="9">
+        <b-col cols="8">
           <h5 class="card-title">Daily Composition</h5>
         </b-col>
-        <b-col cols="3">
+        <b-col cols="4">
           <b-form-select
             v-if="selectedInterval"
             v-model="selectedInterval"
