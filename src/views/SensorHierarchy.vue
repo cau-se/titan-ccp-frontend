@@ -37,11 +37,25 @@
       </b-col>
     </b-row>
     <b-row class="mb-4">
-      <b-col>
+      <b-col class="d-flex">
         <b-button :disabled="saving || demoMode" variant="success" @click="save">
           <font-awesome-icon v-if="saving" icon="spinner" spin />
           <template v-else>Save</template>
         </b-button>
+        <div class="flex-grow-1 ml-3">
+          <b-input-group v-if="showExport">
+            <b-input-group-prepend>
+              <b-button variant="outline-info" @click="toggleExport">Export</b-button>
+            </b-input-group-prepend>
+            <b-form-input v-if="showExport" :value="modifiableSensorRegistry.toJson()" @focus="$event.target.select()" autofocus readonly></b-form-input>
+            <!--<b-input-group-append v-if="showExport">
+              <b-button variant="secondary">Copy</b-button>
+            </b-input-group-append>-->
+          </b-input-group>
+          <b-button v-else @click="toggleExport" variant="outline-info">
+            Export
+          </b-button>
+        </div>
       </b-col>
     </b-row>
   </b-container>
@@ -84,6 +98,8 @@ export default class SensorHierarchy extends Vue {
   newAggregatedSensorName = '';
 
   collidedSensorIdentifier = null;
+
+  showExport = false;
 
   async created () {
     if (this.$route.params.id == null) {
@@ -134,6 +150,11 @@ export default class SensorHierarchy extends Vue {
 
       this.saving = false
     }
+  }
+
+  async toggleExport () {
+    this.showExport = !this.showExport
+    // this.$refs.export. $el.focus()
   }
 
   private addSensor () {
