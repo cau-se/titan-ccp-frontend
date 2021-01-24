@@ -76,7 +76,10 @@ export default class SensorHistoryPlot extends Vue {
         plotStartsWithZero: true,
         yAxisLabel: 'Active Power in Watt',
         numberOfResolutionLevels: 3,
-        disableLegend: true
+        disableLegend: true,
+        plotLineWidth: 1.5,
+        markerFill: true,
+        areaFillGradient: true
       }
     )
     this.plot.setZoomYAxis(false)
@@ -85,7 +88,8 @@ export default class SensorHistoryPlot extends Vue {
       plot: this.plot,
       sensor: this.sensor,
       timeMode: this.timeMode,
-      onFinishedLoading: () => { this.isLoading = false }
+      onFinishedLoading: () => { this.isLoading = false },
+      color: '#7bdcc0'
     })
   }
 }
