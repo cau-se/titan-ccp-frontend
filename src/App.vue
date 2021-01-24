@@ -48,7 +48,7 @@
       </nav>
 
       <div class="col-md-9 ml-sm-auto col-lg-10 d-flex flex-column">
-        <main role="main" class="pt-3 px-4 flex-fill">
+        <main role="main" class="pt-4 px-4 flex-fill">
           <loading-spinner :is-loading="isLoading" :is-error="isError">
             <router-view
               v-if="sensorRegistry != null"
