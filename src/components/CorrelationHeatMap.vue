@@ -19,7 +19,7 @@
           <strong> Legend</strong>
           <ul class="list-inline mt-2">
             <li v-for="i in ids.length" :key="i" class="list-inline-item">
-              <strong> &bull; {{ shortIds[i - 1] }}</strong>&nbsp;: {{ids[i - 1]}}
+              <strong> &bull; {{ shortIds[i - 1] }}</strong>&nbsp;: {{ids[i - 1].title}}
             </li>
           </ul>
       </div>
@@ -33,7 +33,7 @@ import { Vue, Component, Prop, Watch } from 'vue-property-decorator'
 
 import { DateTime, Interval } from 'luxon'
 import { HTTP } from '@/model/http-common'
-import { AggregatedSensor } from '@/model/SensorRegistry'
+import { AggregatedSensor, Sensor } from '@/model/SensorRegistry'
 import { select as d3select, Selection } from 'd3-selection'
 
 import LoadingSpinner from './LoadingSpinner.vue'
@@ -72,7 +72,7 @@ export default class CorrelationHeatMap extends Vue {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     private container!: Selection<any, unknown, null, undefined>;
     private readonly onSizeChanged = debounce(this.redrawChart, 600)
-    private ids: Array<string> = []
+    private ids: Array<Sensor> = []
     private shortIds: Array<string> = []
 
     get intervalSelectOptions (): Array<IntervalSelectOption> {
@@ -130,13 +130,13 @@ export default class CorrelationHeatMap extends Vue {
     private getIdentifiers () {
       return Promise.all(
         this.sensor.children.map(child => {
-          this.ids.push(child.identifier)
+          this.ids.push(child)
           // create short version of this as label
           let to = 2
-          let sid: string = child.identifier.substring(0, to)
-          while (this.shortIds.indexOf(sid) > -1 && to < child.identifier.length) {
+          let sid: string = child.title.substring(0, to)
+          while (this.shortIds.indexOf(sid) > -1 && to < child.title.length) {
             to++
-            sid = child.identifier.charAt(0) + child.identifier.charAt(to)
+            sid = child.title.charAt(0) + child.title.charAt(to)
           }
           this.shortIds.push(sid)
         })
@@ -162,8 +162,8 @@ export default class CorrelationHeatMap extends Vue {
       const defaultInterval = this.availableIntervals.find(interval => interval.end >= this.timeMode.getTime()) ||
         this.availableIntervals[this.availableIntervals.length - 1]
       const interval2 = interval || defaultInterval
-      Promise.all(this.ids.map((id: string) => {
-        const resource = `stats/sensor/${id}/hour-of-day?intervalStart=${this.dateTimeToBackendISO(interval2.start)}&intervalEnd=${this.dateTimeToBackendISO(interval2.end)}`
+      Promise.all(this.ids.map(id => {
+        const resource = `stats/sensor/${id.identifier}/hour-of-day?intervalStart=${this.dateTimeToBackendISO(interval2.start)}&intervalEnd=${this.dateTimeToBackendISO(interval2.end)}`
         return HTTP.get(resource)
           .then(response => {
             const heatMapData: Array <{ 'day': number; 'hour': number; 'value': number }> = []
