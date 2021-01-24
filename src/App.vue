@@ -8,8 +8,8 @@
       </router-link>
       <div class="container justify-content-end">
         <ul class="navbar-nav mr-4">
-          <li class="nav-item text-nowrap justify-content-end">
-            <a class="nav-link" href="https://titan.industrial-devops.org/">Titan Flow</a>
+          <li v-if="flowEngineUrl" class="nav-item text-nowrap justify-content-end">
+            <a class="nav-link" :href="flowEngineUrl">Titan Flow</a>
           </li>
         </ul>
         <ul class="navbar-nav d-flex flex-row-reverse">
@@ -110,6 +110,7 @@ export default class App extends Vue {
   private isLoading = false;
   private isError = false;
   private timeMode: TimeMode = App.getDefaultTimeMode();
+  private readonly flowEngineUrl?: string = env('VUE_APP_FLOW_ENGINE_URL');
 
   updateTimeMode (timeMode: TimeMode) {
     this.timeMode = timeMode
