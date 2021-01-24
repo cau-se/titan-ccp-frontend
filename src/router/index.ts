@@ -6,6 +6,7 @@ import SensorDetails from '@/views/SensorDetails.vue'
 import Comparison from '@/views/Comparison.vue'
 import SensorHierarchy from '@/views/SensorHierarchy.vue'
 import PageNotFound from '@/views/PageNotFound.vue'
+import Anomalie from '@/views/Anomalies.vue'
 
 Vue.use(VueRouter)
 
@@ -38,6 +39,11 @@ const routes: Array<RouteConfig> = [
     // this generates a separate chunk (about.[hash].js) for this route
     // which is lazy-loaded when the route is visited.
     component: () => import(/* webpackChunkName: "about" */ '../views/About.vue')
+  },
+  {
+    path: '/anomalies',
+    name: 'Anomlies',
+    component: Anomalie
   },
   {
     path: '*',

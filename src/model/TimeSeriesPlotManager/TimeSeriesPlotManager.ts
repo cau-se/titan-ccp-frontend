@@ -21,6 +21,7 @@ interface PlotManagerConstructor {
   plotStartsWithZero?: boolean;
   color?: string;
   onFinishedLoading?: () => void;
+  xDomainCallback?: (timeDomain: any) => void;
 }
 
 /**
@@ -50,6 +51,7 @@ export class TimeSeriesPlotManager {
   private oldYEnd: number;
   private latest: number;
   private downloadManager: DownloadManager;
+  private xDomainCallback?: (timeDomain: any) => void;
 
   /**
    * Constructor
@@ -67,6 +69,7 @@ export class TimeSeriesPlotManager {
     this.latestByResolution.set(this.DEFAULT_RESOLUTION, this.latest)
     this.oldYStart = 0
     this.oldYEnd = 0
+    this.xDomainCallback = config.xDomainCallback
 
     this.plot.setOnZoom(debounce(this.handleZoom, 100))
     this.downloadManager = new DownloadManager(
@@ -121,6 +124,7 @@ export class TimeSeriesPlotManager {
     const span = xDomain.getLength()
     let from = xDomain.start
     let to = xDomain.end
+    this.xDomainCallback && this.xDomainCallback(this.plot.getXDomain())
 
     // triple the size of the interval to fetch as a simple prefetch
     from -= span
