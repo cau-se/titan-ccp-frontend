@@ -169,7 +169,8 @@ export default class CompositionChart extends Vue {
       d3select('.js-inline-legend-chart-container .britechart-legend').remove()
       legendChart
         .width(containerWidth)
-        .height(30)
+        .height(40)
+        .margin({ top: 0, right: 0, bottom: 0, left: 0 })
         .numberFormat('s')
         .isHorizontal(true)
         .markerSize(10)
@@ -192,6 +193,6 @@ export default class CompositionChart extends Vue {
   }
   .js-inline-legend-chart-container {
     height: 20px;
-    padding-top: 10px;
+    padding-top: 0;
   }
 </style>
