@@ -120,11 +120,17 @@ export default class Histogram extends Vue {
     )
       .then(response => {
         // JSON responses are automatically parsed.
+        const maxValue = Math.floor(Histogram.UNIT_FACTOR * parseFloat(response.data[response.data.length - 1].upper))
+        console.log(maxValue)
+        const maxValueDigits = Math.log(maxValue) * Math.LOG10E + 1 | 0
+        console.log(maxValueDigits)
+        // We will show at most 3 decimals
+        const xLabelDigits = Math.max(3 - maxValueDigits, 0)
         for (const bucket of response.data) {
           const bucketLower = Histogram.UNIT_FACTOR * parseFloat(bucket.lower)
           const bucketUpper = Histogram.UNIT_FACTOR * parseFloat(bucket.upper)
-          const xLabel = Math.round((bucketLower + bucketUpper) / 2).toString()
-          const tooltipLabel = `${bucketLower.toFixed(1)} – ${bucketUpper.toFixed(1)}`
+          const xLabel = ((bucketLower + bucketUpper) / 2).toFixed(xLabelDigits)
+          const tooltipLabel = `${bucketLower.toFixed(xLabelDigits + 1)} – ${bucketUpper.toFixed(xLabelDigits + 1)}`
           if (!isNaN(bucket.elements)) {
             barData.push({
               name: xLabel,
