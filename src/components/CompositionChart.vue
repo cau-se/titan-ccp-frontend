@@ -84,8 +84,7 @@ export default class CompositionChart extends Vue {
   }
 
   private redrawChart () {
-    this.computeChartSize()
-    this.container.call(this.donutChart)
+    this.updateChart()
   }
 
   private computeChartSize () {
