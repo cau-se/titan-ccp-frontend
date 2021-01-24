@@ -10,7 +10,6 @@
             v-if="selectedInterval"
             v-model="selectedInterval"
             :options="intervalSelectOptions"
-            class="mb-3"
           ></b-form-select>
         </b-col>
       </b-row>
@@ -194,6 +193,7 @@ export default class StatsPlot extends Vue {
       .width(this.containerWidth)
       .height(this.containerHeight)
       .tooltipThreshold(600)
+      .lineCurve('basis')
       .grid('full')
       .xAxisFormat('custom')
       .xAxisCustomFormat(this.statsType.xAxisFormat)

@@ -42,7 +42,7 @@ export default class TimeModePicker extends Vue {
     getTime: () => this.timeMode.getTime()
   };
 
-  private date: string = new Date().toISOString();
+  private date: string = this.timeModeLocal.getTime().toJSDate().toISOString();
   private oldDate: string = this.date;
 
   private readonly flatPickrConfig = {
@@ -73,7 +73,7 @@ export default class TimeModePicker extends Vue {
         autoLoading: true,
         getTime: () => DateTime.local() // now
       }
-      this.date = new Date().toISOString()
+      this.date = new Date().toISOString() // now
     }
     this.$emit('update-timeMode', this.timeModeLocal)
   }
@@ -86,6 +86,6 @@ export default class TimeModePicker extends Vue {
 }
 
 .play-pause-button {
-  color: #aaa;
+  color: rgba(255, 255, 255, 0.85);
 }
 </style>

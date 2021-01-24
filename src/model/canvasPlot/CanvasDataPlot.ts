@@ -21,6 +21,7 @@ class CanvasDataPlot {
   gridColor: string;
   markerLineWidth: number;
   markerRadius: number;
+  markerFill: boolean;
   xTicksPerPixel: number;
   yTicksPerPixel: number;
   minCanvasWidth: number;
@@ -78,6 +79,7 @@ class CanvasDataPlot {
     this.gridColor = config.gridColor || '#DFDFDF'
     this.markerLineWidth = config.markerLineWidth || 1
     this.markerRadius = config.markerRadius || 3.0
+    this.markerFill = config.markerFill || false
     this.xTicksPerPixel = config.xTicksPerPixel || 1.0 / 92.0
     this.yTicksPerPixel = config.yTicksPerPixel || 1.0 / 40.0
     this.minCanvasWidth = config.minCanvasWidth || 250
@@ -603,6 +605,10 @@ class CanvasDataPlot {
       this.canvas.arc(this.xScale(d[i][0]), this.yScale(d[i][1]),
         this.markerRadius, 0, 2 * Math.PI)
       this.canvas.stroke()
+      if (this.markerFill) {
+        this.canvas.fillStyle = this.dataColors[dataIndex]
+        this.canvas.fill()
+      }
     }
   }
 

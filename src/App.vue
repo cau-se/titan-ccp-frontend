@@ -2,13 +2,18 @@
   <div id="app">
 
     <nav class="navbar navbar-dark sticky-top bg-dark flex-md-nowrap p-0">
-      <router-link to="/" class="navbar-brand col-sm-3 col-md-2 mr-0">
-        <img src="@/assets/titan-logo.svg" height="24" class="d-inline-block mr-2 align-middle" alt="">
+      <router-link to="/" class="navbar-brand bg-dark col-sm-3 col-md-2 mr-0">
+        <img src="@/assets/titan-logo.svg" height="28" class="d-inline-block mr-3 align-middle" alt="">
         <span class="align-middle">Titan Control Center</span>
       </router-link>
       <div class="container justify-content-end">
-        <ul class="navbar-nav">
-          <li class="nav-item text-nowrap">
+        <ul class="navbar-nav mr-4">
+          <li class="nav-item text-nowrap justify-content-end">
+            <a class="nav-link" href="https://titan.industrial-devops.org/">Titan Flow</a>
+          </li>
+        </ul>
+        <ul class="navbar-nav d-flex flex-row-reverse">
+          <li class="nav-item">
             <time-mode-picker
               :timeMode="timeMode"
               @update-timeMode="updateTimeMode">
@@ -20,7 +25,7 @@
 
     <!--<div class="container-fluid">-->
     <div class="row no-gutters">
-      <nav class="col-md-2 d-none d-md-block bg-light sidebar">
+      <nav class="col-md-2 d-none d-md-block bg-dark sidebar">
         <div class="sidebar-sticky">
           <ul class="nav flex-column">
             <li class="nav-item">
@@ -53,7 +58,7 @@
       </nav>
 
       <div class="col-md-9 ml-sm-auto col-lg-10 d-flex flex-column">
-        <main role="main" class="pt-3 px-4 flex-fill">
+        <main role="main" class="pt-4 px-4 flex-fill">
           <loading-spinner :is-loading="isLoading" :is-error="isError">
             <router-view
               v-if="sensorRegistry != null"
@@ -89,6 +94,7 @@ import { Component, Vue } from 'vue-property-decorator'
 import { DateTime } from 'luxon'
 import { SensorRegistry, SensorRegistryRequester } from '@/model/SensorRegistry'
 import TimeMode from '@/model/time-mode'
+import env from '@/util/Env'
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 // import BootstrapVue from 'bootstrap-vue'
@@ -108,10 +114,7 @@ export default class App extends Vue {
   private sensorRegistry: SensorRegistry | null = null;
   private isLoading = false;
   private isError = false;
-  private timeMode: TimeMode = {
-    autoLoading: true,
-    getTime: () => DateTime.local() // now
-  };
+  private timeMode: TimeMode = App.getDefaultTimeMode();
 
   updateTimeMode (timeMode: TimeMode) {
     this.timeMode = timeMode
@@ -137,6 +140,21 @@ export default class App extends Vue {
         this.sensorRegistry = registry
         return registry
       })
+  }
+
+  static getDefaultTimeMode () {
+    const timeModeNow = env('VUE_APP_TIME_MODE_NOW')
+    if (timeModeNow === undefined) {
+      return {
+        autoLoading: true,
+        getTime: () => DateTime.local() // now
+      }
+    } else {
+      return {
+        autoLoading: false,
+        getTime: () => DateTime.fromISO(timeModeNow)
+      }
+    }
   }
 }
 </script>
@@ -169,32 +187,30 @@ export default class App extends Vue {
 .sidebar-sticky {
   /*position: -webkit-sticky;*/
   position: sticky;
-  top: 48px; /* Height of navbar */
-  height: calc(100vh - 48px);
+  top: 68px; /* Height of navbar */
+  height: calc(100vh - 68px);
   padding-top: 0.5rem;
   overflow-x: hidden;
   overflow-y: auto; /* Scrollable contents if viewport is shorter than content. */
 }
 
+.sidebar .nav-item {
+  padding: 0.25em;
+}
+
 .sidebar .nav-link {
   font-weight: 500;
-  color: #333;
+  color: rgba(255, 255, 255, 0.55);
 }
 
 .sidebar .nav-link .feather {
-  color: #aaa;
-  margin-right: 4px;
+  color: inheit;
+  margin-right: 16px;
 }
 
-/*
-.sidebar .nav-link.active {
-  color: #007bff;
-}
-*/
-
-.sidebar .nav-link:hover .feather,
-.sidebar .nav-link.router-link-active .feather {
-  color: inherit;
+.sidebar .nav-link:hover,
+.sidebar .nav-link.router-link-active {
+  color: #FFFFFF;
 }
 
 .sidebar-heading {
@@ -206,13 +222,25 @@ export default class App extends Vue {
  * Navbar
  */
 
+.navbar-dark {
+  background-color: #3c4450 !important;
+}
 .navbar-brand {
-  padding-top: 0.75rem;
-  padding-bottom: 0.75rem;
-  font-size: 1rem;
+  padding-top: 1.25rem;
+  padding-bottom: 1.25rem;
+  padding-left: 1.1rem;
+  padding-right: 1.1rem;
+  font-size: 1.25rem;
   line-height: 1rem;
-  background-color: rgba(0, 0, 0, 0.25);
+  /* background-color: rgba(0, 0, 0, 0.25); */
   box-shadow: inset -1px 0 0 rgba(0, 0, 0, 0.25);
+}
+
+.navbar-nav .nav-link {
+  color: rgba(255, 255, 255, 0.85);
+  font-weight: 600;
+  letter-spacing: 0.04rem;
+  text-transform: uppercase;
 }
 
 .footer{

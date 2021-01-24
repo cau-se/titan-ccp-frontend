@@ -10,6 +10,7 @@ class CanvasTimeSeriesPlot extends CanvasDataPlot {
   private plotLineWidth: number;
   private showMarkerDensity: number;
   private maxInformationDensity: number;
+  private areaFillGradient: boolean;
   localTimeFormat: boolean;
 
   public constructor (parentElement: HTMLElement, canvasDimensions: Array<number>, config: any) {
@@ -21,6 +22,7 @@ class CanvasTimeSeriesPlot extends CanvasDataPlot {
     this.plotLineWidth = config.plotLineWidth || 1
     this.maxInformationDensity = config.maxInformationDensity || 2.0
     this.showMarkerDensity = config.showMarkerDensity || 0.14
+    this.areaFillGradient = config.areaFillGradient || false
 
     this.setupXScaleAndAxis()
   }
@@ -177,12 +179,13 @@ class CanvasTimeSeriesPlot extends CanvasDataPlot {
 
     // Make iStart divisivble by drawEvery to prevent flickering graphs while panning
     iStart = Math.max(0, iStart - iStart % drawEvery)
+    let maxY = this.yScale(0)
 
     this.canvas.beginPath()
     this.canvas.moveTo(this.xScale(d[iStart][0]), this.yScale(d[iStart][1]))
     for (let i = iStart; i <= iEnd; i = i + drawEvery) {
-      this.canvas.lineTo(this.xScale(d[i][0]),
-        this.yScale(d[i][1]))
+      this.canvas.lineTo(this.xScale(d[i][0]), this.yScale(d[i][1]))
+      maxY = Math.max(maxY, this.yScale(d[i][1]))
     }
     const iLast = Math.min(d.length - 1, iEnd + drawEvery)
     this.canvas.lineTo(this.xScale(d[iLast][0]),
@@ -191,6 +194,18 @@ class CanvasTimeSeriesPlot extends CanvasDataPlot {
     this.canvas.strokeStyle = this.dataColors[dataIndex]
     this.canvas.stroke()
 
+    if (this.areaFillGradient) {
+      this.canvas.lineTo(this.xScale(d[iLast][0]), this.yScale(0))
+      this.canvas.lineTo(this.xScale(d[iStart][0]), this.yScale(0))
+      const color = d3.rgb(this.dataColors[dataIndex])
+      // this.canvas.fillStyle = `rgba(${color.r},${color.g},${color.b},0.25)`
+      const grd = this.canvas.createLinearGradient(0, maxY, 0, 0)
+      grd.addColorStop(1, `rgba(${color.r},${color.g},${color.b},0.5)`)
+      grd.addColorStop(0, `rgba(${color.r},${color.g},${color.b},0.0)`)
+      this.canvas.fillStyle = grd
+      this.canvas.fill()
+    }
+
     if (informationDensity <= this.showMarkerDensity) {
       this.canvas.lineWidth = this.markerLineWidth
       for (let i = iStart; i <= iLast; ++i) {
@@ -198,6 +213,10 @@ class CanvasTimeSeriesPlot extends CanvasDataPlot {
         this.canvas.arc(this.xScale(d[i][0]), this.yScale(d[i][1]),
           this.markerRadius, 0, 2 * Math.PI)
         this.canvas.stroke()
+        if (this.markerFill) {
+          this.canvas.fillStyle = this.dataColors[dataIndex]
+          this.canvas.fill()
+        }
       }
     }
   }

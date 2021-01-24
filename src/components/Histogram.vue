@@ -22,6 +22,7 @@ import debounce from 'lodash.debounce'
 import { HTTP } from '@/model/http-common'
 import { Sensor, AggregatedSensor } from '@/model/SensorRegistry'
 import TimeMode from '@/model/time-mode'
+import env from '@/util/Env'
 
 import LoadingSpinner from '@/components/LoadingSpinner.vue'
 
@@ -32,6 +33,8 @@ import LoadingSpinner from '@/components/LoadingSpinner.vue'
 })
 export default class Histogram extends Vue {
   static readonly BUCKET_LABEL_BREAKPOINT = 16;
+  static readonly TIME_SPAN_IN_SEC = 1000 * parseInt(env('VUE_APP_BASE_RECORD_FREQ_SEC'))
+  static readonly UNIT_FACTOR = parseFloat(env('VUE_APP_UNIT_FACTOR', '1'))
 
   @Prop({ required: true }) sensor!: Sensor
   @Prop({ required: true }) timeMode!: TimeMode
@@ -82,6 +85,11 @@ export default class Histogram extends Vue {
     window.addEventListener('resize', throttledRedraw)
   }
 
+  @Watch('timeMode')
+  onTimeModeChanged () {
+    this.updateHistogram()
+  }
+
   @Watch('sensor')
   onSensorChanged () {
     this.updateHistogram()
@@ -94,7 +102,10 @@ export default class Histogram extends Vue {
       ? 'active-power/aggregated'
       : 'active-power/raw'
     // Distribution of last hour
-    const after = this.timeMode.getTime().minus({ hours: 1 })
+    // const after = this.timeMode.getTime().minus({ hours: 1 })
+    // Distribution of calculated time span
+    const after = this.timeMode.getTime().minus({ seconds: Histogram.TIME_SPAN_IN_SEC })
+
     const to = this.timeMode.getTime()
     HTTP.get(
       resource +
@@ -110,10 +121,10 @@ export default class Histogram extends Vue {
       .then(response => {
         // JSON responses are automatically parsed.
         for (const bucket of response.data) {
-          const xLabel = Math.round(
-            (parseFloat(bucket.lower) + parseFloat(bucket.upper)) / 2)
-            .toString()
-          const tooltipLabel = `${bucket.lower.toFixed(1)} – ${bucket.upper.toFixed(1)}`
+          const bucketLower = Histogram.UNIT_FACTOR * parseFloat(bucket.lower)
+          const bucketUpper = Histogram.UNIT_FACTOR * parseFloat(bucket.upper)
+          const xLabel = Math.round((bucketLower + bucketUpper) / 2).toString()
+          const tooltipLabel = `${bucketLower.toFixed(1)} – ${bucketUpper.toFixed(1)}`
           if (!isNaN(bucket.elements)) {
             barData.push({
               name: xLabel,
