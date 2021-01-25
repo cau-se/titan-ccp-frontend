@@ -121,9 +121,7 @@ export default class Histogram extends Vue {
       .then(response => {
         // JSON responses are automatically parsed.
         const maxValue = Math.floor(Histogram.UNIT_FACTOR * parseFloat(response.data[response.data.length - 1].upper))
-        console.log(maxValue)
         const maxValueDigits = Math.log(maxValue) * Math.LOG10E + 1 | 0
-        console.log(maxValueDigits)
         // We will show at most 3 decimals
         const xLabelDigits = Math.max(3 - maxValueDigits, 0)
         for (const bucket of response.data) {
