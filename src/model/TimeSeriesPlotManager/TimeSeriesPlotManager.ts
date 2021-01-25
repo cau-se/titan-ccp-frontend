@@ -33,10 +33,12 @@ interface PlotManagerConstructor {
  */
 export class TimeSeriesPlotManager {
   private readonly DEFAULT_RESOLUTION = new ScalingResolution(new RawResolution(), UNIT_FACTOR);
+  // TODO Use Luxon Duration here
   private readonly resolutionToTimeRange = new Map<string, number>([
     ['minutely', 15 * 60 * 1000], // 15 minutes
-    ['hourly', 11 * 60 * 60 * 1000], // 11 hours
-    ['monthly', 30 * 24 * 60 * 60 * 1000] // 30 days
+    ['hourly', 7 * 24 * 60 * 60 * 1000], // 7 days
+    ['daily', 120 * 24 * 60 * 60 * 1000], // 120 days
+    ['monthly', 4 * 365 * 24 * 60 * 60 * 1000] // 4 years
   ]);
 
   private readonly plot: TimeSeriesPlot;
