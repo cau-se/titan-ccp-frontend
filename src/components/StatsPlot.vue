@@ -5,11 +5,13 @@
         <b-col cols="6">
           <h5 class="card-title">{{ statsType.title }}</h5>
         </b-col>
-        <b-col cols="6">
+        <b-col cols="6" class="d-flex justify-content-end">
           <b-form-select
             v-if="selectedInterval"
             v-model="selectedInterval"
             :options="intervalSelectOptions"
+            size="sm"
+            class="w-auto"
           ></b-form-select>
         </b-col>
       </b-row>
