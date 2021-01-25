@@ -24,6 +24,7 @@ interface PlotManagerConstructor {
   plotStartsWithZero?: boolean;
   color?: string;
   onFinishedLoading?: () => void;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   xDomainCallback?: (timeDomain: any) => void;
 }
 
@@ -56,6 +57,7 @@ export class TimeSeriesPlotManager {
   private oldYEnd: number;
   private latest: number;
   private downloadManager: DownloadManager;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private xDomainCallback?: (timeDomain: any) => void;
 
   /**
