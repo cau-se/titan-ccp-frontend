@@ -1,6 +1,6 @@
 # Titan Control Center - Visualization Frontend
 
-The [Titan Control Center](https://ieeexplore.ieee.org/abstract/document/8822045)
+The [Titan Control Center](https://doi.org/10.1016/j.simpa.2020.100050)
 is a scalable monitoring infrastructure for [Industrial DevOps](https://industrial-devops.org/).
 It allows to monitor, analyze and visualize the electrical power consumption of
 devices and machines in industrial production environments.
@@ -66,4 +66,24 @@ To start a container execute:
 
 ```shell
 docker run --rm --name titan-ccp-frontend -p <port>:8080 -e "SENSOR_MANAGEMENT_BASE_URL=http://<host>:<port>" -e "HISTORY_BASE_URL=http://<host>:<port>" -e "STATS_BASE_URL=http://<host>:<port>" -d titan-ccp-frontend
+```
+
+## Reference
+
+Please cite the Titan Control Center as follows:
+
+> S. Henning, W. Hasselbring, *The Titan Control Center for Industrial DevOps analytics research*, Software Impacts 7 (2021), DOI: [10.1016/j.simpa.2020.100050](https://doi.org/10.1016/j.simpa.2020.100050).
+
+BibTeX:
+
+```bibtex
+@article{Henning2021,
+    title = {The Titan Control Center for Industrial DevOps analytics research},
+    journal = {Software Impacts},
+    volume = {7},
+    pages = {100050},
+    year = {2021},
+    doi = {10.1016/j.simpa.2020.100050},
+    author = {Sören Henning and Wilhelm Hasselbring},
+}
 ```
